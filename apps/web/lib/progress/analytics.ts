@@ -1,0 +1,246 @@
+import type { ProgressItem, ProgressState } from '@/lib/progress/storage';
+import type { QuestionRecord } from '@/lib/content/types';
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface QuestionStats {
+  questionId: number;
+  totalAttempts: number;
+  correctCount: number;
+  accuracy: number;
+  lastAttemptedAt: string | null;
+  lastStatus: 'correct' | 'incorrect' | null;
+}
+
+export interface TagStats {
+  tag: string;
+  totalAttempts: number;
+  correctCount: number;
+  accuracy: number;
+  questionCount: number;
+}
+
+export interface OverallStats {
+  totalAnswered: number;
+  totalCorrect: number;
+  totalAttempts: number;
+  overallAccuracy: number;
+  bookmarkedCount: number;
+  currentStreak: number;
+  longestStreak: number;
+}
+
+export interface DailyActivity {
+  date: string;
+  attempts: number;
+  correct: number;
+}
+
+// ---------------------------------------------------------------------------
+// Pure computation functions
+// ---------------------------------------------------------------------------
+
+export function computeQuestionStats(item: ProgressItem): QuestionStats {
+  const totalAttempts = item.attempts.length;
+  const correctCount = item.attempts.filter((a) => a.status === 'correct').length;
+  const lastAttempt = item.attempts[totalAttempts - 1] ?? null;
+
+  return {
+    questionId: item.questionId,
+    totalAttempts,
+    correctCount,
+    accuracy: totalAttempts > 0 ? correctCount / totalAttempts : 0,
+    lastAttemptedAt: lastAttempt?.attemptedAt ?? null,
+    lastStatus: lastAttempt?.status ?? null,
+  };
+}
+
+export function computeTagStats(
+  progress: ProgressState,
+  questions: QuestionRecord[],
+): TagStats[] {
+  const tagMap = new Map<string, { attempts: number; correct: number; questions: Set<number> }>();
+
+  const questionTagMap = new Map<number, string[]>();
+  for (const q of questions) {
+    questionTagMap.set(q.id, q.tags);
+  }
+
+  for (const item of Object.values(progress.questions)) {
+    const tags = questionTagMap.get(item.questionId) ?? [];
+    for (const tag of tags) {
+      let entry = tagMap.get(tag);
+      if (!entry) {
+        entry = { attempts: 0, correct: 0, questions: new Set() };
+        tagMap.set(tag, entry);
+      }
+      entry.questions.add(item.questionId);
+      entry.attempts += item.attempts.length;
+      entry.correct += item.attempts.filter((a) => a.status === 'correct').length;
+    }
+  }
+
+  return Array.from(tagMap.entries())
+    .map(([tag, data]) => ({
+      tag,
+      totalAttempts: data.attempts,
+      correctCount: data.correct,
+      accuracy: data.attempts > 0 ? data.correct / data.attempts : 0,
+      questionCount: data.questions.size,
+    }))
+    .sort((a, b) => b.totalAttempts - a.totalAttempts);
+}
+
+export function computeOverallStats(progress: ProgressState): OverallStats {
+  const items = Object.values(progress.questions);
+  let totalAttempts = 0;
+  let totalCorrect = 0;
+  let bookmarkedCount = 0;
+  let totalAnswered = 0;
+
+  for (const item of items) {
+    if (item.attempts.length > 0) {
+      totalAnswered++;
+      totalAttempts += item.attempts.length;
+      totalCorrect += item.attempts.filter((a) => a.status === 'correct').length;
+    }
+    if (item.bookmarked) bookmarkedCount++;
+  }
+
+  const { current, longest } = computeStreak(progress);
+
+  return {
+    totalAnswered,
+    totalCorrect,
+    totalAttempts,
+    overallAccuracy: totalAttempts > 0 ? totalCorrect / totalAttempts : 0,
+    bookmarkedCount,
+    currentStreak: current,
+    longestStreak: longest,
+  };
+}
+
+export function computeStreak(progress: ProgressState): { current: number; longest: number } {
+  const daySet = new Set<string>();
+
+  for (const item of Object.values(progress.questions)) {
+    for (const attempt of item.attempts) {
+      daySet.add(attempt.attemptedAt.slice(0, 10));
+    }
+  }
+
+  if (daySet.size === 0) return { current: 0, longest: 0 };
+
+  const days = Array.from(daySet).sort();
+  let longest = 1;
+  let currentRun = 1;
+
+  for (let i = 1; i < days.length; i++) {
+    const prev = new Date(days[i - 1]);
+    const curr = new Date(days[i]);
+    const diff = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (diff === 1) {
+      currentRun++;
+      if (currentRun > longest) longest = currentRun;
+    } else {
+      currentRun = 1;
+    }
+  }
+
+  // Check if the current streak includes today or yesterday
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const lastDay = days[days.length - 1];
+
+  let current = 0;
+  if (lastDay === today || lastDay === yesterday) {
+    current = 1;
+    for (let i = days.length - 2; i >= 0; i--) {
+      const prev = new Date(days[i]);
+      const curr = new Date(days[i + 1]);
+      const diff = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+      if (diff === 1) {
+        current++;
+      } else {
+        break;
+      }
+    }
+  }
+
+  return { current, longest };
+}
+
+export function computeDailyActivity(progress: ProgressState): DailyActivity[] {
+  const dayMap = new Map<string, { attempts: number; correct: number }>();
+
+  for (const item of Object.values(progress.questions)) {
+    for (const attempt of item.attempts) {
+      const date = attempt.attemptedAt.slice(0, 10);
+      let entry = dayMap.get(date);
+      if (!entry) {
+        entry = { attempts: 0, correct: 0 };
+        dayMap.set(date, entry);
+      }
+      entry.attempts++;
+      if (attempt.status === 'correct') entry.correct++;
+    }
+  }
+
+  return Array.from(dayMap.entries())
+    .map(([date, data]) => ({ date, ...data }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function getWeakestTopics(tagStats: TagStats[], limit = 5): TagStats[] {
+  return tagStats
+    .filter((t) => t.totalAttempts >= 2)
+    .sort((a, b) => a.accuracy - b.accuracy)
+    .slice(0, limit);
+}
+
+export function getReviewQueue(
+  progress: ProgressState,
+  questions: QuestionRecord[],
+  limit = 10,
+): QuestionRecord[] {
+  const now = Date.now();
+  const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+
+  const questionMap = new Map(questions.map((q) => [q.id, q]));
+
+  interface ScoredQuestion {
+    question: QuestionRecord;
+    priority: number;
+  }
+
+  const scored: ScoredQuestion[] = [];
+
+  for (const q of questions) {
+    const item = progress.questions[String(q.id)];
+
+    if (!item || item.attempts.length === 0) {
+      // Never attempted — low priority
+      scored.push({ question: q, priority: 1 });
+      continue;
+    }
+
+    const lastAttempt = item.attempts[item.attempts.length - 1];
+    const lastTime = new Date(lastAttempt.attemptedAt).getTime();
+
+    if (lastAttempt.status === 'incorrect') {
+      // Wrong recently — highest priority
+      scored.push({ question: q, priority: 3 });
+    } else if (lastTime < sevenDaysAgo) {
+      // Not attempted in 7+ days — medium priority
+      scored.push({ question: q, priority: 2 });
+    }
+  }
+
+  return scored
+    .sort((a, b) => b.priority - a.priority)
+    .slice(0, limit)
+    .map((s) => s.question);
+}

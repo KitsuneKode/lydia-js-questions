@@ -11,11 +11,17 @@
   --border: 223 17% 24%;
   --primary: 41 44% 62%;
   --primary-foreground: 220 35% 7%;
-  --accent: 205 40% 58%;
+  --accent: 210 70% 65%;
+  --accent-foreground: 220 35% 7%;
   --success: 143 48% 60%;
   --warning: 33 92% 65%;
   --danger: 4 78% 62%;
   --radius: 0.9rem;
+  --chart-1: 41 44% 62%;
+  --chart-2: 210 70% 65%;
+  --chart-3: 143 48% 60%;
+  --chart-4: 33 92% 65%;
+  --chart-5: 280 50% 65%;
 }
 
 * {
@@ -59,6 +65,8 @@ body {
 
 a {
   color: hsl(var(--accent));
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 a:hover {

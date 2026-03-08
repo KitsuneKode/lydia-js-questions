@@ -2,17 +2,19 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
 import { Bookmark, CheckCircle2, CircleAlert, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import type { QuestionRecord } from '@/lib/content/types';
+import type { TimelineEvent } from '@/lib/run/types';
 import { useQuestionProgress } from '@/lib/progress/use-question-progress';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Markdown } from '@/components/markdown';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ExecutionFlow } from '@/components/visualization/execution-flow';
 
 const CodePlayground = dynamic(
   () => import('@/components/code-playground').then((mod) => mod.CodePlayground),
@@ -31,6 +33,7 @@ interface QuestionClientShellProps {
 export function QuestionClientShell({ question, prevId, nextId }: QuestionClientShellProps) {
   const [selected, setSelected] = useState<'A' | 'B' | 'C' | 'D' | null>(null);
   const [activeTab, setActiveTab] = useState<'explain' | 'run' | 'visualize'>('explain');
+  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
 
   const { ready, item, saveAttempt, toggleBookmark } = useQuestionProgress(question.id);
 
@@ -38,25 +41,10 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
   const isCorrect = selected !== null && selected === question.correctOption;
   const answerTone = isCorrect ? 'success' : 'danger';
 
-  const conceptualFlow = useMemo(() => {
-    if (question.tags.includes('async')) {
-      return ['Synchronous execution starts', 'Async tasks enqueue in micro/macro queues', 'Call stack clears', 'Microtasks resolve before macrotasks'];
-    }
-
-    if (question.tags.includes('scope')) {
-      return ['Execution context is created', 'Declarations are hoisted', 'Scopes are resolved by lexical chain', 'Runtime output follows scope rules'];
-    }
-
-    if (question.tags.includes('objects')) {
-      return ['Values are assigned', 'Reference/value behavior applies', 'Mutations propagate by reference', 'Output reflects object identity'];
-    }
-
-    return ['Read question prompt', 'Pick an answer option', 'Reveal explanation', 'Run and inspect behavior'];
-  }, [question.tags]);
-
   useEffect(() => {
     setSelected(null);
     setActiveTab('explain');
+    setTimeline([]);
   }, [question.id]);
 
   return (
@@ -194,24 +182,11 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
               </TabsContent>
 
               <TabsContent value="run">
-                <CodePlayground question={question} />
+                <CodePlayground question={question} onTimelineUpdate={setTimeline} />
               </TabsContent>
 
               <TabsContent value="visualize">
-                <div className="space-y-4 rounded-lg border border-border bg-black/10 p-4">
-                  <p className="text-sm text-muted-foreground">Concept sequence for this question</p>
-                  <ol className="space-y-2">
-                    {conceptualFlow.map((step, index) => (
-                      <li key={step} className="flex items-start gap-3 rounded-md border border-border bg-card/70 p-3 text-sm">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs text-primary">{index + 1}</span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-                  <p className="text-xs text-muted-foreground">
-                    Run tab contains live timeline instrumentation for console, microtasks, and macrotasks.
-                  </p>
-                </div>
+                <ExecutionFlow question={question} timeline={timeline} />
               </TabsContent>
             </Tabs>
           </CardContent>

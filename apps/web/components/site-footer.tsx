@@ -8,7 +8,7 @@ export function SiteFooter() {
           Built from Lydia Hallie&apos;s JavaScript Questions repository. Explore, run, and visualize concepts with an interactive study experience.
         </p>
         <p className="mt-2">
-          Source: <Link href="https://github.com/lydiahallie/javascript-questions">github.com/lydiahallie/javascript-questions</Link>
+          Source: <Link href="https://github.com/lydiahallie/javascript-questions" className="text-foreground underline">github.com/lydiahallie/javascript-questions</Link>
         </p>
       </div>
     </footer>

@@ -1,10 +1,14 @@
 import type { Metadata } from 'next';
 import { Fraunces, Source_Sans_3 } from 'next/font/google';
-
 import './globals.css';
 
+import { Toaster } from 'sonner';
+
+import { AuthProvider } from '@/components/auth-provider';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { ProgressProvider } from '@/lib/progress/progress-context';
+import { NotificationManager } from '@/components/notification-manager';
 
 const display = Fraunces({
   subsets: ['latin'],
@@ -25,12 +29,27 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body className="grain-overlay antialiased">
-        <SiteHeader />
-        {children}
-        <SiteFooter />
-      </body>
-    </html>
+    <AuthProvider>
+      <html lang="en" className={`${display.variable} ${body.variable}`}>
+        <body className="grain-overlay antialiased">
+          <ProgressProvider>
+            <SiteHeader />
+            {children}
+            <SiteFooter />
+            <NotificationManager />
+            <Toaster
+              theme="dark"
+              toastOptions={{
+                style: {
+                  background: 'hsl(224, 28%, 10%)',
+                  border: '1px solid hsl(223, 17%, 24%)',
+                  color: 'hsl(38, 32%, 92%)',
+                },
+              }}
+            />
+          </ProgressProvider>
+        </body>
+      </html>
+    </AuthProvider>
   );
 }

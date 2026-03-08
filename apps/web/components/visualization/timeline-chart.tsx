@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 import type { TimelineEvent } from '@/lib/run/types';
 import { Badge } from '@/components/ui/badge';
