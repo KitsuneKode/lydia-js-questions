@@ -1,16 +1,17 @@
 {
   "name": "js-mastery-atlas",
   "private": true,
+  "packageManager": "bun@1.3.9",
   "scripts": {
     "sync:upstream": "bun scripts/sync-upstream.mjs",
     "parse:questions": "bun scripts/parse-readme.mjs",
     "content:refresh": "bun run sync:upstream && bun run parse:questions",
-    "dev": "cd apps/web && bun dev --hostname 0.0.0.0",
-    "build": "cd apps/web && bun run build",
-    "start": "cd apps/web && bun start",
-    "lint": "cd apps/web && bun lint",
-    "typecheck": "cd apps/web && bun run typecheck",
-    "test": "cd apps/web && bun run test",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
     "prepare": "husky"
   },
   "workspaces": [
@@ -29,6 +30,7 @@
     "@commitlint/config-conventional": "^20.4.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "markdownlint-cli2": "^0.21.0"
+    "markdownlint-cli2": "^0.21.0",
+    "turbo": "^2.8.17"
   }
 }
