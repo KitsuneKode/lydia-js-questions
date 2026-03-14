@@ -69,12 +69,6 @@ export function ExecutionFlow({ question, timeline }: ExecutionFlowProps) {
   const [activeStep, setActiveStep] = useState(-1);
   const [playing, setPlaying] = useState(false);
 
-  // Reset on question change
-  useEffect(() => {
-    setActiveStep(-1);
-    setPlaying(false);
-  }, [question.id]);
-
   // Auto-advance when playing
   useEffect(() => {
     if (!playing) return;

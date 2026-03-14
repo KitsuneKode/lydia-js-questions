@@ -2,6 +2,7 @@ import { Container } from '@/components/container';
 import { FiltersBar } from '@/components/filters-bar';
 import { PaginationNav } from '@/components/pagination-nav';
 import { QuestionsResults } from '@/components/questions-results';
+import { NextRecommendedBanner } from '@/components/next-recommended-banner';
 import { applyServerFilters, paginate } from '@/lib/content/query';
 import { getManifest, getQuestions } from '@/lib/content/loaders';
 
@@ -55,27 +56,40 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
   return (
     <main className="py-8 md:py-10">
       <Container>
-        <section className="space-y-6">
+        <div className="space-y-10">
           <header className="space-y-2">
-            <h1 className="font-display text-4xl text-foreground md:text-5xl">Question Library</h1>
-            <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
-              Search by keyword, filter by concept cloak, and jump through paginated sections of the dataset.
+            <h1 className="font-display text-4xl font-medium tracking-tight text-foreground md:text-5xl">Question Library</h1>
+            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
+              Explore the dataset of JavaScript interview questions. Commit to an answer before seeing the explanation, then run and visualize the code to master the behavior.
             </p>
           </header>
 
-          <FiltersBar tags={manifest.tags} selectedTag={tag || 'all'} search={q} runnable={runnable} status={status} />
+          <NextRecommendedBanner questions={allQuestions} />
 
-          <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
-            <p>
-              Showing {paged.items.length} of {paged.total} matching questions on this page before local status filtering
-            </p>
-            <p>Page {paged.page}</p>
-          </div>
+          <section className="space-y-6">
+            <FiltersBar
+              tags={manifest.tags}
+              selectedTag={tag || 'all'}
+              search={q}
+              runnable={runnable}
+              status={status}
+              totalQuestions={allQuestions.length}
+            />
 
-          <QuestionsResults questions={paged.items} status={status} />
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+              <p>
+                Showing {paged.items.length} of {paged.total} matching questions
+              </p>
+              <p className="flex items-center gap-2">
+                Page {paged.page} of {paged.pageCount}
+              </p>
+            </div>
 
-          <PaginationNav page={paged.page} pageCount={paged.pageCount} createHref={createHref} />
-        </section>
+            <QuestionsResults questions={paged.items} status={status} />
+
+            <PaginationNav page={paged.page} pageCount={paged.pageCount} createHref={createHref} />
+          </section>
+        </div>
       </Container>
     </main>
   );

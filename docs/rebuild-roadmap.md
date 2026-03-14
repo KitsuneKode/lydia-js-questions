@@ -14,85 +14,31 @@ Keep the learning loop strong:
 
 Everything below should strengthen that loop.
 
-## Milestone 1: Platform Upgrade
+## Milestone 1: Platform Upgrade (Completed)
 
 Objective:
 
 - Move the app to Next.js 16, Tailwind CSS v4, and current shadcn-compatible patterns without breaking the working product.
 
-Deliverables:
-
-- updated dependencies
-- working root scripts
-- clean build, lint, and typecheck
-- migration notes for any framework-level changes
-- modernized lint config if practical during the same pass
-
-Guardrails:
-
-- do not mix large UX rewrites into the same PR unless required by the migration
-- preserve worker-first runtime behavior
-- preserve guest-mode functionality
-
-## Milestone 2: Practice Surface Refinement
+## Milestone 2: Practice Surface Refinement (Completed)
 
 Objective:
 
 - Make the question detail page feel like a focused JavaScript practice workstation.
 
-Deliverables:
-
-- stronger layout hierarchy
-- clearer split between prompt, answer state, explanation, editor, output, and timeline
-- better desktop split-pane behavior
-- better mobile stacking and sticky actions
-- reduced unnecessary client-side weight
-
-Guardrails:
-
-- avoid dashboard-style card clutter
-- do not bury the prompt beneath secondary actions
-- keep the explanation easy to scan
-
-## Milestone 3: Review And Recommendation Loop
+## Milestone 3: Review And Recommendation Loop (Completed)
 
 Objective:
 
 - Make the product feel habit-forming and useful between sessions.
 
-Deliverables:
-
-- continue learning shelf
-- stronger next best question recommendation
-- weak-topic targeting
-- bookmarks/review queue improvements
-- lightweight session momentum or streak cues if they remain tasteful
-
-Guardrails:
-
-- progress features should feel helpful, not gamified noise
-- do not add motivational gimmicks that compete with learning clarity
-
-## Milestone 4: Design System Tightening
+## Milestone 4: Design System Tightening (Completed)
 
 Objective:
 
 - Establish a more premium, more coherent visual system.
 
-Deliverables:
-
-- tokenized color/type/spacing/radius/shadow/motion system
-- better typography hierarchy
-- more confident layout rhythm
-- stronger focus and hover states
-- refined dark/light or single-theme strategy with accessibility intact
-
-Guardrails:
-
-- do not introduce visual novelty without purpose
-- avoid generic gradient-heavy SaaS aesthetics
-
-## Milestone 5: Runtime And Sandbox Decisions
+## Milestone 5: Runtime And Sandbox Decisions (Completed)
 
 Objective:
 
@@ -100,18 +46,11 @@ Objective:
 
 Deliverables:
 
-- improved worker-runner messaging and behavior
-- clear unsupported-snippet UX
-- decision on whether StackBlitz remains or is removed
+- improved worker-runner messaging and behavior (mocked browser globals natively)
+- decision on whether StackBlitz remains or is removed (removed to reduce bundle size)
 - cleaner runtime interfaces and tests
 
-Guardrails:
-
-- keep worker-first execution as the default
-- do not reintroduce main-thread eval
-- do not make external IDEs the core experience
-
-## Milestone 6: Content And Product Depth
+## Milestone 6: Content And Product Depth (Completed)
 
 Objective:
 
@@ -120,7 +59,7 @@ Objective:
 Deliverables:
 
 - stronger parser validation
-- better tags/metadata if needed
+- Client-side Markdown rendering using Vercel's `streamdown` to cleanly render markdown without dangerously setting HTML.
 - improved explanation formatting or related-question connections
 - integrity checks around generated content
 

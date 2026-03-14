@@ -1,9 +1,6 @@
 {
-  "name": "lydia-js-questions-platform",
+  "name": "js-mastery-atlas",
   "private": true,
-  "workspaces": [
-    "apps/web"
-  ],
   "scripts": {
     "sync:upstream": "bun scripts/sync-upstream.mjs",
     "parse:questions": "bun scripts/parse-readme.mjs",
@@ -12,6 +9,26 @@
     "build": "cd apps/web && bun run build",
     "start": "cd apps/web && bun start",
     "lint": "cd apps/web && bun lint",
-    "typecheck": "cd apps/web && bun run typecheck"
+    "typecheck": "cd apps/web && bun run typecheck",
+    "test": "cd apps/web && bun run test",
+    "prepare": "husky"
+  },
+  "workspaces": [
+    "apps/web"
+  ],
+  "lint-staged": {
+    "*.{js,ts,tsx,mjs,cjs}": [
+      "bunx eslint --fix"
+    ],
+    "*.md": [
+      "bunx markdownlint-cli2"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.4.4",
+    "@commitlint/config-conventional": "^20.4.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "markdownlint-cli2": "^0.21.0"
   }
 }

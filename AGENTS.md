@@ -4,16 +4,16 @@ This repository is no longer just the upstream JavaScript questions source. It n
 
 ## Current Product State
 
-- The app is an interactive JavaScript interview practice product built on Next.js App Router.
+- The app is an interactive JavaScript interview practice product built on Next.js 16 (App Router) and Tailwind CSS v4.
 - Source content is parsed from `content/source/README.upstream.md` into generated JSON in `content/generated/`.
+- Markdown content is rendered on the client securely using Vercel's `streamdown` for optimal streaming and rendering.
 - The core flow is:
   - browse questions
   - answer in quiz mode
   - reveal explanation
   - run code
   - inspect event-loop visualization
-- Runtime execution is now worker-first for plain JavaScript snippets.
-- StackBlitz is still present, but only as an optional full-sandbox escape hatch for module syntax or browser-global snippets.
+- Runtime execution is entirely worker-based for all JavaScript snippets, mocking browser globals natively. StackBlitz has been fully removed.
 - Local progress is the primary persistence layer. Clerk + Supabase are optional sync layers when configured.
 
 ## Validated Commands
@@ -82,25 +82,24 @@ Prefer:
 
 - Keep the product inside the repo under `apps/web`.
 - Keep content generation at repo root for easy syncing and reuse.
-- Prefer worker-based execution over embedded online sandboxes.
-- Treat StackBlitz as secondary, not primary UX.
-- Keep guest mode fully usable without auth.
-- Treat auth as sync/identity, not as a requirement for basic learning.
+- Worker-based execution is the exclusive runtime model for snippets.
+- StackBlitz has been removed to reduce bundle size and enforce practice focus.
+- Guest mode remains fully usable without auth.
+- Auth is treated as sync/identity, not as a requirement for basic learning.
 
 ## Things That Are Good Enough To Build On
 
-- Parser and generated content pipeline are stable enough for iteration.
+- Parser and generated content pipeline are stable. Markdown is dynamically rendered on the client safely using `streamdown`.
 - Root scripts are wired and working.
 - Dashboard analytics and progress model exist and are usable.
-- Question detail page already has the right conceptual flow.
+- Question detail page operates as a focused split-pane workstation.
+- App runs on Next 16 (Turbopack) and Tailwind v4, styled consistently without heavy generic dashboard bloat.
 
 ## Known Gaps / Next Priorities
 
-- The stack is still on Next 15 + Tailwind 3. A controlled migration to Next 16 + Tailwind 4 is still pending.
-- `@stackblitz/sdk` still exists in dependencies and can be removed after deciding whether external sandbox support stays.
-- ESLint currently runs through `.eslintrc` compatibility mode. That is acceptable short-term, but should be migrated to a modern flat config during the Next 16 pass.
-- The question detail page still has a fairly heavy client bundle and should be tightened after the runtime and upgrade work settle.
-- Design quality is improved, but the product still needs a stronger “JS LeetCode” feel on the detail page and dashboard.
+- Adding richer context or external links into explanations where necessary, though this requires upstream PRs or a local overlay layer.
+- Expanding offline capabilities or PWA features.
+- Continuing to refine the code runner's AST parsing if even deeper concept visualizations are needed.
 
 ## Product Direction
 
@@ -129,8 +128,9 @@ Avoid:
 
 ## Read Next
 
+- `docs/v2-roadmap-mastery.md` (New Roadmap for Advanced Interview Features)
 - `docs/agent-handoff.md`
-- `docs/rebuild-roadmap.md`
+- `docs/rebuild-roadmap.md` (V1 Completed)
 - `docs/design-system-brief.md`
 - `docs/next16-tailwind4-migration.md`
 - `docs/principal-engineer-prompt.md`

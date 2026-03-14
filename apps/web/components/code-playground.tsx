@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import dynamic from 'next/dynamic';
-import { ArrowUpRight, Play, RotateCcw, Terminal } from 'lucide-react';
+import { Play, RotateCcw, Terminal } from 'lucide-react';
 
 import type { QuestionRecord } from '@/lib/content/types';
 import type { TimelineEvent } from '@/lib/run/types';
@@ -11,18 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SimpleCodeEditor } from '@/components/editor/simple-code-editor';
 import { TimelineChart } from '@/components/visualization/timeline-chart';
-
-const StackBlitzEmbedLazy = dynamic(
-  () => import('@/components/editor/stackblitz-embed-lazy').then((mod) => mod.StackBlitzEmbedLazy),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-[420px] items-center justify-center rounded-xl border border-border bg-card/30">
-        <p className="text-sm text-muted-foreground">Preparing full sandbox...</p>
-      </div>
-    ),
-  },
-);
 
 interface CodePlaygroundProps {
   question: QuestionRecord;
@@ -35,17 +22,6 @@ export function CodePlayground({ question, onTimelineUpdate }: CodePlaygroundPro
     [question.codeBlocks],
   );
 
-  const hasModuleSyntax = useMemo(
-    () => runnableBlocks.some((block) => /^\s*(import|export)\s/m.test(block.code)),
-    [runnableBlocks],
-  );
-  const hasBrowserGlobalSyntax = useMemo(
-    () => runnableBlocks.some((block) => /\b(document|window|frames)\b/.test(block.code)),
-    [runnableBlocks],
-  );
-
-  const [showFullSandbox, setShowFullSandbox] = useState(false);
-
   const [selectedId, setSelectedId] = useState<string | null>(runnableBlocks[0]?.id ?? null);
   const currentBlock = runnableBlocks.find((block) => block.id === selectedId) ?? runnableBlocks[0] ?? null;
   const [code, setCode] = useState(currentBlock?.code ?? '');
@@ -53,16 +29,6 @@ export function CodePlayground({ question, onTimelineUpdate }: CodePlaygroundPro
   const [errors, setErrors] = useState<string[]>([]);
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [running, setRunning] = useState(false);
-
-  useEffect(() => {
-    const first = runnableBlocks[0] ?? null;
-    setSelectedId(first?.id ?? null);
-    setCode(first?.code ?? '');
-    setLogs([]);
-    setErrors([]);
-    setTimeline([]);
-    setShowFullSandbox(false);
-  }, [question.id, runnableBlocks]);
 
   function resetCode() {
     if (!currentBlock) return;
@@ -138,19 +104,7 @@ export function CodePlayground({ question, onTimelineUpdate }: CodePlaygroundPro
               Reset
             </Button>
             <Badge>{currentBlock.language}</Badge>
-            {(hasModuleSyntax || hasBrowserGlobalSyntax) && (
-              <Button variant="ghost" onClick={() => setShowFullSandbox((prev) => !prev)}>
-                <ArrowUpRight className="mr-2 h-4 w-4" />
-                {showFullSandbox ? 'Hide' : 'Open'} full sandbox
-              </Button>
-            )}
           </div>
-
-          {(hasModuleSyntax || hasBrowserGlobalSyntax) && (
-            <p className="text-xs text-muted-foreground">
-              Worker mode is optimized for plain JavaScript interview snippets. Browser-global or module-based code can still be explored in the full sandbox.
-            </p>
-          )}
         </div>
 
         <div className="space-y-4">
@@ -170,18 +124,6 @@ export function CodePlayground({ question, onTimelineUpdate }: CodePlaygroundPro
           </div>
         </div>
       </div>
-
-      {showFullSandbox && (
-        <div className="space-y-3 rounded-2xl border border-border bg-card/40 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm text-foreground">Full Sandbox</p>
-              <p className="text-xs text-muted-foreground">Use this only when the worker runner is intentionally limited by module syntax or browser globals.</p>
-            </div>
-          </div>
-          <StackBlitzEmbedLazy codeBlocks={question.codeBlocks} questionId={question.id} />
-        </div>
-      )}
     </div>
   );
 }

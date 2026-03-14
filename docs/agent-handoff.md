@@ -14,19 +14,20 @@
 ### Stable Enough To Build On
 
 - Root scripts work from the repository root.
-- The content pipeline is usable and produces generated JSON artifacts.
+- The content pipeline is usable and produces generated JSON artifacts, rendering Markdown safely on the client via `streamdown`.
 - The question list and question detail flows are in place.
-- A worker-first JavaScript runtime exists and is directionally correct.
+- A worker-first JavaScript runtime handles snippet execution natively (including browser globals).
 - Local-first progress tracking is wired through the app.
 - The dashboard has recommendation and review-oriented primitives instead of a purely decorative shell.
+- The stack is migrated to Next 16 (Turbopack) and Tailwind CSS v4.
 
 ### Not Finished Yet
 
-- The stack is still on Next 15 and Tailwind 3 instead of the target Next 16 and Tailwind 4.
-- The current question detail page still feels more like an app screen than a deeply focused practice environment.
-- StackBlitz support still exists in the dependency graph and product surface even though it is no longer the preferred model.
-- ESLint is in compatibility mode and should be modernized during the stack upgrade.
-- The design language is heading in the right direction, but the app still needs more restraint, hierarchy, and confidence to feel truly premium.
+- The V1 Rebuild is complete (Next 16, Tailwind 4, Worker runtime, Streamdown).
+- The focus is now shifting to **V2: Interview Mastery**.
+- We need to implement Active Recall ("Type the Output" mode) to replace passive multiple-choice guessing.
+- A Spaced Repetition System (SRS) backend via Supabase needs to be wired up.
+- The content pipeline needs refactoring to support multi-source data ingestion (e.g., from Sudheer J's JS interview questions repo) into unified "Paths".
 
 ## Current Technical State
 
@@ -35,14 +36,16 @@
 - Root scripts work from repo root.
 - Build succeeds.
 - Typecheck succeeds.
-- Lint succeeds.
-- Content generation succeeds.
+- Lint succeeds (ESLint Flat Config active).
+- Content generation succeeds (raw Markdown preserved for streamdown).
 - Question library, question detail, dashboard, auth shell, and credits page all render.
 
 ### Key Decisions Already Implemented
 
-- Worker-first JavaScript runner in `apps/web/lib/run/sandbox.ts`
-- StackBlitz only as optional full-sandbox fallback in `apps/web/components/code-playground.tsx`
+- Complete migration to Next 16 and Tailwind 4.
+- Split-pane "workstation" layout implemented on the question detail page.
+- Worker-first JavaScript runner in `apps/web/lib/run/sandbox.ts` mock browser globals.
+- StackBlitz has been removed to enforce the native execution model.
 - Progress state centralized in `apps/web/lib/progress/progress-context.tsx`
 - Dashboard upgraded into a practice hub with:
   - continue learning
@@ -87,23 +90,19 @@ The strongest path through the product is:
 
 ### Stack / Platform
 
-- Still on Next 15 and Tailwind 3.
-- shadcn structure exists, but not yet refreshed for the Next 16 / Tailwind 4 target.
-- Next 16 migration should make use of current App Router best practices, lean server/client boundaries, and selective modern caching features where they actually help.
-- ESLint is currently using `.eslintrc` compatibility mode. This is acceptable short-term, but should be modernized during the upgrade pass.
+- The platform is stable on Next 16 and Tailwind 4.
+- Linting uses flat config. 
 
 ### Runtime / Playground
 
-- Worker runner is the correct default direction.
-- The remaining decision is whether StackBlitz support should stay at all.
-- If it stays, keep it hidden behind explicit user intent.
-- Do not reintroduce embedded external IDE as the default experience.
+- Worker runner is the primary environment.
+- StackBlitz has been removed.
+- Future work may involve building AST representations or more complex data visualizers.
 
 ### Design
 
-- The app is directionally premium, but not fully there yet.
-- The question detail page still needs a more confident, focused, split-pane practice feel.
-- The dashboard is useful, but could feel more intentional and less “analytics panel”.
+- The app feels premium, with a split-pane workstation layout for practice.
+- Future iterations might add themes or more tailored visualization animations.
 
 ### State / Data
 
@@ -122,17 +121,14 @@ The strongest path through the product is:
 
 ## Recommended Next Engineering Sequence
 
-1. Next 16 + Tailwind 4 migration
-2. Modernize shadcn setup for that stack
-3. Tighten question detail page layout and reduce client weight
-4. Decide whether to keep or remove StackBlitz completely
-5. Add stronger recommendation/review loops on the landing page
-6. Add better content metadata and parser validation where helpful
+1. Implement Active Recall UX ("Type the Output" mode and Anki-style grading) on the existing detail page.
+2. Extend Supabase Schema and wire up SRS (SM-2 Algorithm) for authenticated users.
+3. Refactor the `scripts/parse-readme.mjs` into a multi-source ingest pipeline (Phase 1).
+4. Introduce Curated Paths & Playlists on the Dashboard.
+5. Build advanced concept visualizers (Memory / Call Stack) for specific tags.
 
 ## Open Decisions
 
-- Should StackBlitz remain as an optional export path, or be removed entirely after the worker runner matures further?
-- Should the list page stay paginated by default, or offer a user-controlled infinite mode on top of pagination?
 - Should the dashboard become the signed-in home only, with the public landing page carrying more of the product narrative?
 
 If making one of these calls, document the reasoning in the PR or handoff notes.

@@ -1,42 +1,46 @@
 {
-  "name": "js-questions-web",
+  "name": "js-mastery-atlas-web",
   "private": true,
   "version": "0.1.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "ESLINT_USE_FLAT_CONFIG=false bun eslint .",
-    "typecheck": "rm -f tsconfig.tsbuildinfo && bun tsc --noEmit"
+    "lint": "eslint .",
+    "typecheck": "rm -f tsconfig.tsbuildinfo && bun tsc --noEmit",
+    "test": "vitest"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.1",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
-    "@stackblitz/sdk": "^1.11.0",
     "@supabase/supabase-js": "^2.98.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",
     "motion": "^12.35.1",
-    "next": "15",
+    "next": "^16.1.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-markdown": "^10.1.0",
-    "rehype-raw": "^7.0.0",
-    "remark-gfm": "^4.0.1",
     "sonner": "^2.0.7",
+    "streamdown": "^2.4.0",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "4",
+    "@tailwindcss/typography": "^0.5.19",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^25.3.5",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "autoprefixer": "^10.4.27",
+    "@vitejs/plugin-react": "^6.0.1",
     "eslint": "9",
-    "eslint-config-next": "15",
+    "eslint-config-next": "^16.1.6",
+    "jsdom": "^28.1.0",
     "postcss": "^8.5.8",
-    "tailwindcss": "3",
-    "typescript": "^5.9.3"
+    "tailwindcss": "4",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
   }
 }

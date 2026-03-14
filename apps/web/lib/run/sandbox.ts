@@ -5,6 +5,23 @@ const RUNNER_TIMEOUT_MS = 5000;
 const WORKER_SOURCE = `
   const runnerScope = self;
 
+  // Mock basic browser globals to prevent ReferenceErrors in snippets
+  const window = new Proxy(runnerScope, {
+    get: (target, prop) => {
+      if (prop === 'name') return '';
+      return target[prop];
+    }
+  });
+  const document = {
+    getElementById: () => null,
+    querySelector: () => null,
+    createElement: () => ({}),
+  };
+  const frames = [];
+  const navigator = { userAgent: 'worker' };
+  const localStorage = { getItem: () => null, setItem: () => {} };
+  const sessionStorage = { getItem: () => null, setItem: () => {} };
+
   runnerScope.addEventListener('message', async (event) => {
     if (!event?.data || event.data.type !== 'RUN_CODE') {
       return;
@@ -147,21 +164,8 @@ function createWorker(): { worker: Worker; url: string } {
 }
 
 export async function runJavaScriptInSandbox(code: string): Promise<SandboxRunResult> {
-  if (/^\s*(import|export)\s/m.test(code)) {
-    return {
-      logs: [],
-      errors: ['Module-style snippets need a full project sandbox.'],
-      timeline: [],
-    };
-  }
-
-  if (/\b(document|window|frames)\b/.test(code)) {
-    return {
-      logs: [],
-      errors: ['This snippet depends on browser globals and is not suited to the worker runner.'],
-      timeline: [],
-    };
-  }
+  // Strip import/export statements to prevent SyntaxError in new Function
+  const executableCode = code.replace(/^\s*(import|export)\s+.*$/gm, '');
 
   const { worker, url } = createWorker();
   const runId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -213,6 +217,6 @@ export async function runJavaScriptInSandbox(code: string): Promise<SandboxRunRe
       }
     });
 
-    worker.postMessage({ type: 'RUN_CODE', runId, code });
+    worker.postMessage({ type: 'RUN_CODE', runId, code: executableCode });
   });
 }

@@ -34,3 +34,17 @@ export const getQuestionById = cache((id: number): QuestionRecord | null => {
   const question = getQuestions().find((item) => item.id === id);
   return question ?? null;
 });
+
+export const getRelatedQuestions = cache((question: QuestionRecord, limit = 3): QuestionRecord[] => {
+  const all = getQuestions();
+  return all
+    .filter((q) => q.id !== question.id)
+    .map((q) => {
+      const commonTags = q.tags.filter((tag) => question.tags.includes(tag));
+      return { q, commonTagsCount: commonTags.length };
+    })
+    .filter((item) => item.commonTagsCount > 0)
+    .sort((a, b) => b.commonTagsCount - a.commonTagsCount)
+    .slice(0, limit)
+    .map((item) => item.q);
+});

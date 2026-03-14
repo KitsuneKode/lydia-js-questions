@@ -5,6 +5,7 @@ import { Container } from '@/components/container';
 import { LandingHero } from '@/components/landing-hero';
 import { TagDistribution } from '@/components/tag-distribution';
 import { QuestionCard } from '@/components/question-card';
+import { ContinueLearningShelf } from '@/components/continue-learning-shelf';
 import { Button } from '@/components/ui/button';
 import { getManifest, getQuestions } from '@/lib/content/loaders';
 
@@ -28,6 +29,8 @@ export default function HomePage() {
     <main>
       <Container>
         <LandingHero total={manifest.totals.questions} runnable={manifest.totals.runnable} tagCount={manifest.tags.length} />
+
+        <ContinueLearningShelf questions={questions} />
 
         <section className="grid gap-6 pb-8 lg:grid-cols-[1fr_1fr]">
           <TagDistribution values={tagCounts} />

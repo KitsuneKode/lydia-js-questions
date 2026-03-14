@@ -1,0 +1,9 @@
+{
+  "config": {
+    "line-length": false,
+    "no-duplicate-heading": false,
+    "no-inline-html": false,
+    "single-title": false
+  },
+  "ignores": ["node_modules", ".next", "content/generated"]
+}

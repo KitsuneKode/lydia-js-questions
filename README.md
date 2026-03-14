@@ -1,15 +1,15 @@
 <div align="center">
   <img height="60" src="https://img.icons8.com/color/344/javascript.png">
-  <h1>JavaScript Questions</h1>
+  <h1>JS Mastery Atlas</h1>
 </div>
 
 > [!NOTE]  
-> This repo was created in 2019 and the questions provided here are therefore based on the JavaScript syntax and behavior at that time. Since JavaScript is a constantly evolving language, there are newer language features that are not covered by the questions here.
+> This repo is an advanced interactive platform based on the famous JavaScript Questions dataset. It features an active-recall "Hard Mode", an embedded code runner, event-loop visualization, and spaced repetition (SRS) to help you master JavaScript for technical interviews.
 
 ---
 
 <p align="center">
-From basic to advanced: test how well you know JavaScript, refresh your knowledge a bit or prepare for your coding interview! :muscle: :rocket: I update this repo regularly with new questions. I added the answers in the **collapsed sections** below the questions, simply click on them to expand it. It's just for fun, good luck! :heart:</p>
+From basic to advanced: test how well you know JavaScript, refresh your knowledge, and prepare for your coding interview with active recall and spaced repetition! :muscle: :rocket:</p>
 
 <p align="center">Feel free to reach out to me! 😊</p>
 
