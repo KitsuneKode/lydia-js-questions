@@ -1,3 +1,5 @@
+import type { SRSData } from '@/lib/progress/srs';
+
 export type AnswerStatus = 'correct' | 'incorrect';
 
 export interface AttemptRecord {
@@ -10,6 +12,7 @@ export interface ProgressItem {
   questionId: number;
   attempts: AttemptRecord[];
   bookmarked: boolean;
+  srsData?: SRSData;
   updatedAt: string;
 }
 
@@ -18,10 +21,10 @@ export interface ProgressState {
   questions: Record<string, ProgressItem>;
 }
 
-const KEY = 'jsq_progress_v1';
+const KEY = 'jsq_progress_v2';
 
 export const defaultProgressState: ProgressState = {
-  version: 1,
+  version: 2,
   questions: {},
 };
 
@@ -33,11 +36,20 @@ export function readProgress(): ProgressState {
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) {
+      // Check for v1 data to migrate
+      const v1Raw = window.localStorage.getItem('jsq_progress_v1');
+      if (v1Raw) {
+        const v1Parsed = JSON.parse(v1Raw);
+        return {
+          version: 2,
+          questions: v1Parsed.questions || {},
+        };
+      }
       return defaultProgressState;
     }
 
     const parsed = JSON.parse(raw) as ProgressState;
-    if (parsed.version !== 1 || typeof parsed.questions !== 'object') {
+    if (parsed.version !== 2 || typeof parsed.questions !== 'object') {
       return defaultProgressState;
     }
 

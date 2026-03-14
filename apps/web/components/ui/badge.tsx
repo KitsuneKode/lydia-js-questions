@@ -4,17 +4,17 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium uppercase tracking-wide transition-colors',
+  'inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium leading-none transition-colors',
   {
     variants: {
       variant: {
-        default: 'border-border bg-card text-muted-foreground',
-        secondary: 'border-muted/30 bg-muted/20 text-muted-foreground',
+        default: 'border-border bg-surface text-muted-foreground',
+        secondary: 'border-transparent bg-muted/60 text-muted-foreground',
         outline: 'border-border bg-transparent text-foreground',
-        success: 'border-success/40 bg-success/10 text-success',
-        warning: 'border-warning/40 bg-warning/10 text-warning',
-        danger: 'border-danger/40 bg-danger/10 text-danger',
-        primary: 'border-primary/50 bg-primary/10 text-primary',
+        success: 'border-success/30 bg-success/10 text-success',
+        warning: 'border-warning/30 bg-warning/10 text-warning',
+        danger: 'border-danger/30 bg-danger/10 text-danger',
+        primary: 'border-primary/30 bg-primary/10 text-primary',
       },
     },
     defaultVariants: {
@@ -24,11 +24,10 @@ const badgeVariants = cva(
 );
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {
-  tone?: 'default' | 'success' | 'warning' | 'danger'; // Keep for compatibility
+  tone?: 'default' | 'success' | 'warning' | 'danger';
 }
 
 export function Badge({ className, variant, tone, ...props }: BadgeProps) {
-  // Map tone to variant for backward compatibility
   const finalVariant = variant || (tone === 'default' ? 'default' : tone) || 'default';
   return <span className={cn(badgeVariants({ variant: finalVariant as any }), className)} {...props} />;
 }

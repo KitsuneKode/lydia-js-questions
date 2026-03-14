@@ -1,16 +1,22 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowUpRight, Brain, PlayCircle, CheckCircle2, Bookmark, CircleDot } from 'lucide-react';
+import { ArrowRight, Code2, CheckCircle2, Bookmark, Circle, Zap } from 'lucide-react';
 
 import type { QuestionRecord } from '@/lib/content/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useQuestionProgress } from '@/lib/progress/use-question-progress';
+import { cn } from '@/lib/utils';
 
 interface QuestionCardProps {
   question: QuestionRecord;
 }
+
+const difficultyStyles = {
+  easy: 'text-emerald-400',
+  medium: 'text-amber-400',
+  hard: 'text-rose-400',
+} as const;
 
 export function QuestionCard({ question }: QuestionCardProps) {
   const { ready, item } = useQuestionProgress(question.id);
@@ -19,67 +25,90 @@ export function QuestionCard({ question }: QuestionCardProps) {
   const isCorrect = item.attempts.some((a) => a.status === 'correct');
   const isBookmarked = item.bookmarked;
 
+  const difficulty = question.difficulty?.toLowerCase() as keyof typeof difficultyStyles;
+
   return (
-    <Card className="question-grid-item group h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-glow border-border/60 bg-card/80">
-      <CardHeader className="space-y-3 pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="px-1.5 py-0 text-[10px] opacity-70">
-              #{question.id}
-            </Badge>
-            <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
-              {question.difficulty}
-            </Badge>
-            {question.runnable && (
-              <Badge variant="success" className="px-1.5 py-0 text-[10px]">
-                runnable
-              </Badge>
-            )}
-          </div>
-          {ready && (
-            <div className="flex items-center gap-1.5">
-              {isCorrect ? (
-                <CheckCircle2 className="h-4 w-4 text-success" />
-              ) : hasAttempts ? (
-                <CircleDot className="h-4 w-4 text-warning" />
-              ) : null}
-              {isBookmarked && <Bookmark className="h-4 w-4 fill-primary text-primary" />}
+    <Link
+      href={`/questions/${question.id}`}
+      className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-card/60 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-card/80 hover:shadow-lg hover:shadow-primary/5"
+    >
+      {/* Status indicators - top right */}
+      {ready && (hasAttempts || isBookmarked) && (
+        <div className="absolute right-3 top-3 flex items-center gap-1.5">
+          {isCorrect ? (
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20">
+              <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+            </div>
+          ) : hasAttempts ? (
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20">
+              <Circle className="h-3 w-3 text-amber-400" />
+            </div>
+          ) : null}
+          {isBookmarked && (
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20">
+              <Bookmark className="h-3 w-3 fill-primary text-primary" />
             </div>
           )}
         </div>
-        <CardTitle className="line-clamp-2 min-h-[3rem] text-lg leading-snug tracking-tight text-foreground/90 group-hover:text-primary transition-colors">
-          {question.title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-1.5">
-          {question.tags.slice(0, 3).map((tag) => (
-            <span
-              key={tag}
-              className="rounded-md border border-border/40 bg-muted/30 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/80"
-            >
-              {tag}
+      )}
+
+      {/* Header row: ID + difficulty */}
+      <div className="mb-3 flex items-center gap-2">
+        <span className="font-mono text-[11px] font-medium text-muted-foreground/60">
+          #{question.id}
+        </span>
+        <span className="text-muted-foreground/30">·</span>
+        <span className={cn('text-[10px] font-bold uppercase tracking-wider', difficultyStyles[difficulty] || 'text-muted-foreground')}>
+          {question.difficulty}
+        </span>
+        {question.runnable && (
+          <>
+            <span className="text-muted-foreground/30">·</span>
+            <span className="flex items-center gap-1 text-[10px] font-medium text-primary/80">
+              <Zap className="h-3 w-3" />
+              <span className="hidden sm:inline">Runnable</span>
             </span>
-          ))}
-        </div>
-        <div className="flex items-center justify-between border-t border-border/30 pt-4 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
-          <span className="inline-flex items-center gap-1.5">
-            <Brain className="h-3.5 w-3.5" />
-            {question.options.length} options
+          </>
+        )}
+      </div>
+
+      {/* Title */}
+      <h3 className="mb-4 line-clamp-2 min-h-[2.75rem] font-display text-base font-medium leading-snug tracking-tight text-foreground/90 transition-colors group-hover:text-primary">
+        {question.title}
+      </h3>
+
+      {/* Tags */}
+      <div className="mb-4 flex flex-wrap gap-1.5">
+        {question.tags.slice(0, 3).map((tag) => (
+          <Badge
+            key={tag}
+            variant="secondary"
+            className="bg-muted/40 px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70"
+          >
+            {tag}
+          </Badge>
+        ))}
+        {question.tags.length > 3 && (
+          <span className="px-1 text-[9px] text-muted-foreground/50">
+            +{question.tags.length - 3}
           </span>
-          <span className="inline-flex items-center gap-1.5">
-            {question.runnable ? <PlayCircle className="h-3.5 w-3.5" /> : null}
-            {question.codeBlocks.length} snippet{question.codeBlocks.length === 1 ? '' : 's'}
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-auto flex items-center justify-between border-t border-border/30 pt-3">
+        <div className="flex items-center gap-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
+          <span className="flex items-center gap-1">
+            <Code2 className="h-3 w-3" />
+            {question.codeBlocks.length}
           </span>
+          <span>{question.options.length} options</span>
         </div>
-        <Link
-          href={`/questions/${question.id}`}
-          className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-primary/10 py-2 text-xs font-bold text-primary transition-all group-hover:bg-primary group-hover:text-primary-foreground"
-        >
+        <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary opacity-0 transition-opacity group-hover:opacity-100">
           Practice
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </Link>
-      </CardContent>
-    </Card>
+          <ArrowRight className="h-3 w-3" />
+        </span>
+      </div>
+    </Link>
   );
 }

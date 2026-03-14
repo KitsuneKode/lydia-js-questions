@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Search, CheckCircle2, Code2, Eye } from 'lucide-react';
 
 import { Container } from '@/components/container';
 import { LandingHero } from '@/components/landing-hero';
@@ -8,6 +8,29 @@ import { QuestionCard } from '@/components/question-card';
 import { ContinueLearningShelf } from '@/components/continue-learning-shelf';
 import { Button } from '@/components/ui/button';
 import { getManifest, getQuestions } from '@/lib/content/loaders';
+
+const workflowSteps = [
+  {
+    icon: Search,
+    title: 'Find a question',
+    description: 'Browse by topic, difficulty, or search for specific concepts.',
+  },
+  {
+    icon: CheckCircle2,
+    title: 'Commit to an answer',
+    description: 'Choose your answer before seeing the explanation.',
+  },
+  {
+    icon: Code2,
+    title: 'Run the code',
+    description: 'Execute snippets and see real output in your browser.',
+  },
+  {
+    icon: Eye,
+    title: 'Understand why',
+    description: 'Read detailed explanations and visualize execution.',
+  },
+];
 
 export default function HomePage() {
   const manifest = getManifest();
@@ -28,37 +51,65 @@ export default function HomePage() {
   return (
     <main>
       <Container>
-        <LandingHero total={manifest.totals.questions} runnable={manifest.totals.runnable} tagCount={manifest.tags.length} />
+        <LandingHero
+          total={manifest.totals.questions}
+          runnable={manifest.totals.runnable}
+          tagCount={manifest.tags.length}
+        />
 
         <ContinueLearningShelf questions={questions} />
 
-        <section className="grid gap-6 pb-8 lg:grid-cols-[1fr_1fr]">
+        {/* Two-column section */}
+        <section className="grid gap-6 pb-16 lg:grid-cols-2">
           <TagDistribution values={tagCounts} />
-          <div className="rounded-xl border border-border bg-card/60 p-5 md:p-6">
-            <h2 className="font-display text-2xl text-foreground">Study Workflow</h2>
-            <ol className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <li className="rounded-lg border border-border bg-card/60 p-3">1. Pick a question by tag or search phrase.</li>
-              <li className="rounded-lg border border-border bg-card/60 p-3">2. Answer in quiz mode before seeing the explanation.</li>
-              <li className="rounded-lg border border-border bg-card/60 p-3">3. Dry-run editable code and inspect event-loop timeline output.</li>
-              <li className="rounded-lg border border-border bg-card/60 p-3">4. Bookmark difficult items and revisit from pagination pages.</li>
-            </ol>
-            <Link href="/questions" className="mt-4 inline-flex">
-              <Button className="mt-4">
-                Browse all questions
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+
+          {/* Study Workflow */}
+          <div className="rounded-lg border border-border bg-surface p-5 md:p-6">
+            <h2 className="font-display text-xl text-foreground">How It Works</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Practice loop designed for retention</p>
+
+            <div className="mt-6 space-y-4">
+              {workflowSteps.map((step, i) => (
+                <div key={step.title} className="flex gap-4">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                    <step.icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-mono text-xs text-muted-foreground">{String(i + 1).padStart(2, '0')}</span>
+                      <h3 className="text-sm font-medium text-foreground">{step.title}</h3>
+                    </div>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-border">
+              <Link href="/questions">
+                <Button className="w-full gap-2 sm:w-auto">
+                  Start Practicing
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
 
-        <section className="pb-10">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-2xl text-foreground">Featured Questions</h2>
-            <Link href="/questions" className="text-sm text-primary">
+        {/* Featured questions */}
+        <section className="pb-16">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="font-display text-xl text-foreground">Featured Questions</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Start with these popular challenges</p>
+            </div>
+            <Link href="/questions" className="group inline-flex items-center gap-1 text-sm font-medium text-primary">
               View all {questions.length}
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((question) => (
               <QuestionCard key={question.id} question={question} />
             ))}

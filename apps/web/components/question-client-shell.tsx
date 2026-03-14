@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Bookmark, CheckCircle2, CircleAlert, ChevronLeft, ChevronRight, Terminal, Sparkles, Code2 } from 'lucide-react';
+import { Bookmark, CheckCircle2, CircleAlert, ChevronLeft, ChevronRight, Terminal, Sparkles } from 'lucide-react';
 
 import type { QuestionRecord } from '@/lib/content/types';
 import type { TimelineEvent } from '@/lib/run/types';
@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CodeBlock } from '@/components/code-block';
 import { Streamdown } from 'streamdown';
 
 const CodePlayground = dynamic(
@@ -55,7 +56,7 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
   const [activeTab, setActiveTab] = useState<'explain' | 'run' | 'visualize'>('explain');
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
 
-  const { ready, item, saveAttempt, toggleBookmark } = useQuestionProgress(question.id);
+  const { ready, item, saveAttempt, toggleBookmark, saveSelfGrade } = useQuestionProgress(question.id);
 
   const isAnswered = selected !== null || hasSubmittedRecall;
   const isCorrect = selected !== null ? selected === question.correctOption : hasSubmittedRecall; // In recall mode, any submission acts as correct to reveal the answer.
@@ -69,7 +70,7 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
 
   function handleSelfGrade(grade: 'hard' | 'good' | 'easy') {
     setSelfGrade(grade);
-    // Future: send to SRS backend
+    saveSelfGrade(grade);
   }
 
   return (
@@ -135,22 +136,13 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
             </div>
 
             {question.codeBlocks.length > 0 && (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {question.codeBlocks.map((codeBlock) => (
-                  <div
+                  <CodeBlock
                     key={codeBlock.id}
-                    className="group relative overflow-hidden rounded-2xl border border-border/60 bg-[#09090b] shadow-xl"
-                  >
-                    <div className="flex items-center justify-between border-b border-border/40 bg-white/[0.02] px-4 py-2.5">
-                      <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
-                        <Code2 className="h-3.5 w-3.5" />
-                        {codeBlock.language}
-                      </span>
-                    </div>
-                    <pre className="overflow-x-auto p-6 text-sm leading-7 text-[#e2e8f0]">
-                      <code>{codeBlock.code}</code>
-                    </pre>
-                  </div>
+                    code={codeBlock.code}
+                    language={codeBlock.language}
+                  />
                 ))}
               </div>
             )}
@@ -313,6 +305,7 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                         </div>
                         <div className="grid grid-cols-3 gap-3">
                           <button
+                            type="button"
                             onClick={() => handleSelfGrade('hard')}
                             className={`flex flex-col items-center justify-center rounded-xl border p-3 transition-all duration-300 hover:scale-105 active:scale-95 ${
                               selfGrade === 'hard'
@@ -324,6 +317,7 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                             <span className="mt-1 text-[10px] font-medium opacity-60">1 min</span>
                           </button>
                           <button
+                            type="button"
                             onClick={() => handleSelfGrade('good')}
                             className={`flex flex-col items-center justify-center rounded-xl border p-3 transition-all duration-300 hover:scale-105 active:scale-95 ${
                               selfGrade === 'good'
@@ -335,6 +329,7 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                             <span className="mt-1 text-[10px] font-medium opacity-60">1 day</span>
                           </button>
                           <button
+                            type="button"
                             onClick={() => handleSelfGrade('easy')}
                             className={`flex flex-col items-center justify-center rounded-xl border p-3 transition-all duration-300 hover:scale-105 active:scale-95 ${
                               selfGrade === 'easy'

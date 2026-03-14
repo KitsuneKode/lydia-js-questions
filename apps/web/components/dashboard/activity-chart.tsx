@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Activity } from 'lucide-react';
 import type { DailyActivity } from '@/lib/progress/analytics';
 
 interface ActivityChartProps {
@@ -9,7 +9,6 @@ interface ActivityChartProps {
 }
 
 export function ActivityChart({ dailyActivity }: ActivityChartProps) {
-  // Show last 30 days, filling gaps with zero
   const bars = useMemo(() => {
     const dayMap = new Map(dailyActivity.map((d) => [d.date, d]));
     const result: DailyActivity[] = [];
@@ -32,69 +31,69 @@ export function ActivityChart({ dailyActivity }: ActivityChartProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Activity — Last 30 Days</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-end gap-[3px]" style={{ height: 140 }}>
-          {bars.map((bar) => {
-            const total = bar.attempts;
-            const correctH = total > 0 ? (bar.correct / maxAttempts) * 100 : 0;
-            const incorrectH = total > 0 ? ((total - bar.correct) / maxAttempts) * 100 : 0;
-            const dayLabel = new Date(bar.date + 'T00:00:00').toLocaleDateString('en', { weekday: 'narrow' });
+    <div className="rounded-xl border border-border/40 bg-card/40 p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <Activity className="h-4 w-4 text-muted-foreground/60" />
+        <h3 className="text-sm font-medium text-foreground">Last 30 Days</h3>
+      </div>
+      
+      <div className="flex items-end gap-[2px]" style={{ height: 100 }}>
+        {bars.map((bar) => {
+          const total = bar.attempts;
+          const correctH = total > 0 ? (bar.correct / maxAttempts) * 100 : 0;
+          const incorrectH = total > 0 ? ((total - bar.correct) / maxAttempts) * 100 : 0;
 
-            return (
-              <div
-                key={bar.date}
-                className="group relative flex flex-1 flex-col items-stretch justify-end"
-                style={{ height: '100%' }}
-              >
-                {/* Tooltip */}
-                <div className="pointer-events-none absolute -top-8 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-card border border-border px-2 py-1 text-[10px] text-foreground opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                  {bar.date}: {total} attempts
-                </div>
-
-                {/* Incorrect portion */}
-                {incorrectH > 0 && (
-                  <div
-                    className="w-full rounded-t"
-                    style={{
-                      height: `${incorrectH}%`,
-                      backgroundColor: `hsl(var(--danger) / 0.5)`,
-                    }}
-                  />
-                )}
-                {/* Correct portion */}
-                {correctH > 0 && (
-                  <div
-                    className="w-full"
-                    style={{
-                      height: `${correctH}%`,
-                      backgroundColor: `hsl(var(--success))`,
-                      borderRadius: incorrectH > 0 ? '0' : '2px 2px 0 0',
-                    }}
-                  />
-                )}
-                {/* Empty state */}
-                {total === 0 && (
-                  <div
-                    className="w-full rounded-t"
-                    style={{
-                      height: '3%',
-                      backgroundColor: `hsl(var(--muted))`,
-                    }}
-                  />
-                )}
+          return (
+            <div
+              key={bar.date}
+              className="group relative flex flex-1 flex-col items-stretch justify-end"
+              style={{ height: '100%' }}
+            >
+              {/* Tooltip */}
+              <div className="pointer-events-none absolute -top-8 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[9px] font-medium text-background opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                {bar.date.slice(5)}: {total}
               </div>
-            );
-          })}
-        </div>
-        <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-          <span>30d ago</span>
-          <span>Today</span>
-        </div>
-      </CardContent>
-    </Card>
+
+              {/* Incorrect portion */}
+              {incorrectH > 0 && (
+                <div
+                  className="w-full rounded-t-sm"
+                  style={{
+                    height: `${incorrectH}%`,
+                    backgroundColor: 'hsl(var(--danger) / 0.4)',
+                  }}
+                />
+              )}
+              {/* Correct portion */}
+              {correctH > 0 && (
+                <div
+                  className="w-full transition-all group-hover:opacity-80"
+                  style={{
+                    height: `${correctH}%`,
+                    backgroundColor: 'hsl(var(--success) / 0.8)',
+                    borderRadius: incorrectH > 0 ? '0' : '2px 2px 0 0',
+                  }}
+                />
+              )}
+              {/* Empty state */}
+              {total === 0 && (
+                <div
+                  className="w-full rounded-t-sm"
+                  style={{
+                    height: '4px',
+                    backgroundColor: 'hsl(var(--muted) / 0.3)',
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      
+      <div className="mt-3 flex justify-between text-[9px] text-muted-foreground/50">
+        <span>30d ago</span>
+        <span>Today</span>
+      </div>
+    </div>
   );
 }

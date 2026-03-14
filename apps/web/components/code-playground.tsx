@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { Play, RotateCcw, Terminal } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Play, RotateCcw, Terminal, AlertTriangle } from 'lucide-react';
 
 import type { QuestionRecord } from '@/lib/content/types';
 import type { TimelineEvent } from '@/lib/run/types';
 import { runJavaScriptInSandbox } from '@/lib/run/sandbox';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { SimpleCodeEditor } from '@/components/editor/simple-code-editor';
 import { TimelineChart } from '@/components/visualization/timeline-chart';
+import { cn } from '@/lib/utils';
 
 interface CodePlaygroundProps {
   question: QuestionRecord;
@@ -33,6 +33,9 @@ export function CodePlayground({ question, onTimelineUpdate }: CodePlaygroundPro
   function resetCode() {
     if (!currentBlock) return;
     setCode(currentBlock.code);
+    setLogs([]);
+    setErrors([]);
+    setTimeline([]);
   }
 
   async function runTimeline() {
@@ -56,73 +59,108 @@ export function CodePlayground({ question, onTimelineUpdate }: CodePlaygroundPro
 
   if (!currentBlock) {
     return (
-      <div className="rounded-lg border border-border bg-card/60 p-4">
-        <p className="text-sm text-muted-foreground">This question has no browser-runnable JavaScript snippet.</p>
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/40 bg-card/20 p-8 text-center">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50">
+          <AlertTriangle className="h-4 w-4 text-muted-foreground/60" />
+        </div>
+        <p className="text-sm text-muted-foreground/70">
+          This question has no runnable JavaScript snippet.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        {runnableBlocks.map((block, index) => {
-          const active = block.id === currentBlock.id;
-          return (
-            <button
-              key={block.id}
-              type="button"
-              onClick={() => {
-                setSelectedId(block.id);
-                setCode(block.code);
-                setLogs([]);
-                setErrors([]);
-                setTimeline([]);
-              }}
-              className={`rounded-full border px-3 py-1 text-xs uppercase tracking-wide transition-colors ${
-                active ? 'border-primary/40 bg-primary/15 text-primary' : 'border-border bg-muted/30 text-muted-foreground'
-              }`}
-            >
-              Snippet {index + 1}
-            </button>
-          );
-        })}
+    <div className="space-y-4 p-4">
+      {/* Snippet selector */}
+      {runnableBlocks.length > 1 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {runnableBlocks.map((block, index) => {
+            const active = block.id === currentBlock.id;
+            return (
+              <button
+                key={block.id}
+                type="button"
+                onClick={() => {
+                  setSelectedId(block.id);
+                  setCode(block.code);
+                  setLogs([]);
+                  setErrors([]);
+                  setTimeline([]);
+                }}
+                className={cn(
+                  'rounded-md px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider transition-colors',
+                  active
+                    ? 'bg-primary/15 text-primary'
+                    : 'text-muted-foreground/60 hover:bg-muted/40 hover:text-foreground'
+                )}
+              >
+                Snippet {index + 1}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Editor */}
+      <div className="overflow-hidden rounded-lg border border-border/30 bg-[#0d1117]">
+        <SimpleCodeEditor value={code} onChange={setCode} />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-border bg-card/60 p-3">
-            <SimpleCodeEditor value={code} onChange={setCode} />
-          </div>
+      {/* Action buttons */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          size="sm"
+          onClick={runTimeline}
+          disabled={running}
+          className="h-8 gap-1.5 px-3 text-xs"
+        >
+          <Play className="h-3.5 w-3.5" />
+          {running ? 'Running...' : 'Run'}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={resetCode}
+          className="h-8 gap-1.5 px-3 text-xs text-muted-foreground"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          Reset
+        </Button>
+      </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Button onClick={runTimeline} disabled={running}>
-              <Play className="mr-2 h-4 w-4" />
-              {running ? 'Running...' : 'Run Code'}
-            </Button>
-            <Button variant="secondary" onClick={resetCode}>
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Reset
-            </Button>
-            <Badge>{currentBlock.language}</Badge>
+      {/* Console output */}
+      <div className="space-y-3">
+        <div className="rounded-lg border border-border/30 bg-black/30 p-3">
+          <div className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60">
+            <Terminal className="h-3 w-3" />
+            Console
           </div>
+          <pre className="max-h-48 overflow-auto font-mono text-xs leading-relaxed">
+            {logs.length === 0 && errors.length === 0 ? (
+              <span className="text-muted-foreground/40">Run the code to see output...</span>
+            ) : (
+              <>
+                {logs.map((log, i) => (
+                  <div key={`log-${i}-${log.slice(0, 20)}`} className="text-emerald-400/90">{log}</div>
+                ))}
+                {errors.map((err, i) => (
+                  <div key={`err-${i}-${err.slice(0, 20)}`} className="text-rose-400/90">[error] {err}</div>
+                ))}
+              </>
+            )}
+          </pre>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-border bg-black/20 p-4">
-            <p className="mb-2 inline-flex items-center gap-2 text-sm text-foreground">
-              <Terminal className="h-4 w-4" />
-              Console Output
-            </p>
-            <pre className="max-h-64 overflow-auto whitespace-pre-wrap text-xs text-muted-foreground">
-              {logs.length === 0 && errors.length === 0 ? 'Run the snippet to inspect logs and thrown errors.' : [...logs, ...errors.map((err) => `[error] ${err}`)].join('\n')}
-            </pre>
-          </div>
-
-          <div className="rounded-2xl border border-border bg-black/20 p-4">
-            <p className="mb-2 text-sm text-foreground">Event Loop Timeline</p>
+        {/* Timeline */}
+        {timeline.length > 0 && (
+          <div className="rounded-lg border border-border/30 bg-black/30 p-3">
+            <div className="mb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60">
+              Event Loop Timeline
+            </div>
             <TimelineChart events={timeline} />
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

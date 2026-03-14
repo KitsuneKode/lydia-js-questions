@@ -212,14 +212,12 @@ export function getReviewQueue(
   questions: QuestionRecord[],
   limit = 10,
 ): QuestionRecord[] {
-  const now = Date.now();
-  const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
-
-  const questionMap = new Map(questions.map((q) => [q.id, q]));
+  const now = new Date();
 
   interface ScoredQuestion {
     question: QuestionRecord;
-    priority: number;
+    overdueDays: number;
+    priority: number; // For fallback
   }
 
   const scored: ScoredQuestion[] = [];
@@ -228,25 +226,35 @@ export function getReviewQueue(
     const item = progress.questions[String(q.id)];
 
     if (!item || item.attempts.length === 0) {
-      // Never attempted — low priority
-      scored.push({ question: q, priority: 1 });
-      continue;
+      continue; // Unanswered questions are not reviews
     }
 
-    const lastAttempt = item.attempts[item.attempts.length - 1];
-    const lastTime = new Date(lastAttempt.attemptedAt).getTime();
+    if (item.srsData && item.srsData.nextReviewDate) {
+      const reviewDate = new Date(item.srsData.nextReviewDate);
+      const diffMs = now.getTime() - reviewDate.getTime();
+      
+      // If diffMs > 0, the review is due or overdue
+      if (diffMs > 0) {
+        const overdueDays = diffMs / (1000 * 60 * 60 * 24);
+        scored.push({ question: q, overdueDays, priority: 10 }); // High priority if managed by SRS
+      }
+    } else {
+      // Fallback for items answered before SRS was implemented (legacy logic)
+      const lastAttempt = item.attempts[item.attempts.length - 1];
+      const lastTime = new Date(lastAttempt.attemptedAt).getTime();
+      const sevenDaysAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
 
-    if (lastAttempt.status === 'incorrect') {
-      // Wrong recently — highest priority
-      scored.push({ question: q, priority: 3 });
-    } else if (lastTime < sevenDaysAgo) {
-      // Not attempted in 7+ days — medium priority
-      scored.push({ question: q, priority: 2 });
+      if (lastAttempt.status === 'incorrect') {
+        scored.push({ question: q, overdueDays: 0, priority: 3 });
+      } else if (lastTime < sevenDaysAgo) {
+        scored.push({ question: q, overdueDays: 0, priority: 2 });
+      }
     }
   }
 
   return scored
-    .sort((a, b) => b.priority - a.priority)
+    // Sort primarily by priority (SRS vs Legacy), then by how many days overdue
+    .sort((a, b) => b.priority - a.priority || b.overdueDays - a.overdueDays)
     .slice(0, limit)
     .map((s) => s.question);
 }

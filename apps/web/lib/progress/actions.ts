@@ -10,6 +10,7 @@ interface SupabaseProgressRow {
   question_id: number;
   attempts: ProgressItem['attempts'];
   bookmarked: boolean;
+  srs_data: ProgressItem['srsData'] | null;
   updated_at: string;
 }
 
@@ -18,6 +19,7 @@ function toProgressItem(row: SupabaseProgressRow): ProgressItem {
     questionId: row.question_id,
     attempts: row.attempts,
     bookmarked: row.bookmarked,
+    srsData: row.srs_data ?? undefined,
     updatedAt: row.updated_at,
   };
 }
@@ -29,7 +31,7 @@ export async function fetchServerProgress(): Promise<ProgressItem[]> {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from('user_progress')
-    .select('user_id, question_id, attempts, bookmarked, updated_at')
+    .select('user_id, question_id, attempts, bookmarked, srs_data, updated_at')
     .eq('user_id', userId);
 
   if (error) {
@@ -53,6 +55,7 @@ export async function upsertSingleQuestion(item: ProgressItem): Promise<void> {
         question_id: item.questionId,
         attempts: item.attempts,
         bookmarked: item.bookmarked,
+        srs_data: item.srsData ?? null,
         updated_at: item.updatedAt,
       },
       { onConflict: 'user_id,question_id' },
@@ -73,6 +76,7 @@ export async function syncProgressToServer(items: ProgressItem[]): Promise<void>
     question_id: item.questionId,
     attempts: item.attempts,
     bookmarked: item.bookmarked,
+    srs_data: item.srsData ?? null,
     updated_at: item.updatedAt,
   }));
 

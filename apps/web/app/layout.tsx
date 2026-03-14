@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Fraunces, Source_Sans_3 } from 'next/font/google';
+import { Fraunces, Source_Sans_3, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
 import { Toaster } from 'sonner';
@@ -13,13 +13,19 @@ import { NotificationManager } from '@/components/notification-manager';
 const display = Fraunces({
   subsets: ['latin'],
   variable: '--font-display',
-  weight: ['400', '600', '700'],
+  weight: ['400', '500', '600', '700'],
 });
 
 const body = Source_Sans_3({
   subsets: ['latin'],
   variable: '--font-body',
   weight: ['400', '500', '600', '700'],
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  weight: ['400', '500', '600'],
 });
 
 export const metadata: Metadata = {
@@ -30,7 +36,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <AuthProvider>
-      <html lang="en" className={`${display.variable} ${body.variable}`}>
+      <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
         <body className="grain-overlay antialiased">
           <ProgressProvider>
             <SiteHeader />
@@ -41,9 +47,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               theme="dark"
               toastOptions={{
                 style: {
-                  background: 'hsl(224, 28%, 10%)',
-                  border: '1px solid hsl(223, 17%, 24%)',
-                  color: 'hsl(38, 32%, 92%)',
+                  background: 'hsl(220, 13%, 9%)',
+                  border: '1px solid hsl(220, 10%, 18%)',
+                  color: 'hsl(210, 20%, 93%)',
+                  fontFamily: 'var(--font-body), system-ui, sans-serif',
                 },
               }}
             />

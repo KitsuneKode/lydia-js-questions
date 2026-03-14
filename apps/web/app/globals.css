@@ -1,51 +1,89 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* ───────────────────────────────────────────────
+   Obsidian Terminal — Design Tokens
+   Cool slate base + warm amber accent
+   ─────────────────────────────────────────────── */
+
 @theme {
+  /* Semantic color tokens */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
   --color-card: hsl(var(--card));
+  --color-card-hover: hsl(var(--card-hover));
   --color-border: hsl(var(--border));
+  --color-border-strong: hsl(var(--border-strong));
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-muted: hsl(var(--primary-muted));
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-success: hsl(var(--success));
   --color-warning: hsl(var(--warning));
   --color-danger: hsl(var(--danger));
+  --color-surface: hsl(var(--surface));
+  --color-surface-elevated: hsl(var(--surface-elevated));
 
+  /* Radii */
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  --shadow-glow: 0 0 0 1px rgba(186, 164, 126, 0.25), 0 20px 60px rgba(7, 10, 19, 0.35);
+  /* Shadows */
+  --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.15), 0 8px 40px hsl(var(--background) / 0.6);
+  --shadow-card: 0 1px 2px hsl(var(--background) / 0.3), 0 4px 16px hsl(var(--background) / 0.2);
+  --shadow-card-hover: 0 2px 4px hsl(var(--background) / 0.3), 0 8px 32px hsl(var(--background) / 0.3);
+  --shadow-button: 0 1px 2px hsl(var(--background) / 0.4);
+  --shadow-button-primary: 0 1px 2px hsl(var(--background) / 0.4), 0 0 20px hsl(var(--primary) / 0.15);
 
-  --background-image-mesh-gold: radial-gradient(circle at 15% 15%, rgba(186,164,126,0.2), transparent 48%), radial-gradient(circle at 85% 10%, rgba(81,126,184,0.18), transparent 45%), radial-gradient(circle at 50% 90%, rgba(180,102,71,0.16), transparent 42%);
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
 }
 
 @layer base {
   :root {
-    --background: 221 34% 7%;
-    --foreground: 38 32% 92%;
-    --muted: 222 26% 16%;
-    --muted-foreground: 38 14% 67%;
-    --card: 224 28% 10%;
-    --border: 223 17% 24%;
-    --primary: 41 44% 62%;
-    --primary-foreground: 220 35% 7%;
-    --accent: 210 70% 65%;
-    --accent-foreground: 220 35% 7%;
-    --success: 143 48% 60%;
-    --warning: 33 92% 65%;
-    --danger: 4 78% 62%;
-    --radius: 0.9rem;
-    --chart-1: 41 44% 62%;
-    --chart-2: 210 70% 65%;
-    --chart-3: 143 48% 60%;
-    --chart-4: 33 92% 65%;
-    --chart-5: 280 50% 65%;
+    /* ── Obsidian Palette ── */
+    --background:         220 14% 6%;
+    --foreground:         210 20% 93%;
+    --surface:            220 13% 9%;
+    --surface-elevated:   220 12% 12%;
+    --muted:              220 12% 14%;
+    --muted-foreground:   215 12% 55%;
+    --card:               220 13% 9%;
+    --card-hover:         220 12% 11%;
+    --border:             220 10% 16%;
+    --border-strong:      220 10% 24%;
+
+    /* ── Amber Accent ── */
+    --primary:            45 80% 60%;
+    --primary-foreground: 220 20% 6%;
+    --primary-muted:      45 40% 25%;
+
+    /* ── Info Blue ── */
+    --accent:             200 80% 62%;
+    --accent-foreground:  220 20% 6%;
+
+    /* ── Semantic ── */
+    --success:            152 55% 52%;
+    --warning:            38 90% 58%;
+    --danger:             0 70% 58%;
+
+    /* ── Radii ── */
+    --radius: 0.625rem;
+
+    /* ── Chart Colors ── */
+    --chart-1: 45 80% 60%;
+    --chart-2: 200 80% 62%;
+    --chart-3: 152 55% 52%;
+    --chart-4: 38 90% 58%;
+    --chart-5: 270 50% 62%;
   }
 
   * {
@@ -60,49 +98,64 @@
   body {
     color: var(--color-foreground);
     background:
-      radial-gradient(circle at 12% 14%, rgba(186, 164, 126, 0.2), transparent 45%),
-      radial-gradient(circle at 85% -5%, rgba(83, 128, 181, 0.16), transparent 45%),
-      radial-gradient(circle at 50% 110%, rgba(194, 106, 67, 0.2), transparent 55%),
-      linear-gradient(170deg, #090d19 0%, #111827 50%, #171622 100%);
+      radial-gradient(ellipse 80% 60% at 10% 0%, hsl(var(--primary) / 0.04), transparent 50%),
+      radial-gradient(ellipse 60% 50% at 90% 5%, hsl(var(--accent) / 0.03), transparent 45%),
+      linear-gradient(175deg, hsl(220, 14%, 5%) 0%, hsl(220, 14%, 6%) 40%, hsl(222, 13%, 7%) 100%);
+    background-attachment: fixed;
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
+
+/* ── Font Utilities ── */
 
 @utility font-display {
   font-family: var(--font-display), ui-serif, Georgia, serif;
 }
 
+@utility font-mono {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ── Components ── */
+
 @layer components {
+  /* Subtle noise grain */
   .grain-overlay::before {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
-    opacity: 0.08;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f7ead2' fill-opacity='1'%3E%3Ccircle cx='2' cy='2' r='1'/%3E%3Ccircle cx='51' cy='44' r='1'/%3E%3Ccircle cx='88' cy='100' r='1'/%3E%3Ccircle cx='139' cy='72' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    z-index: -1;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Ccircle cx='3' cy='3' r='0.8'/%3E%3Ccircle cx='53' cy='47' r='0.6'/%3E%3Ccircle cx='97' cy='11' r='0.7'/%3E%3Ccircle cx='141' cy='68' r='0.5'/%3E%3Ccircle cx='29' cy='92' r='0.6'/%3E%3Ccircle cx='178' cy='134' r='0.7'/%3E%3Ccircle cx='72' cy='161' r='0.5'/%3E%3Ccircle cx='123' cy='188' r='0.6'/%3E%3Ccircle cx='192' cy='23' r='0.5'/%3E%3Ccircle cx='61' cy='119' r='0.7'/%3E%3Ccircle cx='156' cy='97' r='0.5'/%3E%3Ccircle cx='14' cy='172' r='0.6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    z-index: 9999;
   }
 
+  /* Selection */
   ::selection {
-    background: color-mix(in srgb, var(--color-primary) 30%, transparent);
+    background: hsl(var(--primary) / 0.25);
     color: var(--color-foreground);
   }
 
+  /* Links */
   a {
-    color: var(--color-accent);
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
   }
 
   a:hover {
-    color: var(--color-primary);
+    color: hsl(var(--primary) / 0.8);
   }
 
+  /* Code */
   code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
+  /* Markdown prose */
   .markdown {
     @apply space-y-4 text-sm leading-7 text-muted-foreground;
   }
@@ -116,26 +169,70 @@
 
   .markdown p code,
   .markdown li code {
-    @apply rounded bg-muted px-1.5 py-0.5 text-foreground;
+    @apply rounded-md bg-surface-elevated px-1.5 py-0.5 text-[13px] font-mono text-foreground;
   }
 
   .markdown pre {
-    @apply overflow-x-auto rounded-lg border border-border bg-black/30 p-4 text-xs;
+    @apply overflow-x-auto rounded-lg border border-border bg-[#0c0e14] p-4 text-[13px] leading-6;
   }
 
   .markdown ul {
     @apply list-disc pl-6;
   }
 
+  .markdown ol {
+    @apply list-decimal pl-6;
+  }
+
   .markdown img {
     @apply rounded-md border border-border;
   }
 
+  .markdown blockquote {
+    @apply border-l-2 border-primary/30 pl-4 italic text-muted-foreground/80;
+  }
+
+  .markdown a {
+    @apply text-primary underline underline-offset-2 decoration-primary/30 hover:decoration-primary/60;
+  }
+
+  /* Question grid virtualization */
   .question-grid-item {
     content-visibility: auto;
-    contain-intrinsic-size: 0 280px;
+    contain-intrinsic-size: 0 260px;
+  }
+
+  /* Custom scrollbar */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border-strong)) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--border-strong));
+    border-radius: 3px;
+  }
+
+  /* Focus ring utility */
+  .focus-ring {
+    @apply outline-none ring-2 ring-primary/40 ring-offset-2 ring-offset-background;
   }
 }
+
+/* ── Reduced Motion ── */
 
 @media (prefers-reduced-motion: reduce) {
   * {

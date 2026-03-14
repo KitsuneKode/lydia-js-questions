@@ -6,44 +6,47 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 import type { QuestionRecord } from '@/lib/content/types';
 import { useAnalytics } from '@/lib/progress/use-analytics';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 interface NextRecommendedBannerProps {
   questions: QuestionRecord[];
 }
 
 export function NextRecommendedBanner({ questions }: NextRecommendedBannerProps) {
-  const { ready, recommended, overall } = useAnalytics(questions);
+  const { ready, recommended } = useAnalytics(questions);
 
   if (!ready || !recommended.question) return null;
 
   const q = recommended.question;
 
   return (
-    <section className="animate-in fade-in slide-in-from-top-4 duration-700">
-      <div className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-card/50 to-card p-6 shadow-lg shadow-black/10">
-        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+    <section className="animate-in fade-in slide-in-from-top-2 duration-500">
+      <div className="group relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-card/60 to-card/40 p-5">
+        {/* Subtle glow */}
+        <div className="absolute -left-20 -top-20 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        
+        <div className="relative flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-primary ring-1 ring-primary/30">
-              <Sparkles className="h-5 w-5 fill-current" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+              <Sparkles className="h-4 w-4" />
             </div>
-            <div>
+            <div className="space-y-0.5">
               <div className="flex items-center gap-2">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Recommended for you</p>
-                <Badge variant="secondary" className="px-1.5 py-0 text-[9px] opacity-60">
+                <p className="text-[10px] font-medium uppercase tracking-widest text-primary">
+                  Recommended
+                </p>
+                <span className="text-[9px] text-muted-foreground/50">
                   {recommended.label}
-                </Badge>
+                </span>
               </div>
-              <h2 className="mt-1 font-display text-xl font-medium text-foreground transition-colors group-hover:text-primary">
+              <h2 className="font-display text-base font-medium text-foreground transition-colors group-hover:text-primary sm:text-lg">
                 {q.title}
               </h2>
-              <p className="mt-1 text-xs text-muted-foreground">{recommended.description}</p>
             </div>
           </div>
-          <Link href={`/questions/${q.id}`} className="w-full shrink-0 md:w-auto">
-            <Button className="w-full gap-2 px-6 shadow-md shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-              Practice Now
-              <ArrowRight className="h-4 w-4" />
+          <Link href={`/questions/${q.id}`} className="w-full shrink-0 sm:w-auto">
+            <Button size="sm" className="w-full gap-2 sm:w-auto">
+              Practice
+              <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </Link>
         </div>

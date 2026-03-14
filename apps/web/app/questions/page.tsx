@@ -54,18 +54,29 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
   };
 
   return (
-    <main className="py-8 md:py-10">
+    <main className="py-10 md:py-14">
       <Container>
-        <div className="space-y-10">
-          <header className="space-y-2">
-            <h1 className="font-display text-4xl font-medium tracking-tight text-foreground md:text-5xl">Question Library</h1>
-            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
-              Explore the dataset of JavaScript interview questions. Commit to an answer before seeing the explanation, then run and visualize the code to master the behavior.
+        <div className="space-y-8">
+          {/* Header */}
+          <header className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+                {allQuestions.length} Questions
+              </span>
+              <span className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
+            </div>
+            <h1 className="font-display text-3xl font-medium tracking-tight text-foreground md:text-4xl">
+              Question Library
+            </h1>
+            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground/80">
+              Browse and practice JavaScript interview questions. Commit to an answer, then explore the explanation and run the code.
             </p>
           </header>
 
+          {/* Recommended Banner */}
           <NextRecommendedBanner questions={allQuestions} />
 
+          {/* Filters and Results */}
           <section className="space-y-6">
             <FiltersBar
               tags={manifest.tags}
@@ -76,12 +87,17 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
               totalQuestions={allQuestions.length}
             />
 
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+            {/* Results count bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 text-[11px] font-medium uppercase tracking-widest text-muted-foreground/50">
               <p>
-                Showing {paged.items.length} of {paged.total} matching questions
+                <span className="text-foreground/70">{paged.items.length}</span>
+                <span className="mx-1.5 text-muted-foreground/30">/</span>
+                <span>{paged.total} questions</span>
               </p>
-              <p className="flex items-center gap-2">
-                Page {paged.page} of {paged.pageCount}
+              <p className="flex items-center gap-1.5 font-mono">
+                <span className="text-foreground/70">{paged.page}</span>
+                <span className="text-muted-foreground/30">/</span>
+                <span>{paged.pageCount}</span>
               </p>
             </div>
 

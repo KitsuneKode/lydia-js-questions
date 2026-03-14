@@ -1,63 +1,50 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PieChart } from 'lucide-react';
 import type { TagStats } from '@/lib/progress/analytics';
 
 interface TopicAccuracyChartProps {
   tagStats: TagStats[];
 }
 
-const BAR_COLORS = [
-  '--chart-1',
-  '--chart-2',
-  '--chart-3',
-  '--chart-4',
-  '--chart-5',
-];
-
 export function TopicAccuracyChart({ tagStats }: TopicAccuracyChartProps) {
-  const top = tagStats.slice(0, 10);
+  const top = tagStats.slice(0, 8);
 
   if (top.length === 0) {
     return null;
   }
 
-  const maxAttempts = Math.max(...top.map((t) => t.totalAttempts));
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Topic Accuracy</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {top.map((tag, i) => {
+    <div className="rounded-xl border border-border/40 bg-card/40 p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <PieChart className="h-4 w-4 text-muted-foreground/60" />
+        <h3 className="text-sm font-medium text-foreground">Topic Accuracy</h3>
+      </div>
+      
+      <div className="space-y-2.5">
+        {top.map((tag) => {
           const pct = Math.round(tag.accuracy * 100);
-          const color = BAR_COLORS[i % BAR_COLORS.length];
+          const barColor = pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-rose-500';
 
           return (
             <div key={tag.tag} className="space-y-1">
               <div className="flex items-baseline justify-between text-xs">
-                <span className="truncate text-foreground">{tag.tag}</span>
-                <span className="ml-2 shrink-0 tabular-nums text-muted-foreground">
+                <span className="truncate font-medium text-foreground/80">{tag.tag}</span>
+                <span className="ml-2 shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground/60">
                   {pct}%
-                  <span className="ml-1 text-muted-foreground/60">
-                    ({tag.totalAttempts})
-                  </span>
+                  <span className="ml-1 opacity-50">({tag.totalAttempts})</span>
                 </span>
               </div>
-              <div className="relative h-2 overflow-hidden rounded-full bg-muted/50">
+              <div className="relative h-1.5 overflow-hidden rounded-full bg-muted/30">
                 <div
-                  className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
-                  style={{
-                    width: `${pct}%`,
-                    backgroundColor: `hsl(var(${color}))`,
-                  }}
+                  className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${barColor}`}
+                  style={{ width: `${pct}%`, opacity: 0.8 }}
                 />
               </div>
             </div>
           );
         })}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

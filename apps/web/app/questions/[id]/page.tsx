@@ -32,7 +32,7 @@ export default async function QuestionDetailPage({ params }: QuestionDetailPageP
   const related = getRelatedQuestions(question, 3);
 
   return (
-    <main className="py-8 md:py-10">
+    <main className="py-8 md:py-12">
       <Container>
         <div className="space-y-16">
           <QuestionClientShell
@@ -43,17 +43,25 @@ export default async function QuestionDetailPage({ params }: QuestionDetailPageP
           />
 
           {related.length > 0 && (
-            <section className="space-y-6 pt-10 border-t border-border/40">
+            <section className="space-y-6 border-t border-border/30 pt-12">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <h2 className="font-display text-2xl font-medium tracking-tight">Keep Practicing</h2>
-                  <p className="text-sm text-muted-foreground">Related questions based on similar JavaScript concepts.</p>
+                  <h2 className="font-display text-xl font-medium tracking-tight text-foreground">
+                    Keep Practicing
+                  </h2>
+                  <p className="text-sm text-muted-foreground/70">
+                    Related questions covering similar concepts
+                  </p>
                 </div>
-                <Link href="/questions" className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-                  View Library <ArrowRight className="h-3.5 w-3.5" />
+                <Link
+                  href="/questions"
+                  className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-widest text-primary transition-opacity hover:opacity-80"
+                >
+                  View All
+                  <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {related.map((item) => (
                   <QuestionCard key={item.id} question={item} />
                 ))}
