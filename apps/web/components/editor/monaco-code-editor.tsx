@@ -1,8 +1,9 @@
 'use client';
 
+import type { OnMount } from '@monaco-editor/react';
 import { Editor } from '@monaco-editor/react';
-import { useCallback, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useCallback, useRef } from 'react';
 
 interface MonacoEditorProps {
   value: string;
@@ -49,23 +50,17 @@ export function MonacoCodeEditor({
   readOnly = false,
   path,
 }: MonacoEditorProps) {
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
 
-  const handleMount = useCallback(
-    (editor: any, monaco: any) => {
+  const handleMount = useCallback<OnMount>(
+    (editor, monaco) => {
       editorRef.current = editor;
 
-      editor.addCommand(
-        monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-        () => {
-          onRun?.();
-        }
-      );
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+        onRun?.();
+      });
 
-      editor.addCommand(
-        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
-        () => {}
-      );
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {});
 
       editor.updateOptions({
         ...EDITOR_OPTIONS,
@@ -73,7 +68,7 @@ export function MonacoCodeEditor({
         domReadOnly: readOnly,
       });
     },
-    [onRun, readOnly]
+    [onRun, readOnly],
   );
 
   return (

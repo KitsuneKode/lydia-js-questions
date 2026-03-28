@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
-import { Copy, Terminal, Loader2 } from 'lucide-react';
+import { Copy, Loader2, Terminal } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { TerminalLogEntry } from '@/lib/run/terminal';
 
@@ -11,15 +11,23 @@ interface TerminalOutputProps {
   emptyMessage?: string;
 }
 
-export function TerminalOutput({ logs, isRunning = false, emptyMessage = 'Run code to see output...' }: TerminalOutputProps) {
+export function TerminalOutput({
+  logs,
+  isRunning = false,
+  emptyMessage = 'Run code to see output...',
+}: TerminalOutputProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (logs.length === 0) {
+      return;
+    }
+
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [logs.length]);
+  }, [logs]);
 
   const handleCopy = () => {
     const text = logs.map((l) => l.content).join('\n');
@@ -70,6 +78,8 @@ export function TerminalOutput({ logs, isRunning = false, emptyMessage = 'Run co
     return '';
   };
 
+  const logKeyCounts = new Map<string, number>();
+
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-lg border border-[#262626] bg-[#0a0a0a]">
       {/* Terminal Header */}
@@ -104,10 +114,7 @@ export function TerminalOutput({ logs, isRunning = false, emptyMessage = 'Run co
       </div>
 
       {/* Terminal Output */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-auto p-3 font-mono text-xs leading-relaxed"
-      >
+      <div ref={scrollRef} className="flex-1 overflow-auto p-3 font-mono text-xs leading-relaxed">
         {logs.length === 0 ? (
           <div className="flex h-full items-center justify-center text-muted-foreground/40">
             <div className="flex items-center gap-2">
@@ -126,19 +133,23 @@ export function TerminalOutput({ logs, isRunning = false, emptyMessage = 'Run co
           </div>
         ) : (
           <div className="space-y-0.5">
-            {logs.map((log, i) => (
-              <div
-                key={`${log.timestamp}-${i}`}
-                className={`flex items-start gap-2 whitespace-pre-wrap ${getTypeColor(
-                  log.type
-                )} ${getLineClassName(log.type)}`}
-              >
-                <span className="select-none opacity-50">
-                  {getTypePrefix(log.type)}
-                </span>
-                <span>{log.content}</span>
-              </div>
-            ))}
+            {logs.map((log) => {
+              const baseKey = `${log.timestamp}-${log.type}-${log.content}`;
+              const occurrence = (logKeyCounts.get(baseKey) ?? 0) + 1;
+              logKeyCounts.set(baseKey, occurrence);
+
+              return (
+                <div
+                  key={`${baseKey}-${occurrence}`}
+                  className={`flex items-start gap-2 whitespace-pre-wrap ${getTypeColor(
+                    log.type,
+                  )} ${getLineClassName(log.type)}`}
+                >
+                  <span className="select-none opacity-50">{getTypePrefix(log.type)}</span>
+                  <span>{log.content}</span>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

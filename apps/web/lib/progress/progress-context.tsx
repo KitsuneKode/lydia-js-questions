@@ -2,25 +2,29 @@
 
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useReducer,
   useRef,
   useState,
-  type ReactNode,
 } from 'react';
+import { useSafeAuth } from '@/lib/auth-utils';
 import {
-  defaultProgressState,
-  readProgress,
-  writeProgress,
+  fetchServerProgress,
+  syncProgressToServer,
+  upsertSingleQuestion,
+} from '@/lib/progress/actions';
+import { calculateNextReview, type Grade } from '@/lib/progress/srs';
+import {
   type AnswerStatus,
+  defaultProgressState,
   type ProgressItem,
   type ProgressState,
+  readProgress,
+  writeProgress,
 } from '@/lib/progress/storage';
-import { fetchServerProgress, upsertSingleQuestion, syncProgressToServer } from '@/lib/progress/actions';
-import { useSafeAuth } from '@/lib/auth-utils';
-import { calculateNextReview, type Grade } from '@/lib/progress/srs';
 
 // ---------------------------------------------------------------------------
 // Actions
@@ -101,7 +105,7 @@ function progressReducer(state: ProgressState, action: ProgressAction): Progress
       const now = new Date().toISOString();
       const prev = ensureItem(state, action.questionId);
       const newSrsData = calculateNextReview(action.grade, prev.srsData);
-      
+
       return {
         ...state,
         questions: {
@@ -217,21 +221,15 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const saveSelfGrade = useCallback(
-    (questionId: number, grade: Grade) => {
-      pendingSyncRef.current.add(questionId);
-      dispatch({ type: 'grade', questionId, grade });
-    },
-    [],
-  );
+  const saveSelfGrade = useCallback((questionId: number, grade: Grade) => {
+    pendingSyncRef.current.add(questionId);
+    dispatch({ type: 'grade', questionId, grade });
+  }, []);
 
-  const toggleBookmark = useCallback(
-    (questionId: number) => {
-      pendingSyncRef.current.add(questionId);
-      dispatch({ type: 'bookmark', questionId });
-    },
-    [],
-  );
+  const toggleBookmark = useCallback((questionId: number) => {
+    pendingSyncRef.current.add(questionId);
+    dispatch({ type: 'bookmark', questionId });
+  }, []);
 
   const value: ProgressContextValue = {
     state,
@@ -242,11 +240,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     toggleBookmark,
   };
 
-  return (
-    <ProgressContext.Provider value={value}>
-      {children}
-    </ProgressContext.Provider>
-  );
+  return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
 }
 
 export function useProgress() {

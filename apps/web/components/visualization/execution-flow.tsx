@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Pause, Play, RotateCcw } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Play, Pause, RotateCcw } from 'lucide-react';
-
-import type { QuestionRecord } from '@/lib/content/types';
-import type { TimelineEvent, TimelineKind } from '@/lib/run/types';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import type { QuestionRecord } from '@/lib/content/types';
+import type { TimelineEvent, TimelineKind } from '@/lib/run/types';
 
 interface ExecutionFlowProps {
   question: QuestionRecord;
@@ -29,8 +28,8 @@ const KIND_LABELS: Record<TimelineKind, string> = {
 };
 
 function getConceptualSteps(tags: string[]): string[] {
-  const lowerTags = tags.map(t => t.toLowerCase());
-  
+  const lowerTags = tags.map((t) => t.toLowerCase());
+
   if (lowerTags.includes('async')) {
     return [
       'Synchronous execution starts',
@@ -154,9 +153,7 @@ export function ExecutionFlow({ question, timeline }: ExecutionFlowProps) {
               >
                 <span
                   className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs transition-colors ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-primary/20 text-primary'
+                    isActive ? 'bg-primary text-primary-foreground' : 'bg-primary/20 text-primary'
                   }`}
                 >
                   {index + 1}
@@ -201,7 +198,10 @@ export function ExecutionFlow({ question, timeline }: ExecutionFlowProps) {
       <div className="flex flex-wrap gap-3 border-t border-border pt-3">
         {(Object.keys(KIND_COLORS) as TimelineKind[]).map((kind) => (
           <div key={kind} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: KIND_COLORS[kind] }} />
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ backgroundColor: KIND_COLORS[kind] }}
+            />
             <span>{KIND_LABELS[kind]}</span>
           </div>
         ))}

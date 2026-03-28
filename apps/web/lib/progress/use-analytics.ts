@@ -1,45 +1,32 @@
 'use client';
 
 import { useMemo } from 'react';
-
-import { useProgress } from '@/lib/progress/progress-context';
+import type { QuestionRecord } from '@/lib/content/types';
 import {
+  computeDailyActivity,
   computeOverallStats,
   computeTagStats,
-  computeDailyActivity,
-  getWeakestTopics,
-  getReviewQueue,
+  type DailyActivity,
   getContinueLearningSuggestion,
   getRecommendedSuggestion,
+  getReviewQueue,
+  getWeakestTopics,
   type OverallStats,
-  type TagStats,
-  type DailyActivity,
   type PracticeSuggestion,
+  type TagStats,
 } from '@/lib/progress/analytics';
-import type { QuestionRecord } from '@/lib/content/types';
+import { useProgress } from '@/lib/progress/progress-context';
 
 export function useAnalytics(questions: QuestionRecord[]) {
   const { state, ready } = useProgress();
 
-  const overall = useMemo<OverallStats>(
-    () => computeOverallStats(state),
-    [state],
-  );
+  const overall = useMemo<OverallStats>(() => computeOverallStats(state), [state]);
 
-  const tagStats = useMemo<TagStats[]>(
-    () => computeTagStats(state, questions),
-    [state, questions],
-  );
+  const tagStats = useMemo<TagStats[]>(() => computeTagStats(state, questions), [state, questions]);
 
-  const dailyActivity = useMemo<DailyActivity[]>(
-    () => computeDailyActivity(state),
-    [state],
-  );
+  const dailyActivity = useMemo<DailyActivity[]>(() => computeDailyActivity(state), [state]);
 
-  const weakestTopics = useMemo<TagStats[]>(
-    () => getWeakestTopics(tagStats),
-    [tagStats],
-  );
+  const weakestTopics = useMemo<TagStats[]>(() => getWeakestTopics(tagStats), [tagStats]);
 
   const reviewQueue = useMemo<QuestionRecord[]>(
     () => getReviewQueue(state, questions),

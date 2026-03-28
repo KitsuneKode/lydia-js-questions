@@ -1,9 +1,8 @@
 'use server';
 
 import { auth } from '@clerk/nextjs/server';
-
-import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { ProgressItem } from '@/lib/progress/storage';
+import { getSupabaseServerClient } from '@/lib/supabase/server';
 
 interface SupabaseProgressRow {
   user_id: string;
@@ -47,19 +46,17 @@ export async function upsertSingleQuestion(item: ProgressItem): Promise<void> {
   if (!userId) return;
 
   const supabase = getSupabaseServerClient();
-  const { error } = await supabase
-    .from('user_progress')
-    .upsert(
-      {
-        user_id: userId,
-        question_id: item.questionId,
-        attempts: item.attempts,
-        bookmarked: item.bookmarked,
-        srs_data: item.srsData ?? null,
-        updated_at: item.updatedAt,
-      },
-      { onConflict: 'user_id,question_id' },
-    );
+  const { error } = await supabase.from('user_progress').upsert(
+    {
+      user_id: userId,
+      question_id: item.questionId,
+      attempts: item.attempts,
+      bookmarked: item.bookmarked,
+      srs_data: item.srsData ?? null,
+      updated_at: item.updatedAt,
+    },
+    { onConflict: 'user_id,question_id' },
+  );
 
   if (error) {
     console.error('Failed to upsert question progress:', error);

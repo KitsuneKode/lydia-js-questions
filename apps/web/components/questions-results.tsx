@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
 import { Search } from 'lucide-react';
+import { useMemo } from 'react';
 
 import { QuestionCard } from '@/components/question-card';
 import type { QuestionRecord } from '@/lib/content/types';

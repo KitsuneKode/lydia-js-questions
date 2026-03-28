@@ -1,25 +1,35 @@
 'use client';
 
-import { useAuth } from '@clerk/nextjs';
+import type { ReactNode } from 'react';
+import { createContext, createElement, useContext } from 'react';
+
+export interface SafeAuthState {
+  isSignedIn: boolean;
+  userId: string | null;
+}
 
 export const clerkEnabled =
   !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.startsWith('pk_') &&
   !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('REPLACE');
 
-const guestAuth = { isSignedIn: false as const, userId: null };
+export const guestAuth: SafeAuthState = { isSignedIn: false, userId: null };
+
+const SafeAuthContext = createContext<SafeAuthState>(guestAuth);
+
+interface SafeAuthProviderProps {
+  value: SafeAuthState;
+  children: ReactNode;
+}
+
+export function SafeAuthProvider({ value, children }: SafeAuthProviderProps) {
+  return createElement(SafeAuthContext.Provider, { value }, children);
+}
 
 /**
- * Safe wrapper around Clerk's useAuth.
- * Returns guest state when Clerk is not configured.
- * `clerkEnabled` is a build-time constant so the hook call pattern is stable.
+ * Reads auth state from the local auth bridge so guest mode can work without
+ * conditionally calling Clerk hooks.
  */
 export function useSafeAuth() {
-  // clerkEnabled is a module-level constant — hook call is deterministic
-  if (!clerkEnabled) {
-    return guestAuth;
-  }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  return useAuth();
+  return useContext(SafeAuthContext);
 }

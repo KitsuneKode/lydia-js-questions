@@ -41,7 +41,10 @@ export function getSandboxErrorLines(error: SandboxError): string[] {
   return lines;
 }
 
-export function toTerminalLogEntries(result: SandboxRunResult, startedAt = Date.now()): TerminalLogEntry[] {
+export function toTerminalLogEntries(
+  result: SandboxRunResult,
+  startedAt = Date.now(),
+): TerminalLogEntry[] {
   const entries: TerminalLogEntry[] = [];
 
   result.logs.forEach((log, index) => {

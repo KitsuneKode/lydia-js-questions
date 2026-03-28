@@ -1,7 +1,7 @@
 'use client';
 
+import { ArrowRight, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
-import { RotateCcw, ArrowRight } from 'lucide-react';
 import type { QuestionRecord } from '@/lib/content/types';
 
 interface ReviewQueueProps {
@@ -18,11 +18,9 @@ export function ReviewQueue({ questions }: ReviewQueueProps) {
           <RotateCcw className="h-4 w-4 text-primary/70" />
           <h3 className="text-sm font-medium text-foreground">Review Queue</h3>
         </div>
-        <span className="text-[10px] text-muted-foreground/50">
-          Spaced repetition
-        </span>
+        <span className="text-[10px] text-muted-foreground/50">Spaced repetition</span>
       </div>
-      
+
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {questions.slice(0, 6).map((q) => (
           <Link

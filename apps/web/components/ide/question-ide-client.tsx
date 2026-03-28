@@ -1,39 +1,54 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import Link from 'next/link';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Play, 
-  CheckCircle2, 
-  CircleAlert,
-  Terminal,
-  Sparkles,
+import {
+  Activity,
   Bookmark,
-  Zap,
+  CheckCircle2,
   ChevronDown,
-  Activity
+  ChevronLeft,
+  ChevronRight,
+  CircleAlert,
+  Play,
+  Sparkles,
+  Terminal,
+  Zap,
 } from 'lucide-react';
-
-import { MonacoCodeEditor } from '@/components/editor/monaco-code-editor';
-import { TerminalOutput } from '@/components/terminal/terminal-output';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatePresence, motion } from 'motion/react';
+import Link from 'next/link';
+import { useCallback, useState } from 'react';
 import { Streamdown } from 'streamdown';
+import { MonacoCodeEditor } from '@/components/editor/monaco-code-editor';
+import { useScratchpad } from '@/components/scratchpad/scratchpad-context';
+import { TerminalOutput } from '@/components/terminal/terminal-output';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable-panel';
+import { TimelineChart } from '@/components/visualization/timeline-chart';
 import type { QuestionRecord } from '@/lib/content/types';
-import type { TimelineEvent } from '@/lib/run/types';
+import { useQuestionProgress } from '@/lib/progress/use-question-progress';
 import { runJavaScriptInSandbox } from '@/lib/run/sandbox';
 import type { TerminalLogEntry } from '@/lib/run/terminal';
 import { getPrimaryErrorMessage, toTerminalLogEntries } from '@/lib/run/terminal';
-import { useQuestionProgress } from '@/lib/progress/use-question-progress';
-import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable-panel';
-import { useScratchpad } from '@/components/scratchpad/scratchpad-context';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { TimelineChart } from '@/components/visualization/timeline-chart';
+import type { TimelineEvent } from '@/lib/run/types';
 
 interface QuestionIDEClientProps {
   question: QuestionRecord;
@@ -57,8 +72,10 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
   const [recallAnswer, setRecallAnswer] = useState('');
   const [hasSubmittedRecall, setHasSubmittedRecall] = useState(false);
   const [selfGrade, setSelfGrade] = useState<'hard' | 'good' | 'easy' | null>(null);
-  
-  const cleanPromptMarkdown = question.promptMarkdown.replace(/```[a-z]*\n[\s\S]*?\n```/g, '').trim();
+
+  const cleanPromptMarkdown = question.promptMarkdown
+    .replace(/```[a-z]*\n[\s\S]*?\n```/g, '')
+    .trim();
   const questionCode = question.codeBlocks[0]?.code || EDITOR_DEFAULT_CODE;
 
   const { openScratchpad } = useScratchpad();
@@ -67,7 +84,7 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
   const [isRunning, setIsRunning] = useState(false);
   const [runnerError, setRunnerError] = useState<string | null>(null);
 
-  const { ready, item, saveAttempt, toggleBookmark, saveSelfGrade } = useQuestionProgress(question.id);
+  const { item, saveAttempt, toggleBookmark, saveSelfGrade } = useQuestionProgress(question.id);
 
   const isAnswered = selected !== null || hasSubmittedRecall;
   const isCorrect = selected !== null ? selected === question.correctOption : hasSubmittedRecall;
@@ -113,17 +130,23 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
     saveAttempt(question.correctOption, 'correct');
   }, [recallAnswer, question.correctOption, saveAttempt]);
 
-  const handleSelfGrade = useCallback((grade: 'hard' | 'good' | 'easy') => {
-    setSelfGrade(grade);
-    saveSelfGrade(grade);
-  }, [saveSelfGrade]);
+  const handleSelfGrade = useCallback(
+    (grade: 'hard' | 'good' | 'easy') => {
+      setSelfGrade(grade);
+      saveSelfGrade(grade);
+    },
+    [saveSelfGrade],
+  );
 
-  const handleOptionSelect = useCallback((key: string) => {
-    if (isAnswered) return;
-    const optionKey = key as 'A' | 'B' | 'C' | 'D';
-    setSelected(optionKey);
-    saveAttempt(optionKey, key === question.correctOption ? 'correct' : 'incorrect');
-  }, [isAnswered, question.correctOption, saveAttempt]);
+  const handleOptionSelect = useCallback(
+    (key: string) => {
+      if (isAnswered) return;
+      const optionKey = key as 'A' | 'B' | 'C' | 'D';
+      setSelected(optionKey);
+      saveAttempt(optionKey, key === question.correctOption ? 'correct' : 'incorrect');
+    },
+    [isAnswered, question.correctOption, saveAttempt],
+  );
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
@@ -132,25 +155,41 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
         <div className="flex items-center gap-4">
           {prevId ? (
             <Link href={`/questions/${prevId}`}>
-              <Button variant="ghost" size="sm" className="h-9 w-9 rounded-full bg-card/50 p-0 hover:bg-muted">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 w-9 rounded-full bg-card/50 p-0 hover:bg-muted"
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             </Link>
-          ) : <div className="w-9" />}
-          
+          ) : (
+            <div className="w-9" />
+          )}
+
           <div className="flex flex-col gap-1">
             <h1 className="font-display text-lg font-semibold tracking-tight text-foreground">
               {question.title}
             </h1>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="px-2 py-0.5 text-[10px] uppercase tracking-widest opacity-80">
+              <Badge
+                variant="secondary"
+                className="px-2 py-0.5 text-[10px] uppercase tracking-widest opacity-80"
+              >
                 #{question.id}
               </Badge>
-              <Badge variant="outline" className="px-2 py-0.5 text-[10px] uppercase tracking-widest border-border/60">
+              <Badge
+                variant="outline"
+                className="px-2 py-0.5 text-[10px] uppercase tracking-widest border-border/60"
+              >
                 {question.difficulty}
               </Badge>
               {question.tags.slice(0, 2).map((tag) => (
-                <Badge key={tag} variant="secondary" className="bg-muted/30 px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="bg-muted/30 px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground"
+                >
                   {tag}
                 </Badge>
               ))}
@@ -160,7 +199,7 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
 
         <div className="flex items-center gap-3">
           <Button
-            variant={item.bookmarked ? 'primary' : 'secondary'}
+            variant={item.bookmarked ? 'default' : 'secondary'}
             size="sm"
             onClick={toggleBookmark}
             className="h-9 gap-2 px-4 text-xs font-medium"
@@ -185,20 +224,22 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
         <ResizablePanel defaultSize={40} minSize={25} className="flex flex-col">
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {cleanPromptMarkdown && (
-               <div className="markdown text-sm leading-relaxed text-muted-foreground/90">
-                 <Streamdown>{cleanPromptMarkdown}</Streamdown>
-               </div>
+              <div className="markdown text-sm leading-relaxed text-muted-foreground/90">
+                <Streamdown>{cleanPromptMarkdown}</Streamdown>
+              </div>
             )}
 
             {question.codeBlocks.length > 0 && (
               <div className="flex h-[18rem] flex-col overflow-hidden rounded-xl border border-border/30 bg-[#1e1e1e] md:h-[22rem]">
                 <div className="flex items-center justify-between px-3 py-1.5 bg-muted/20 border-b border-border/30">
-                  <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Question Code</span>
+                  <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                    Question Code
+                  </span>
                   <div className="flex items-center gap-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="h-6 text-[10px] gap-1 px-2">
-                           Scratchpad <ChevronDown className="h-3 w-3" />
+                          Scratchpad <ChevronDown className="h-3 w-3" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48">
@@ -226,11 +267,11 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
                   </div>
                 </div>
                 <div className="min-h-0 flex-1 overflow-hidden">
-                    <MonacoCodeEditor 
+                  <MonacoCodeEditor
                     path={`question-${question.id}.js`}
-                    value={questionCode} 
-                    onChange={() => {}} 
-                    readOnly 
+                    value={questionCode}
+                    onChange={() => {}}
+                    readOnly
                   />
                 </div>
               </div>
@@ -264,24 +305,24 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
 
             {question.codeBlocks.length > 0 && (
               <Dialog>
-                 <DialogTrigger asChild>
-                   <Button
-                     variant="secondary"
-                     disabled={timeline.length === 0}
-                     className="w-full mt-2 gap-2 text-xs border border-border/40 disabled:cursor-not-allowed disabled:opacity-50"
-                   >
-                     <Activity className="h-3 w-3" />
-                     Event Loop Replay
-                   </Button>
-                 </DialogTrigger>
-                 <DialogContent className="max-h-[88vh] w-[min(96vw,76rem)] max-w-5xl overflow-y-auto border-white/10 bg-[#040405] p-4 md:p-6">
-                    <DialogHeader>
-                       <DialogTitle>Event Loop Replay</DialogTitle>
-                    </DialogHeader>
-                    <div className="mt-4 pb-2">
-                       <TimelineChart events={timeline} />
-                    </div>
-                 </DialogContent>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    disabled={timeline.length === 0}
+                    className="w-full mt-2 gap-2 text-xs border border-border/40 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Activity className="h-3 w-3" />
+                    Event Loop Replay
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-h-[88vh] w-[min(96vw,76rem)] max-w-5xl overflow-y-auto border-white/10 bg-[#040405] p-4 md:p-6">
+                  <DialogHeader>
+                    <DialogTitle>Event Loop Replay</DialogTitle>
+                  </DialogHeader>
+                  <div className="mt-4 pb-2">
+                    <TimelineChart events={timeline} />
+                  </div>
+                </DialogContent>
               </Dialog>
             )}
           </div>
@@ -317,14 +358,18 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
                     const picked = selected === option.key;
                     const correct = option.key === question.correctOption;
 
-                    let optionStyles = 'border-border/40 bg-black/20 text-foreground/80 hover:bg-muted/30 hover:border-border/80';
+                    let optionStyles =
+                      'border-border/40 bg-black/20 text-foreground/80 hover:bg-muted/30 hover:border-border/80';
                     if (isAnswered) {
                       if (correct) {
-                        optionStyles = 'border-success/50 bg-success/10 text-success ring-1 ring-success/30';
+                        optionStyles =
+                          'border-success/50 bg-success/10 text-success ring-1 ring-success/30';
                       } else if (picked) {
-                        optionStyles = 'border-danger/50 bg-danger/10 text-danger ring-1 ring-danger/30';
+                        optionStyles =
+                          'border-danger/50 bg-danger/10 text-danger ring-1 ring-danger/30';
                       } else {
-                        optionStyles = 'border-border/20 bg-black/10 text-muted-foreground/40 opacity-50';
+                        optionStyles =
+                          'border-border/20 bg-black/10 text-muted-foreground/40 opacity-50';
                       }
                     }
 
@@ -335,19 +380,27 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
                         disabled={disabled}
                         onClick={() => handleOptionSelect(option.key)}
                         className={`group flex items-start gap-3 rounded-lg border p-3 text-left text-sm transition-all duration-200 ${optionStyles} ${
-                          !disabled ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-md active:translate-y-0' : 'cursor-default'
+                          !disabled
+                            ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-md active:translate-y-0'
+                            : 'cursor-default'
                         }`}
                       >
-                        <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs font-bold ${
-                          picked || (correct && isAnswered)
-                            ? 'border-current bg-current/10'
-                            : 'border-border/50 bg-black/20 group-hover:border-border'
-                        }`}>
+                        <span
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs font-bold ${
+                            picked || (correct && isAnswered)
+                              ? 'border-current bg-current/10'
+                              : 'border-border/50 bg-black/20 group-hover:border-border'
+                          }`}
+                        >
                           {option.key}
                         </span>
                         <span className="flex-1 leading-snug">{option.text}</span>
-                        {isAnswered && correct && <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />}
-                        {isAnswered && picked && !correct && <CircleAlert className="h-4 w-4 shrink-0 text-danger" />}
+                        {isAnswered && correct && (
+                          <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                        )}
+                        {isAnswered && picked && !correct && (
+                          <CircleAlert className="h-4 w-4 shrink-0 text-danger" />
+                        )}
                       </button>
                     );
                   })}
@@ -376,19 +429,19 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
                     animate={{ opacity: 1, height: 'auto' }}
                     className="mt-6 space-y-6 overflow-hidden"
                   >
-                    <div className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${
-                      isCorrect
-                        ? 'border-success/30 bg-success/5 text-success'
-                        : 'border-danger/30 bg-danger/5 text-danger'
-                    }`}>
+                    <div
+                      className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${
+                        isCorrect
+                          ? 'border-success/30 bg-success/5 text-success'
+                          : 'border-danger/30 bg-danger/5 text-danger'
+                      }`}
+                    >
                       {isCorrect ? (
                         <CheckCircle2 className="h-4 w-4" />
                       ) : (
                         <CircleAlert className="h-4 w-4" />
                       )}
-                      <span>
-                        {isCorrect ? 'Correct!' : `Answer: ${question.correctOption}`}
-                      </span>
+                      <span>{isCorrect ? 'Correct!' : `Answer: ${question.correctOption}`}</span>
                     </div>
 
                     <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-b from-card/60 to-background/80 p-6">

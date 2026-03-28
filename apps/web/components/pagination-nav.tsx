@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -23,10 +23,7 @@ export function PaginationNav({ page, pageCount, createHref }: PaginationNavProp
         <Button
           variant="ghost"
           size="sm"
-          className={cn(
-            'h-9 gap-1.5 px-3 text-xs font-medium',
-            page <= 1 && 'opacity-40'
-          )}
+          className={cn('h-9 gap-1.5 px-3 text-xs font-medium', page <= 1 && 'opacity-40')}
           disabled={page <= 1}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -55,8 +52,7 @@ export function PaginationNav({ page, pageCount, createHref }: PaginationNavProp
 
           const isActive = pageNum === page;
           const showEllipsis =
-            pageCount > 7 &&
-            ((i === 1 && page > 4) || (i === 5 && page < pageCount - 3));
+            pageCount > 7 && ((i === 1 && page > 4) || (i === 5 && page < pageCount - 3));
 
           if (showEllipsis) {
             return (
@@ -77,7 +73,7 @@ export function PaginationNav({ page, pageCount, createHref }: PaginationNavProp
                   'flex h-8 w-8 items-center justify-center rounded-md font-mono text-xs font-medium transition-all',
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
                 )}
               >
                 {pageNum}
@@ -95,10 +91,7 @@ export function PaginationNav({ page, pageCount, createHref }: PaginationNavProp
         <Button
           variant="ghost"
           size="sm"
-          className={cn(
-            'h-9 gap-1.5 px-3 text-xs font-medium',
-            page >= pageCount && 'opacity-40'
-          )}
+          className={cn('h-9 gap-1.5 px-3 text-xs font-medium', page >= pageCount && 'opacity-40')}
           disabled={page >= pageCount}
         >
           <span className="hidden sm:inline">Next</span>

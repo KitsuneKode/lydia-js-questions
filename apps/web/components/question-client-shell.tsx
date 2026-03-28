@@ -1,20 +1,27 @@
 'use client';
 
+import {
+  Bookmark,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  CircleAlert,
+  Sparkles,
+  Terminal,
+} from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
-import { Bookmark, CheckCircle2, CircleAlert, ChevronLeft, ChevronRight, Terminal, Sparkles } from 'lucide-react';
-
-import type { QuestionRecord } from '@/lib/content/types';
-import type { TimelineEvent } from '@/lib/run/types';
-import { useQuestionProgress } from '@/lib/progress/use-question-progress';
-import { Button } from '@/components/ui/button';
+import { Streamdown } from 'streamdown';
+import { CodeBlock } from '@/components/code-block';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CodeBlock } from '@/components/code-block';
-import { Streamdown } from 'streamdown';
+import type { QuestionRecord } from '@/lib/content/types';
+import { useQuestionProgress } from '@/lib/progress/use-question-progress';
+import type { TimelineEvent } from '@/lib/run/types';
 
 const CodePlayground = dynamic(
   () => import('@/components/code-playground').then((mod) => mod.CodePlayground),
@@ -22,7 +29,9 @@ const CodePlayground = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex items-center justify-center p-12 border border-border/40 rounded-xl bg-card/20 animate-pulse">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Initializing Engine...</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          Initializing Engine...
+        </p>
       </div>
     ),
   },
@@ -34,7 +43,9 @@ const ExecutionFlow = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex items-center justify-center p-12 border border-border/40 rounded-xl bg-card/20 animate-pulse">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Booting Visualizer...</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          Booting Visualizer...
+        </p>
       </div>
     ),
   },
@@ -52,25 +63,26 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
   const [recallAnswer, setRecallAnswer] = useState('');
   const [hasSubmittedRecall, setHasSubmittedRecall] = useState(false);
   const [selfGrade, setSelfGrade] = useState<'hard' | 'good' | 'easy' | null>(null);
-  
+
   const [activeTab, setActiveTab] = useState<'explain' | 'run' | 'visualize'>('explain');
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
 
-  const { ready, item, saveAttempt, toggleBookmark, saveSelfGrade } = useQuestionProgress(question.id);
+  const { ready, item, saveAttempt, toggleBookmark, saveSelfGrade } = useQuestionProgress(
+    question.id,
+  );
 
   const isAnswered = selected !== null || hasSubmittedRecall;
   const isCorrect = selected !== null ? selected === question.correctOption : hasSubmittedRecall; // In recall mode, any submission acts as correct to reveal the answer.
-  const answerTone = isCorrect ? 'success' : 'danger';
 
   function handleRecallSubmit() {
     if (!recallAnswer.trim()) return;
-    
+
     if (!question.correctOption) {
       console.warn('Question missing correctOption, cannot save attempt');
       setHasSubmittedRecall(true);
       return;
     }
-    
+
     setHasSubmittedRecall(true);
     saveAttempt(question.correctOption, 'correct');
   }
@@ -87,7 +99,11 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
         <div className="flex items-center gap-4">
           {prevId ? (
             <Link href={`/questions/${prevId}`}>
-              <Button variant="ghost" size="sm" className="h-10 w-10 shrink-0 rounded-full bg-card/50 hover:bg-muted p-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-10 w-10 shrink-0 rounded-full bg-card/50 hover:bg-muted p-0"
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             </Link>
@@ -95,16 +111,28 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
             <div className="w-10" />
           )}
           <div className="flex flex-col gap-1.5">
-            <h1 className="font-display text-2xl font-medium tracking-tight text-foreground md:text-3xl">{question.title}</h1>
+            <h1 className="font-display text-2xl font-medium tracking-tight text-foreground md:text-3xl">
+              {question.title}
+            </h1>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary" className="px-2 py-0.5 text-[10px] uppercase tracking-widest opacity-80">
+              <Badge
+                variant="secondary"
+                className="px-2 py-0.5 text-[10px] uppercase tracking-widest opacity-80"
+              >
                 #{question.id}
               </Badge>
-              <Badge variant="outline" className="px-2 py-0.5 text-[10px] uppercase tracking-widest border-border/60">
+              <Badge
+                variant="outline"
+                className="px-2 py-0.5 text-[10px] uppercase tracking-widest border-border/60"
+              >
                 {question.difficulty}
               </Badge>
               {question.tags.slice(0, 3).map((tag) => (
-                <Badge key={tag} variant="secondary" className="bg-muted/20 px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="bg-muted/20 px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground"
+                >
                   {tag}
                 </Badge>
               ))}
@@ -114,17 +142,23 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
 
         <div className="flex items-center gap-3">
           <Button
-            variant={item.bookmarked ? 'primary' : 'secondary'}
+            variant={item.bookmarked ? 'default' : 'secondary'}
             size="sm"
             onClick={toggleBookmark}
             className={`h-10 px-5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${item.bookmarked ? 'shadow-md shadow-primary/20' : ''}`}
           >
-            <Bookmark className={`mr-2 h-4 w-4 ${item.bookmarked ? 'fill-current text-primary-foreground' : 'text-muted-foreground'}`} />
+            <Bookmark
+              className={`mr-2 h-4 w-4 ${item.bookmarked ? 'fill-current text-primary-foreground' : 'text-muted-foreground'}`}
+            />
             {item.bookmarked ? 'Saved' : 'Save'}
           </Button>
           {nextId && (
             <Link href={`/questions/${nextId}`}>
-              <Button variant="secondary" size="sm" className="h-10 gap-2 px-5 text-xs font-bold uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors">
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-10 gap-2 px-5 text-xs font-bold uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
+              >
                 Next
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -214,14 +248,18 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                       const picked = selected === option.key;
                       const correct = option.key === question.correctOption;
 
-                      let optionStyles = 'border-border/40 bg-black/20 text-foreground/80 hover:bg-muted/30 hover:border-border/80';
+                      let optionStyles =
+                        'border-border/40 bg-black/20 text-foreground/80 hover:bg-muted/30 hover:border-border/80';
                       if (isAnswered) {
                         if (correct) {
-                          optionStyles = 'border-success/40 bg-success/10 text-success ring-1 ring-success/20';
+                          optionStyles =
+                            'border-success/40 bg-success/10 text-success ring-1 ring-success/20';
                         } else if (picked) {
-                          optionStyles = 'border-danger/40 bg-danger/10 text-danger ring-1 ring-danger/20';
+                          optionStyles =
+                            'border-danger/40 bg-danger/10 text-danger ring-1 ring-danger/20';
                         } else {
-                          optionStyles = 'border-border/20 bg-black/10 text-muted-foreground/40 opacity-50';
+                          optionStyles =
+                            'border-border/20 bg-black/10 text-muted-foreground/40 opacity-50';
                         }
                       }
 
@@ -233,10 +271,15 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                           onClick={() => {
                             if (isAnswered) return;
                             setSelected(option.key);
-                            saveAttempt(option.key, option.key === question.correctOption ? 'correct' : 'incorrect');
+                            saveAttempt(
+                              option.key,
+                              option.key === question.correctOption ? 'correct' : 'incorrect',
+                            );
                           }}
                           className={`group flex items-start gap-4 rounded-xl border p-4 text-left text-sm transition-all duration-300 ${optionStyles} ${
-                            !disabled ? 'cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md' : 'cursor-default'
+                            !disabled
+                              ? 'cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md'
+                              : 'cursor-default'
                           }`}
                         >
                           <span
@@ -272,7 +315,10 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                       />
                     </div>
                     {!isAnswered && (
-                      <Button onClick={handleRecallSubmit} className="w-full h-12 text-sm font-bold uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                      <Button
+                        onClick={handleRecallSubmit}
+                        className="w-full h-12 text-sm font-bold uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                      >
                         Submit Answer
                       </Button>
                     )}
@@ -300,7 +346,9 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                             <CircleAlert className="h-5 w-5 shrink-0" />
                           )}
                           <span>
-                            {isCorrect ? 'Great work! That is correct.' : `Incorrect. The correct answer is ${question.correctOption}.`}
+                            {isCorrect
+                              ? 'Great work! That is correct.'
+                              : `Incorrect. The correct answer is ${question.correctOption}.`}
                           </span>
                         </div>
                       )}
@@ -308,8 +356,12 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                       {/* Spaced Repetition Self-Grading */}
                       <div className="rounded-xl border border-border/40 bg-black/20 p-5 shadow-inner">
                         <div className="mb-4 text-center">
-                          <p className="font-display text-sm font-medium text-foreground">How well did you know this?</p>
-                          <p className="text-xs text-muted-foreground mt-1">Grade yourself to schedule the next review.</p>
+                          <p className="font-display text-sm font-medium text-foreground">
+                            How well did you know this?
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Grade yourself to schedule the next review.
+                          </p>
                         </div>
                         <div className="grid grid-cols-3 gap-3">
                           <button
@@ -321,7 +373,9 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                                 : 'border-border/40 bg-card hover:bg-muted/40 hover:border-danger/30 text-muted-foreground'
                             }`}
                           >
-                            <span className="text-xs font-bold uppercase tracking-widest">Hard</span>
+                            <span className="text-xs font-bold uppercase tracking-widest">
+                              Hard
+                            </span>
                             <span className="mt-1 text-[10px] font-medium opacity-60">1 min</span>
                           </button>
                           <button
@@ -333,7 +387,9 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                                 : 'border-border/40 bg-card hover:bg-muted/40 hover:border-warning/30 text-muted-foreground'
                             }`}
                           >
-                            <span className="text-xs font-bold uppercase tracking-widest">Good</span>
+                            <span className="text-xs font-bold uppercase tracking-widest">
+                              Good
+                            </span>
                             <span className="mt-1 text-[10px] font-medium opacity-60">1 day</span>
                           </button>
                           <button
@@ -345,7 +401,9 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                                 : 'border-border/40 bg-card hover:bg-muted/40 hover:border-success/30 text-muted-foreground'
                             }`}
                           >
-                            <span className="text-xs font-bold uppercase tracking-widest">Easy</span>
+                            <span className="text-xs font-bold uppercase tracking-widest">
+                              Easy
+                            </span>
                             <span className="mt-1 text-[10px] font-medium opacity-60">4 days</span>
                           </button>
                         </div>
@@ -364,7 +422,12 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                  <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'explain' | 'run' | 'visualize')}>
+                  <Tabs
+                    value={activeTab}
+                    onValueChange={(value) =>
+                      setActiveTab(value as 'explain' | 'run' | 'visualize')
+                    }
+                  >
                     <div className="mb-4 flex items-center justify-between border-b border-border/30 pb-3">
                       <TabsList className="h-auto bg-transparent p-0 gap-6">
                         <TabsTrigger
@@ -401,7 +464,9 @@ export function QuestionClientShell({ question, prevId, nextId }: QuestionClient
             {ready && item.attempts.length > 0 && (
               <div className="flex items-center justify-center gap-2 pt-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">
                 <div className="h-1.5 w-1.5 rounded-full bg-success/40" />
-                Last practiced: {new Date(item.attempts[item.attempts.length - 1].attemptedAt).toLocaleDateString()} • {item.attempts.length} attempts
+                Last practiced:{' '}
+                {new Date(item.attempts[item.attempts.length - 1].attemptedAt).toLocaleDateString()}{' '}
+                • {item.attempts.length} attempts
               </div>
             )}
           </div>

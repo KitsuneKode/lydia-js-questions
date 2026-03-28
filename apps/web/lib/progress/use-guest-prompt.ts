@@ -2,9 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-
-import { useSafeAuth } from '@/lib/auth-utils';
-import { clerkEnabled } from '@/lib/auth-utils';
+import { clerkEnabled, useSafeAuth } from '@/lib/auth-utils';
 import { useProgress } from '@/lib/progress/progress-context';
 
 const DISMISS_KEY = 'jsq_signup_dismissed';
@@ -21,9 +19,7 @@ export function useGuestPrompt() {
     const dismissed = localStorage.getItem(DISMISS_KEY);
     if (dismissed) return;
 
-    const answered = Object.values(state.questions).filter(
-      (q) => q.attempts.length > 0,
-    ).length;
+    const answered = Object.values(state.questions).filter((q) => q.attempts.length > 0).length;
 
     if (answered < THRESHOLD) return;
 

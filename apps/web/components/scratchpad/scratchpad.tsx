@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Play, RotateCcw, FileCode, Sparkles } from 'lucide-react';
+import { FileCode, Play, RotateCcw, Sparkles } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { MonacoCodeEditor } from '@/components/editor/monaco-code-editor';
 import { TerminalOutput } from '@/components/terminal/terminal-output';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { QuestionRecord } from '@/lib/content/types';
 import { runJavaScriptInSandbox } from '@/lib/run/sandbox';
 import type { TerminalLogEntry } from '@/lib/run/terminal';
@@ -48,7 +48,7 @@ export function Scratchpad({ question, initialCode }: ScratchpadProps) {
 
   const runCode = useCallback(async () => {
     if (!code.trim()) return;
-    
+
     setIsRunning(true);
     setLogs([]);
 
@@ -79,17 +79,11 @@ export function Scratchpad({ question, initialCode }: ScratchpadProps) {
         {/* Tab Bar */}
         <div className="flex items-center justify-between border-b border-border/40 bg-muted/10 px-4 py-2">
           <TabsList className="bg-transparent">
-            <TabsTrigger
-              value="question"
-              className="flex items-center gap-1.5 text-xs"
-            >
+            <TabsTrigger value="question" className="flex items-center gap-1.5 text-xs">
               <FileCode className="h-3 w-3" />
               Question
             </TabsTrigger>
-            <TabsTrigger
-              value="scratchpad"
-              className="flex items-center gap-1.5 text-xs"
-            >
+            <TabsTrigger value="scratchpad" className="flex items-center gap-1.5 text-xs">
               <Sparkles className="h-3 w-3" />
               Scratchpad
             </TabsTrigger>
@@ -138,11 +132,7 @@ export function Scratchpad({ question, initialCode }: ScratchpadProps) {
           <div className="flex h-full flex-col">
             {/* Editor */}
             <div className="flex-1 overflow-hidden">
-              <MonacoCodeEditor
-                value={code}
-                onChange={setCode}
-                onRun={runCode}
-              />
+              <MonacoCodeEditor value={code} onChange={setCode} onRun={runCode} />
             </div>
 
             {/* Terminal Output */}

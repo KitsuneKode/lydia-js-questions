@@ -1,6 +1,6 @@
 'use client';
 
-import { Target, Flame, Bookmark, BarChart3 } from 'lucide-react';
+import { BarChart3, Bookmark, Flame, Target } from 'lucide-react';
 import type { OverallStats } from '@/lib/progress/analytics';
 import { cn } from '@/lib/utils';
 
@@ -21,10 +21,7 @@ function StatCard({ label, value, sub, icon, colorClass }: StatCardProps) {
     <div className="group rounded-xl border border-border/40 bg-card/40 p-4 transition-all hover:border-border/60 hover:bg-card/60">
       <div className="flex items-start gap-3">
         <div
-          className={cn(
-            'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-            colorClass
-          )}
+          className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', colorClass)}
         >
           {icon}
         </div>
@@ -32,12 +29,8 @@ function StatCard({ label, value, sub, icon, colorClass }: StatCardProps) {
           <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60">
             {label}
           </p>
-          <p className="font-display text-xl font-medium tracking-tight text-foreground">
-            {value}
-          </p>
-          {sub && (
-            <p className="text-[10px] text-muted-foreground/50">{sub}</p>
-          )}
+          <p className="font-display text-xl font-medium tracking-tight text-foreground">{value}</p>
+          {sub && <p className="text-[10px] text-muted-foreground/50">{sub}</p>}
         </div>
       </div>
     </div>

@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
+import { ArrowRight, BookOpen, LockKeyhole, Terminal, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
-import { ArrowRight, Terminal, Zap, BookOpen, LockKeyhole } from 'lucide-react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 
@@ -24,6 +24,43 @@ const counter = createCounter();
 console.log(counter.increment()); // ?
 console.log(counter.getCount());  // ?`;
 
+function renderSampleCodeLine(line: string) {
+  const commentStart = line.indexOf('//');
+  const codePart = commentStart >= 0 ? line.slice(0, commentStart) : line;
+  const commentPart = commentStart >= 0 ? line.slice(commentStart) : null;
+  const tokenCounts = new Map<string, number>();
+  const tokens = codePart
+    .split(/(function|const|let|return|console|[0-9]+)/g)
+    .filter((token) => token.length > 0);
+
+  return (
+    <>
+      {tokens.map((token) => {
+        const count = (tokenCounts.get(token) ?? 0) + 1;
+        tokenCounts.set(token, count);
+
+        let className: string | undefined;
+        if (token === 'function' || token === 'const' || token === 'let') {
+          className = 'text-accent';
+        } else if (token === 'return') {
+          className = 'text-primary';
+        } else if (token === 'console') {
+          className = 'text-[#ffbd2e]';
+        } else if (/^\d+$/.test(token)) {
+          className = 'text-success';
+        }
+
+        return (
+          <span key={`${token}-${count}`} className={className}>
+            {token}
+          </span>
+        );
+      })}
+      {commentPart ? <span className="text-muted-foreground">{commentPart}</span> : null}
+    </>
+  );
+}
+
 export function LandingHero({ total, runnable, tagCount }: LandingHeroProps) {
   const stats = [
     { label: 'Questions', value: total },
@@ -35,13 +72,13 @@ export function LandingHero({ total, runnable, tagCount }: LandingHeroProps) {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.1 }
-    }
+      transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, bounce: 0.2, duration: 0.8 } }
+    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, bounce: 0.2, duration: 0.8 } },
   };
 
   return (
@@ -67,38 +104,59 @@ export function LandingHero({ total, runnable, tagCount }: LandingHeroProps) {
             </div>
           </motion.div>
 
-          <motion.h1 variants={itemVariants} className="font-display text-5xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl">
+          <motion.h1
+            variants={itemVariants}
+            className="font-display text-5xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl"
+          >
             Crack the JS <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-green-400">
               interview code
             </span>
           </motion.h1>
 
-          <motion.p variants={itemVariants} className="max-w-xl text-lg font-medium leading-relaxed text-muted-foreground">
-            Execute code in-browser, visualize execution flow, and master the event loop. The definitive interactive platform for advanced JavaScript concepts.
+          <motion.p
+            variants={itemVariants}
+            className="max-w-xl text-lg font-medium leading-relaxed text-muted-foreground"
+          >
+            Execute code in-browser, visualize execution flow, and master the event loop. The
+            definitive interactive platform for advanced JavaScript concepts.
           </motion.p>
 
           {/* CTAs */}
           <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-4 pt-4">
             <Link href="/questions">
-              <Button size="lg" className="h-12 gap-2 text-primary-foreground font-semibold px-8 hover:scale-105 transition-transform duration-300 shadow-[0_0_30px_rgba(204,255,0,0.3)] hover:shadow-[0_0_40px_rgba(204,255,0,0.5)]">
+              <Button
+                size="lg"
+                className="h-12 gap-2 text-primary-foreground font-semibold px-8 hover:scale-105 transition-transform duration-300 shadow-[0_0_30px_rgba(204,255,0,0.3)] hover:shadow-[0_0_40px_rgba(204,255,0,0.5)]"
+              >
                 Start Practicing
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <Link href="/credits">
-              <Button variant="secondary" size="lg" className="h-12 px-8 font-semibold border-border/60 hover:bg-surface-elevated/50 backdrop-blur-md">
+              <Button
+                variant="secondary"
+                size="lg"
+                className="h-12 px-8 font-semibold border-border/60 hover:bg-surface-elevated/50 backdrop-blur-md"
+              >
                 View Source
               </Button>
             </Link>
           </motion.div>
 
           {/* Stats inline */}
-          <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-8 pt-8 border-t border-border/40">
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-wrap items-center gap-8 pt-8 border-t border-border/40"
+          >
             {stats.map((stat) => (
               <div key={stat.label} className="flex flex-col gap-1">
-                <span className="font-display text-3xl font-bold text-foreground tracking-tight">{stat.value}</span>
-                <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{stat.label}</span>
+                <span className="font-display text-3xl font-bold text-foreground tracking-tight">
+                  {stat.value}
+                </span>
+                <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                  {stat.label}
+                </span>
               </div>
             ))}
           </motion.div>
@@ -124,7 +182,9 @@ export function LandingHero({ total, runnable, tagCount }: LandingHeroProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <LockKeyhole className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-[11px] font-mono tracking-wide text-muted-foreground">closures.js</span>
+                  <span className="text-[11px] font-mono tracking-wide text-muted-foreground">
+                    closures.js
+                  </span>
                 </div>
                 <div className="w-12" /> {/* spacer for balance */}
               </div>
@@ -132,15 +192,13 @@ export function LandingHero({ total, runnable, tagCount }: LandingHeroProps) {
               {/* Code content */}
               <div className="p-6 bg-[#040405]">
                 <pre className="font-mono text-sm leading-7 text-foreground/90">
-                  <code dangerouslySetInnerHTML={{
-                    __html: sampleCode
-                      .replace(/function/g, '<span class="text-accent">function</span>')
-                      .replace(/const|let/g, '<span class="text-accent">$&</span>')
-                      .replace(/return/g, '<span class="text-primary">return</span>')
-                      .replace(/console/g, '<span class="text-[#ffbd2e]">console</span>')
-                      .replace(/\/\/.*/g, '<span class="text-muted-foreground">$&</span>')
-                      .replace(/[0-9]+/g, '<span class="text-success">$&</span>')
-                  }} />
+                  <code className="block">
+                    {sampleCode.split('\n').map((line) => (
+                      <span key={line} className="block whitespace-pre">
+                        {renderSampleCodeLine(line)}
+                      </span>
+                    ))}
+                  </code>
                 </pre>
               </div>
 
@@ -161,7 +219,7 @@ export function LandingHero({ total, runnable, tagCount }: LandingHeroProps) {
           <motion.div
             initial={{ opacity: 0, y: 20, rotate: -10 }}
             animate={{ opacity: 1, y: 0, rotate: 0 }}
-            transition={{ duration: 0.6, delay: 0.9, type: "spring" }}
+            transition={{ duration: 0.6, delay: 0.9, type: 'spring' }}
             className="absolute -right-6 top-12 flex items-center gap-2.5 rounded-xl border border-border/80 bg-surface/80 backdrop-blur-md px-4 py-3 shadow-card-hover"
           >
             <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/20">
@@ -173,7 +231,7 @@ export function LandingHero({ total, runnable, tagCount }: LandingHeroProps) {
           <motion.div
             initial={{ opacity: 0, y: 20, rotate: 10 }}
             animate={{ opacity: 1, y: 0, rotate: 0 }}
-            transition={{ duration: 0.6, delay: 1.1, type: "spring" }}
+            transition={{ duration: 0.6, delay: 1.1, type: 'spring' }}
             className="absolute -left-8 bottom-20 flex items-center gap-2.5 rounded-xl border border-border/80 bg-surface/80 backdrop-blur-md px-4 py-3 shadow-card-hover"
           >
             <div className="flex items-center justify-center h-8 w-8 rounded-full bg-accent/20">

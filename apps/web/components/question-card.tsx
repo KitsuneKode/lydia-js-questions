@@ -1,10 +1,9 @@
 'use client';
 
+import { ArrowRight, Bookmark, CheckCircle2, Circle, Code2, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowRight, Code2, CheckCircle2, Bookmark, Circle, Zap } from 'lucide-react';
-
-import type { QuestionRecord } from '@/lib/content/types';
 import { Badge } from '@/components/ui/badge';
+import type { QuestionRecord } from '@/lib/content/types';
 import { useQuestionProgress } from '@/lib/progress/use-question-progress';
 import { cn } from '@/lib/utils';
 
@@ -58,7 +57,12 @@ export function QuestionCard({ question }: QuestionCardProps) {
           #{question.id}
         </span>
         <span className="text-muted-foreground/30">·</span>
-        <span className={cn('text-[10px] font-bold uppercase tracking-wider', difficultyStyles[difficulty] || 'text-muted-foreground')}>
+        <span
+          className={cn(
+            'text-[10px] font-bold uppercase tracking-wider',
+            difficultyStyles[difficulty] || 'text-muted-foreground',
+          )}
+        >
           {question.difficulty}
         </span>
         {question.runnable && (

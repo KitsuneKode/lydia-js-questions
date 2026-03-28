@@ -1,10 +1,10 @@
 import { Container } from '@/components/container';
 import { FiltersBar } from '@/components/filters-bar';
+import { NextRecommendedBanner } from '@/components/next-recommended-banner';
 import { PaginationNav } from '@/components/pagination-nav';
 import { QuestionsResults } from '@/components/questions-results';
-import { NextRecommendedBanner } from '@/components/next-recommended-banner';
-import { applyServerFilters, paginate } from '@/lib/content/query';
 import { getManifest, getQuestions } from '@/lib/content/loaders';
+import { applyServerFilters, paginate } from '@/lib/content/query';
 
 const PAGE_SIZE = 18;
 
@@ -18,7 +18,11 @@ function firstValue(value: string | string[] | undefined): string {
   return value ?? '';
 }
 
-export default async function QuestionsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+export default async function QuestionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   const resolvedSearchParams = await searchParams;
   const allQuestions = getQuestions();
   const manifest = getManifest();
@@ -31,7 +35,9 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
   const runnable = firstValue(resolvedSearchParams.runnable);
   const rawStatus = firstValue(resolvedSearchParams.status);
   const status: ListingStatus =
-    rawStatus === 'answered' || rawStatus === 'unanswered' || rawStatus === 'bookmarked' ? rawStatus : 'all';
+    rawStatus === 'answered' || rawStatus === 'unanswered' || rawStatus === 'bookmarked'
+      ? rawStatus
+      : 'all';
 
   const filtered = applyServerFilters(allQuestions, {
     q,
@@ -69,7 +75,8 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
               Question Library
             </h1>
             <p className="max-w-xl text-sm leading-relaxed text-muted-foreground/80">
-              Browse and practice JavaScript interview questions. Commit to an answer, then explore the explanation and run the code.
+              Browse and practice JavaScript interview questions. Commit to an answer, then explore
+              the explanation and run the code.
             </p>
           </header>
 

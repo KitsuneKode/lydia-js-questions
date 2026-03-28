@@ -1,5 +1,5 @@
-import type { ProgressItem, ProgressState } from '@/lib/progress/storage';
 import type { QuestionRecord } from '@/lib/content/types';
+import type { ProgressItem, ProgressState } from '@/lib/progress/storage';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -63,10 +63,7 @@ export function computeQuestionStats(item: ProgressItem): QuestionStats {
   };
 }
 
-export function computeTagStats(
-  progress: ProgressState,
-  questions: QuestionRecord[],
-): TagStats[] {
+export function computeTagStats(progress: ProgressState, questions: QuestionRecord[]): TagStats[] {
   const tagMap = new Map<string, { attempts: number; correct: number; questions: Set<number> }>();
 
   const questionTagMap = new Map<number, string[]>();
@@ -229,10 +226,10 @@ export function getReviewQueue(
       continue; // Unanswered questions are not reviews
     }
 
-    if (item.srsData && item.srsData.nextReviewDate) {
+    if (item.srsData?.nextReviewDate) {
       const reviewDate = new Date(item.srsData.nextReviewDate);
       const diffMs = now.getTime() - reviewDate.getTime();
-      
+
       // If diffMs > 0, the review is due or overdue
       if (diffMs > 0) {
         const overdueDays = diffMs / (1000 * 60 * 60 * 24);
@@ -252,11 +249,13 @@ export function getReviewQueue(
     }
   }
 
-  return scored
-    // Sort primarily by priority (SRS vs Legacy), then by how many days overdue
-    .sort((a, b) => b.priority - a.priority || b.overdueDays - a.overdueDays)
-    .slice(0, limit)
-    .map((s) => s.question);
+  return (
+    scored
+      // Sort primarily by priority (SRS vs Legacy), then by how many days overdue
+      .sort((a, b) => b.priority - a.priority || b.overdueDays - a.overdueDays)
+      .slice(0, limit)
+      .map((s) => s.question)
+  );
 }
 
 export function getContinueLearningSuggestion(
@@ -301,10 +300,11 @@ export function getRecommendedSuggestion(
   );
 
   const weakestTag = weakestTopics[0]?.tag ?? null;
-  const topicCandidate =
-    weakestTag
-      ? questions.find((question) => question.tags.includes(weakestTag) && !attemptedIds.has(question.id))
-      : null;
+  const topicCandidate = weakestTag
+    ? questions.find(
+        (question) => question.tags.includes(weakestTag) && !attemptedIds.has(question.id),
+      )
+    : null;
 
   if (topicCandidate) {
     return {

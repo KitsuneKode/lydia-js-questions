@@ -20,19 +20,19 @@ export function TopicAccuracyChart({ tagStats }: TopicAccuracyChartProps) {
         <PieChart className="h-4 w-4 text-muted-foreground/60" />
         <h3 className="text-sm font-medium text-foreground">Topic Accuracy</h3>
       </div>
-      
+
       <div className="space-y-2.5">
         {top.map((tag) => {
           const pct = Math.round(tag.accuracy * 100);
-          const barColor = pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-rose-500';
+          const barColor =
+            pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-rose-500';
 
           return (
             <div key={tag.tag} className="space-y-1">
               <div className="flex items-baseline justify-between text-xs">
                 <span className="truncate font-medium text-foreground/80">{tag.tag}</span>
                 <span className="ml-2 shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground/60">
-                  {pct}%
-                  <span className="ml-1 opacity-50">({tag.totalAttempts})</span>
+                  {pct}%<span className="ml-1 opacity-50">({tag.totalAttempts})</span>
                 </span>
               </div>
               <div className="relative h-1.5 overflow-hidden rounded-full bg-muted/30">

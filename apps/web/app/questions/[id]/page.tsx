@@ -1,11 +1,11 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 import { Container } from '@/components/container';
 import { QuestionIDEClient } from '@/components/ide/question-ide-client';
-import { getQuestionById, getQuestions, getRelatedQuestions } from '@/lib/content/loaders';
 import { QuestionCard } from '@/components/question-card';
+import { getQuestionById, getQuestions, getRelatedQuestions } from '@/lib/content/loaders';
 
 interface QuestionDetailPageProps {
   params: Promise<{
@@ -48,9 +48,7 @@ export default async function QuestionDetailPage({ params }: QuestionDetailPageP
                 <h2 className="font-display text-lg font-medium tracking-tight text-foreground">
                   Keep Practicing
                 </h2>
-                <p className="text-sm text-muted-foreground/70">
-                  Related questions
-                </p>
+                <p className="text-sm text-muted-foreground/70">Related questions</p>
               </div>
               <Link
                 href="/questions"

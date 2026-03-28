@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
 import { Activity } from 'lucide-react';
+import { useMemo } from 'react';
 import type { DailyActivity } from '@/lib/progress/analytics';
 
 interface ActivityChartProps {
@@ -36,7 +36,7 @@ export function ActivityChart({ dailyActivity }: ActivityChartProps) {
         <Activity className="h-4 w-4 text-muted-foreground/60" />
         <h3 className="text-sm font-medium text-foreground">Last 30 Days</h3>
       </div>
-      
+
       <div className="flex items-end gap-[2px]" style={{ height: 100 }}>
         {bars.map((bar) => {
           const total = bar.attempts;
@@ -89,7 +89,7 @@ export function ActivityChart({ dailyActivity }: ActivityChartProps) {
           );
         })}
       </div>
-      
+
       <div className="mt-3 flex justify-between text-[9px] text-muted-foreground/50">
         <span>30d ago</span>
         <span>Today</span>

@@ -8,12 +8,16 @@ export interface ListingFilters {
   runnable?: boolean;
 }
 
-export function applyServerFilters(questions: QuestionRecord[], filters: ListingFilters): QuestionRecord[] {
+export function applyServerFilters(
+  questions: QuestionRecord[],
+  filters: ListingFilters,
+): QuestionRecord[] {
   const q = filters.q?.trim().toLowerCase();
 
   return questions.filter((question) => {
     if (q) {
-      const haystack = `${question.title} ${question.promptMarkdown} ${question.explanationMarkdown}`.toLowerCase();
+      const haystack =
+        `${question.title} ${question.promptMarkdown} ${question.explanationMarkdown}`.toLowerCase();
       if (!haystack.includes(q)) {
         return false;
       }

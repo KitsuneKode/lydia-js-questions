@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, type ReactNode, useCallback, useContext, useState } from 'react';
 
 interface ScratchpadContextValue {
   isOpen: boolean;
@@ -26,18 +26,23 @@ export function ScratchpadProvider({ children }: { children: ReactNode }) {
   const [hasOpened, setHasOpened] = useState(false);
   const [code, setCode] = useState('');
 
-  const openScratchpad = useCallback((initialCode?: string, method: 'replace' | 'append' = 'replace') => {
-    if (initialCode !== undefined) {
-      setCode((prev) => (method === 'append' ? prev + '\n\n' + initialCode : initialCode));
-    }
-    setHasOpened(true);
-    setIsOpen(true);
-  }, []);
+  const openScratchpad = useCallback(
+    (initialCode?: string, method: 'replace' | 'append' = 'replace') => {
+      if (initialCode !== undefined) {
+        setCode((prev) => (method === 'append' ? `${prev}\n\n${initialCode}` : initialCode));
+      }
+      setHasOpened(true);
+      setIsOpen(true);
+    },
+    [],
+  );
 
   const closeScratchpad = useCallback(() => setIsOpen(false), []);
 
   return (
-    <ScratchpadContext.Provider value={{ isOpen, hasOpened, code, openScratchpad, closeScratchpad, setCode }}>
+    <ScratchpadContext.Provider
+      value={{ isOpen, hasOpened, code, openScratchpad, closeScratchpad, setCode }}
+    >
       {children}
     </ScratchpadContext.Provider>
   );

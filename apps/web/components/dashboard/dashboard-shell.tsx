@@ -1,18 +1,17 @@
 'use client';
 
+import { ArrowRight, Library, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowRight, Library, Sparkles, Zap } from 'lucide-react';
-
+import { ActivityChart } from '@/components/dashboard/activity-chart';
+import { BookmarkedList } from '@/components/dashboard/bookmarked-list';
+import { OverviewCards } from '@/components/dashboard/overview-cards';
+import { RecentActivity } from '@/components/dashboard/recent-activity';
+import { ReviewQueue } from '@/components/dashboard/review-queue';
+import { TopicAccuracyChart } from '@/components/dashboard/topic-accuracy-chart';
+import { WeakestTopics } from '@/components/dashboard/weakest-topics';
+import { Button } from '@/components/ui/button';
 import type { QuestionRecord } from '@/lib/content/types';
 import { useAnalytics } from '@/lib/progress/use-analytics';
-import { OverviewCards } from '@/components/dashboard/overview-cards';
-import { TopicAccuracyChart } from '@/components/dashboard/topic-accuracy-chart';
-import { ActivityChart } from '@/components/dashboard/activity-chart';
-import { WeakestTopics } from '@/components/dashboard/weakest-topics';
-import { RecentActivity } from '@/components/dashboard/recent-activity';
-import { BookmarkedList } from '@/components/dashboard/bookmarked-list';
-import { ReviewQueue } from '@/components/dashboard/review-queue';
-import { Button } from '@/components/ui/button';
 
 interface DashboardShellProps {
   questions: QuestionRecord[];
@@ -72,7 +71,7 @@ export function DashboardShell({ questions }: DashboardShellProps) {
           >
             {/* Subtle glow */}
             <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/5 blur-2xl transition-all group-hover:bg-primary/10" />
-            
+
             <div className="relative space-y-3">
               <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-widest text-primary">
                 {index === 0 ? <Library className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
@@ -83,7 +82,9 @@ export function DashboardShell({ questions }: DashboardShellProps) {
               </h2>
               <p className="text-xs text-muted-foreground/70">{suggestion.description}</p>
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <Link href={suggestion.question ? `/questions/${suggestion.question.id}` : '/questions'}>
+                <Link
+                  href={suggestion.question ? `/questions/${suggestion.question.id}` : '/questions'}
+                >
                   <Button size="sm" className="h-8 gap-1.5 text-xs">
                     {index === 0 ? 'Resume' : 'Try this'}
                     <ArrowRight className="h-3 w-3" />

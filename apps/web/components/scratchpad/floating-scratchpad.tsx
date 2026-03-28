@@ -1,11 +1,17 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Play, RotateCcw, PanelBottomOpen, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { PanelBottomOpen, Play, RotateCcw, Sparkles } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { MonacoCodeEditor } from '@/components/editor/monaco-code-editor';
 import { TerminalOutput } from '@/components/terminal/terminal-output';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { runJavaScriptInSandbox } from '@/lib/run/sandbox';
 import type { TerminalLogEntry } from '@/lib/run/terminal';
 import { toTerminalLogEntries } from '@/lib/run/terminal';
@@ -53,14 +59,20 @@ export function FloatingScratchpad() {
                 Scratchpad
               </SheetTitle>
               <SheetDescription className="max-w-2xl text-xs leading-relaxed text-muted-foreground/72">
-                Edit freely, run instantly in an isolated worker, and keep the original interview snippet untouched.
+                Edit freely, run instantly in an isolated worker, and keep the original interview
+                snippet untouched.
               </SheetDescription>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <div className="rounded-full border border-border/40 bg-black/20 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70">
                 Cmd/Ctrl + Enter to run
               </div>
-              <Button variant="ghost" size="sm" onClick={resetCode} className="h-8 text-xs text-muted-foreground">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={resetCode}
+                className="h-8 text-xs text-muted-foreground"
+              >
                 <RotateCcw className="mr-1.5 h-3 w-3" />
                 Reset
               </Button>

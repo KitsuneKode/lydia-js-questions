@@ -15,7 +15,12 @@ export const DEFAULT_EASE_FACTOR = 2.5;
  */
 export function calculateNextReview(
   gradeName: Grade,
-  current: SRSData = { repetition: 0, interval: 0, easeFactor: DEFAULT_EASE_FACTOR, nextReviewDate: new Date().toISOString() }
+  current: SRSData = {
+    repetition: 0,
+    interval: 0,
+    easeFactor: DEFAULT_EASE_FACTOR,
+    nextReviewDate: new Date().toISOString(),
+  },
 ): SRSData {
   // Map our UI grades to SM-2 grades
   // 2: Incorrect response, but remembered easily upon seeing the answer (Hard)

@@ -1,18 +1,25 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "default",
+  "style": "radix-nova",
   "rsc": true,
   "tsx": true,
   "tailwind": {
-    "config": "tailwind.config.ts",
-    "css": "app/globals.css",
-    "baseColor": "stone",
+    "config": "",
+    "css": "./app/globals.css",
+    "baseColor": "neutral",
     "cssVariables": true
   },
+  "iconLibrary": "tabler",
+  "rtl": false,
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
     "ui": "@/components/ui",
     "lib": "@/lib"
+  },
+  "menuColor": "default",
+  "menuAccent": "subtle",
+  "registries": {
+    "@fonttrio": "https://www.fonttrio.xyz/r/{name}.json"
   }
 }

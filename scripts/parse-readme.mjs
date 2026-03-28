@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import fs from 'node:fs';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = process.cwd();
@@ -29,14 +29,53 @@ function detectTags(question, explanation) {
   const tags = new Set();
 
   const rules = [
-    { tag: 'async', keywords: ['promise', 'async', 'await', 'settimeout', 'setinterval', 'microtask', 'macrotask', 'event loop'] },
-    { tag: 'scope', keywords: ['hoist', 'scope', 'closure', 'temporal dead zone', 'referenceerror', 'var ', 'let ', 'const '] },
-    { tag: 'objects', keywords: ['object', 'reference', 'spread', 'destructur', 'freeze', 'seal', 'assign'] },
-    { tag: 'prototypes', keywords: ['prototype', 'class', 'constructor', 'extends', 'super', 'instanceof'] },
-    { tag: 'arrays', keywords: ['array', 'map(', 'filter(', 'reduce(', 'splice', 'slice', 'sort(', 'concat'] },
-    { tag: 'types', keywords: ['coercion', 'truthy', 'falsy', 'undefined', 'null', 'nan', 'typeof'] },
+    {
+      tag: 'async',
+      keywords: [
+        'promise',
+        'async',
+        'await',
+        'settimeout',
+        'setinterval',
+        'microtask',
+        'macrotask',
+        'event loop',
+      ],
+    },
+    {
+      tag: 'scope',
+      keywords: [
+        'hoist',
+        'scope',
+        'closure',
+        'temporal dead zone',
+        'referenceerror',
+        'var ',
+        'let ',
+        'const ',
+      ],
+    },
+    {
+      tag: 'objects',
+      keywords: ['object', 'reference', 'spread', 'destructur', 'freeze', 'seal', 'assign'],
+    },
+    {
+      tag: 'prototypes',
+      keywords: ['prototype', 'class', 'constructor', 'extends', 'super', 'instanceof'],
+    },
+    {
+      tag: 'arrays',
+      keywords: ['array', 'map(', 'filter(', 'reduce(', 'splice', 'slice', 'sort(', 'concat'],
+    },
+    {
+      tag: 'types',
+      keywords: ['coercion', 'truthy', 'falsy', 'undefined', 'null', 'nan', 'typeof'],
+    },
     { tag: 'modules', keywords: ['import', 'export', 'module'] },
-    { tag: 'dom-events', keywords: ['bubbling', 'capturing', 'event.target', 'dom', 'window', 'document'] },
+    {
+      tag: 'dom-events',
+      keywords: ['bubbling', 'capturing', 'event.target', 'dom', 'window', 'document'],
+    },
   ];
 
   for (const rule of rules) {
@@ -55,9 +94,10 @@ function detectTags(question, explanation) {
 function collectImages(markdown) {
   const images = [];
   const re = /<img\s+[^>]*src="([^"]+)"[^>]*>/gi;
-  let match;
-  while ((match = re.exec(markdown)) !== null) {
+  let match = re.exec(markdown);
+  while (match !== null) {
     images.push(match[1]);
+    match = re.exec(markdown);
   }
   return images;
 }
@@ -72,9 +112,9 @@ function inferDifficulty(id, total) {
 function parseCodeBlocks(input) {
   const blocks = [];
   const re = /```([a-zA-Z0-9_-]+)?\n([\s\S]*?)```/g;
-  let match;
+  let match = re.exec(input);
   let index = 0;
-  while ((match = re.exec(input)) !== null) {
+  while (match !== null) {
     blocks.push({
       id: `code-${index + 1}`,
       order: index,
@@ -82,6 +122,7 @@ function parseCodeBlocks(input) {
       code: match[2].trimEnd(),
     });
     index += 1;
+    match = re.exec(input);
   }
   return blocks;
 }
@@ -89,9 +130,10 @@ function parseCodeBlocks(input) {
 function parseOptions(input) {
   const options = [];
   const re = /^- ([A-D]):\s*(.+)$/gm;
-  let match;
-  while ((match = re.exec(input)) !== null) {
+  let match = re.exec(input);
+  while (match !== null) {
     options.push({ key: match[1], text: match[2].trim() });
+    match = re.exec(input);
   }
   return options;
 }
@@ -99,13 +141,14 @@ function parseOptions(input) {
 function parseTranslations(input) {
   const translations = [];
   const re = /^- \[(.+?)\]\((.+?)\)$/gm;
-  let match;
-  while ((match = re.exec(input)) !== null) {
+  let match = re.exec(input);
+  while (match !== null) {
     const label = match[1].trim();
     const href = match[2].trim();
     if (href.toLowerCase().includes('readme')) {
       translations.push({ label, href });
     }
+    match = re.exec(input);
   }
   return translations;
 }
@@ -119,7 +162,8 @@ function parseQuestions(readme) {
     const id = Number.parseInt(match[1], 10);
     const title = match[2].trim();
     const start = match.index ?? 0;
-    const end = idx < headings.length - 1 ? (headings[idx + 1].index ?? readme.length) : readme.length;
+    const end =
+      idx < headings.length - 1 ? (headings[idx + 1].index ?? readme.length) : readme.length;
     const chunk = readme.slice(start, end).trim();
 
     const detailsIndex = chunk.indexOf('<details><summary><b>Answer</b></summary>');
@@ -130,19 +174,26 @@ function parseQuestions(readme) {
     const promptCodeBlocks = parseCodeBlocks(promptChunk);
     const explanationCodeBlocks = parseCodeBlocks(answerChunk);
 
-    const answerMatch = answerChunk.match(/####\s+Answer:\s*([A-D])/i) || chunk.match(/####\s+Answer:\s*([A-D])/i);
+    const answerMatch =
+      answerChunk.match(/####\s+Answer:\s*([A-D])/i) || chunk.match(/####\s+Answer:\s*([A-D])/i);
     const correctOption = answerMatch?.[1] ?? null;
 
-    const detailsBodyMatch = answerChunk.match(/<details><summary><b>Answer<\/b><\/summary>\s*<p>\s*([\s\S]*?)\s*<\/p>\s*<\/details>/i);
+    const detailsBodyMatch = answerChunk.match(
+      /<details><summary><b>Answer<\/b><\/summary>\s*<p>\s*([\s\S]*?)\s*<\/p>\s*<\/details>/i,
+    );
     const rawExplanation = detailsBodyMatch ? detailsBodyMatch[1] : answerChunk;
-    const explanationMarkdown = stripPTags(rawExplanation.replace(/####\s+Answer:\s*[A-D]\s*/i, '').trim());
+    const explanationMarkdown = stripPTags(
+      rawExplanation.replace(/####\s+Answer:\s*[A-D]\s*/i, '').trim(),
+    );
 
     const promptBody = promptChunk
       .replace(/^######\s+\d+\.\s+.+\n?/m, '')
       .replace(/^- [A-D]:\s*.+$/gm, '')
       .trim();
 
-    const hasRunnableSnippet = promptCodeBlocks.some((block) => block.language === 'javascript' || block.language === 'js');
+    const hasRunnableSnippet = promptCodeBlocks.some(
+      (block) => block.language === 'javascript' || block.language === 'js',
+    );
 
     return {
       id,

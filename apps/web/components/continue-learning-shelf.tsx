@@ -1,12 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { ArrowRight, Play } from 'lucide-react';
-
+import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import type { QuestionRecord } from '@/lib/content/types';
 import { useAnalytics } from '@/lib/progress/use-analytics';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 interface ContinueLearningShelfProps {
   questions: QuestionRecord[];
@@ -31,10 +30,16 @@ export function ContinueLearningShelf({ questions }: ContinueLearningShelfProps)
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">Resume Practice</span>
-                <Badge variant="secondary" className="text-[10px]">#{q.id}</Badge>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+                  Resume Practice
+                </span>
+                <Badge variant="secondary" className="text-[10px]">
+                  #{q.id}
+                </Badge>
               </div>
-              <h2 className="mt-0.5 truncate font-display text-lg font-medium text-foreground">{q.title}</h2>
+              <h2 className="mt-0.5 truncate font-display text-lg font-medium text-foreground">
+                {q.title}
+              </h2>
             </div>
           </div>
 

@@ -1,11 +1,11 @@
+import { ArrowRight, CheckCircle2, Code2, Eye, Search } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowRight, Search, CheckCircle2, Code2, Eye } from 'lucide-react';
 
 import { Container } from '@/components/container';
-import { LandingHero } from '@/components/landing-hero';
-import { TagDistribution } from '@/components/tag-distribution';
-import { QuestionCard } from '@/components/question-card';
 import { ContinueLearningShelf } from '@/components/continue-learning-shelf';
+import { LandingHero } from '@/components/landing-hero';
+import { QuestionCard } from '@/components/question-card';
+import { TagDistribution } from '@/components/tag-distribution';
 import { Button } from '@/components/ui/button';
 import { getManifest, getQuestions } from '@/lib/content/loaders';
 
@@ -39,10 +39,12 @@ export default function HomePage() {
   const featured = questions.slice(0, 6);
 
   const tagCounts = Object.entries(
-    questions.flatMap((question) => question.tags).reduce<Record<string, number>>((acc, tag) => {
-      acc[tag] = (acc[tag] ?? 0) + 1;
-      return acc;
-    }, {}),
+    questions
+      .flatMap((question) => question.tags)
+      .reduce<Record<string, number>>((acc, tag) => {
+        acc[tag] = (acc[tag] ?? 0) + 1;
+        return acc;
+      }, {}),
   )
     .sort((a, b) => b[1] - a[1])
     .slice(0, 7)
@@ -66,7 +68,9 @@ export default function HomePage() {
           {/* Study Workflow */}
           <div className="rounded-lg border border-border bg-surface p-5 md:p-6">
             <h2 className="font-display text-xl text-foreground">How It Works</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Practice loop designed for retention</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Practice loop designed for retention
+            </p>
 
             <div className="mt-6 space-y-4">
               {workflowSteps.map((step, i) => (
@@ -76,7 +80,9 @@ export default function HomePage() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-baseline gap-2">
-                      <span className="font-mono text-xs text-muted-foreground">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
                       <h3 className="text-sm font-medium text-foreground">{step.title}</h3>
                     </div>
                     <p className="mt-0.5 text-sm text-muted-foreground">{step.description}</p>
@@ -101,9 +107,14 @@ export default function HomePage() {
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h2 className="font-display text-xl text-foreground">Featured Questions</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Start with these popular challenges</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Start with these popular challenges
+              </p>
             </div>
-            <Link href="/questions" className="group inline-flex items-center gap-1 text-sm font-medium text-primary">
+            <Link
+              href="/questions"
+              className="group inline-flex items-center gap-1 text-sm font-medium text-primary"
+            >
               View all {questions.length}
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </Link>

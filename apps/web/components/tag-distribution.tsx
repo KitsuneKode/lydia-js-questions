@@ -33,7 +33,11 @@ export function TagDistribution({ values }: TagDistributionProps) {
                   className="h-full rounded-full bg-primary"
                   initial={{ width: 0 }}
                   animate={{ width: `${width}%` }}
-                  transition={{ duration: 0.6, delay: index * 0.05, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  transition={{
+                    duration: 0.6,
+                    delay: index * 0.05,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                  }}
                 />
               </div>
             </div>

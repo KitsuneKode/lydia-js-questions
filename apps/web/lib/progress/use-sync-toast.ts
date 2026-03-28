@@ -2,9 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-
-import { useSafeAuth } from '@/lib/auth-utils';
-import { clerkEnabled } from '@/lib/auth-utils';
+import { clerkEnabled, useSafeAuth } from '@/lib/auth-utils';
 
 const SESSION_KEY = 'jsq_sync_toast_shown';
 

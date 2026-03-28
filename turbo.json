@@ -1,22 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [
-    "bun.lock",
-    "content/generated/**",
-    "content/source/**",
-    "eslint.config.mjs"
-  ],
+  "globalDependencies": ["bun.lock", "content/generated/**", "content/source/**", "biome.json"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**"]
     },
     "lint": {},
     "typecheck": {},

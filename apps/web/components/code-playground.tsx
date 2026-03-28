@@ -1,17 +1,16 @@
 'use client';
 
+import { AlertTriangle, Play, RotateCcw } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Play, RotateCcw, AlertTriangle } from 'lucide-react';
-
+import { SimpleCodeEditor } from '@/components/editor/simple-code-editor';
+import { TerminalOutput } from '@/components/terminal/terminal-output';
+import { Button } from '@/components/ui/button';
+import { TimelineChart } from '@/components/visualization/timeline-chart';
 import type { QuestionRecord } from '@/lib/content/types';
-import type { TimelineEvent } from '@/lib/run/types';
 import { runJavaScriptInSandbox } from '@/lib/run/sandbox';
 import type { TerminalLogEntry } from '@/lib/run/terminal';
 import { toTerminalLogEntries } from '@/lib/run/terminal';
-import { Button } from '@/components/ui/button';
-import { SimpleCodeEditor } from '@/components/editor/simple-code-editor';
-import { TerminalOutput } from '@/components/terminal/terminal-output';
-import { TimelineChart } from '@/components/visualization/timeline-chart';
+import type { TimelineEvent } from '@/lib/run/types';
 import { cn } from '@/lib/utils';
 
 interface CodePlaygroundProps {
@@ -21,12 +20,16 @@ interface CodePlaygroundProps {
 
 export function CodePlayground({ question, onTimelineUpdate }: CodePlaygroundProps) {
   const runnableBlocks = useMemo(
-    () => question.codeBlocks.filter((block) => block.language === 'javascript' || block.language === 'js'),
+    () =>
+      question.codeBlocks.filter(
+        (block) => block.language === 'javascript' || block.language === 'js',
+      ),
     [question.codeBlocks],
   );
 
   const [selectedId, setSelectedId] = useState<string | null>(runnableBlocks[0]?.id ?? null);
-  const currentBlock = runnableBlocks.find((block) => block.id === selectedId) ?? runnableBlocks[0] ?? null;
+  const currentBlock =
+    runnableBlocks.find((block) => block.id === selectedId) ?? runnableBlocks[0] ?? null;
   const [code, setCode] = useState(currentBlock?.code ?? '');
   const [logs, setLogs] = useState<TerminalLogEntry[]>([]);
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
@@ -108,7 +111,7 @@ export function CodePlayground({ question, onTimelineUpdate }: CodePlaygroundPro
                   'rounded-md px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider transition-colors',
                   active
                     ? 'bg-primary/15 text-primary'
-                    : 'text-muted-foreground/60 hover:bg-muted/40 hover:text-foreground'
+                    : 'text-muted-foreground/60 hover:bg-muted/40 hover:text-foreground',
                 )}
               >
                 Snippet {index + 1}

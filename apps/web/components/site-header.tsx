@@ -1,21 +1,20 @@
 'use client';
 
+import { Code2, Heart, LayoutDashboard, Library, Menu } from 'lucide-react';
+import { motion } from 'motion/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Code2, Library, LayoutDashboard, Heart, Menu } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { AuthControls } from '@/components/auth-controls';
+import { Button } from '@/components/ui/button';
 import {
   Sheet,
-  SheetTrigger,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetClose,
+  SheetTrigger,
 } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
 
 const navLinks = [
   { href: '/questions', label: 'Questions', icon: Library },
@@ -39,9 +38,7 @@ function NavLink({
       href={href}
       className={cn(
         'group relative flex items-center gap-2 rounded-full px-4 py-2 text-[14px] font-medium transition-colors',
-        active
-          ? 'text-primary-foreground'
-          : 'text-muted-foreground hover:text-foreground'
+        active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
       )}
     >
       {active ? (
@@ -68,9 +65,11 @@ export function SiteHeader() {
   return (
     <div className="sticky top-0 z-50 pt-4 pb-2 px-4 sm:px-6">
       <header className="mx-auto flex h-14 max-w-5xl items-center justify-between rounded-full border border-border/80 bg-surface-elevated/70 px-2 pr-4 shadow-[0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-xl">
-        
         {/* Logo */}
-        <Link href="/" className="group relative ml-2 flex items-center gap-3 outline-none rounded-full focus-visible:ring-2 focus-visible:ring-primary">
+        <Link
+          href="/"
+          className="group relative ml-2 flex items-center gap-3 outline-none rounded-full focus-visible:ring-2 focus-visible:ring-primary"
+        >
           <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_0_10px_rgba(204,255,0,0.3)] transition-transform duration-300 group-hover:scale-110">
             <Code2 className="h-4 w-4" aria-hidden="true" />
           </div>
@@ -87,7 +86,7 @@ export function SiteHeader() {
               href={link.href}
               label={link.label}
               icon={link.icon}
-              active={pathname === link.href || pathname.startsWith(link.href + '/')}
+              active={pathname === link.href || pathname.startsWith(`${link.href}/`)}
             />
           ))}
         </nav>
@@ -99,7 +98,11 @@ export function SiteHeader() {
           {/* Mobile menu */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden rounded-full h-9 w-9 bg-surface-elevated hover:bg-surface-elevated/80 border border-border/50">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden rounded-full h-9 w-9 bg-surface-elevated hover:bg-surface-elevated/80 border border-border/50"
+              >
                 <Menu className="h-4 w-4" />
                 <span className="sr-only">Open menu</span>
               </Button>
@@ -111,21 +114,21 @@ export function SiteHeader() {
               <nav className="flex flex-col gap-2 p-2">
                 {navLinks.map((link) => {
                   const Icon = link.icon;
-                  const active = pathname === link.href || pathname.startsWith(link.href + '/');
+                  const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
                   return (
                     <SheetClose key={link.href} asChild>
                       <Link
-                         href={link.href}
-                         className={cn(
-                           'flex items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-medium transition-all active:scale-95',
-                           active
-                             ? 'bg-primary/10 text-primary border border-primary/20'
-                             : 'text-muted-foreground hover:bg-white/5 hover:text-foreground border border-transparent',
-                         )}
-                       >
-                         <Icon className="h-5 w-5" />
-                         {link.label}
-                       </Link>
+                        href={link.href}
+                        className={cn(
+                          'flex items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-medium transition-all active:scale-95',
+                          active
+                            ? 'bg-primary/10 text-primary border border-primary/20'
+                            : 'text-muted-foreground hover:bg-white/5 hover:text-foreground border border-transparent',
+                        )}
+                      >
+                        <Icon className="h-5 w-5" />
+                        {link.label}
+                      </Link>
                     </SheetClose>
                   );
                 })}

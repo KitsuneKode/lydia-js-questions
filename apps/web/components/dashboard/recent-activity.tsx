@@ -1,9 +1,9 @@
 'use client';
 
+import { CheckCircle2, Clock, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import { CheckCircle2, XCircle, Clock } from 'lucide-react';
-import { useProgress } from '@/lib/progress/progress-context';
 import type { QuestionRecord } from '@/lib/content/types';
+import { useProgress } from '@/lib/progress/progress-context';
 import type { AttemptRecord } from '@/lib/progress/storage';
 
 interface RecentActivityProps {
@@ -37,8 +37,7 @@ export function RecentActivity({ questions }: RecentActivityProps) {
   }
 
   recentAttempts.sort(
-    (a, b) =>
-      new Date(b.attempt.attemptedAt).getTime() - new Date(a.attempt.attemptedAt).getTime(),
+    (a, b) => new Date(b.attempt.attemptedAt).getTime() - new Date(a.attempt.attemptedAt).getTime(),
   );
 
   const last10 = recentAttempts.slice(0, 8);
@@ -53,15 +52,15 @@ export function RecentActivity({ questions }: RecentActivityProps) {
         <Clock className="h-4 w-4 text-muted-foreground/60" />
         <h3 className="text-sm font-medium text-foreground">Recent</h3>
       </div>
-      
+
       <ul className="space-y-1">
-        {last10.map((entry, i) => {
+        {last10.map((entry) => {
           const isCorrect = entry.attempt.status === 'correct';
           const time = new Date(entry.attempt.attemptedAt);
           const relTime = formatRelativeTime(time);
 
           return (
-            <li key={`${entry.questionId}-${entry.attempt.attemptedAt}-${i}`}>
+            <li key={`${entry.questionId}-${entry.attempt.attemptedAt}-${entry.attempt.status}`}>
               <Link
                 href={`/questions/${entry.questionId}`}
                 className="group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/40"

@@ -5,13 +5,15 @@ function Skeleton({ className }: { className?: string }) {
 }
 
 export default function DashboardLoading() {
+  const statSkeletonIds = ['stats-1', 'stats-2', 'stats-3', 'stats-4'];
+
   return (
     <main className="py-8 md:py-10">
       <Container>
         <Skeleton className="mb-8 h-10 w-48" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-28" />
+          {statSkeletonIds.map((id) => (
+            <Skeleton key={id} className="h-28" />
           ))}
         </div>
         <div className="mt-6 grid gap-6 lg:grid-cols-2">

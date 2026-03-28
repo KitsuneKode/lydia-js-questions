@@ -1,7 +1,7 @@
 'use client';
 
+import { Check, Code2, Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Code2, Copy, Check } from 'lucide-react';
 
 import { highlightCode } from '@/lib/shiki';
 import { cn } from '@/lib/utils';
@@ -48,7 +48,7 @@ export function CodeBlock({
     <div
       className={cn(
         'group relative overflow-hidden rounded-xl border border-border/50 bg-[#0d1117]',
-        className
+        className,
       )}
     >
       {/* Header bar */}
@@ -83,8 +83,8 @@ export function CodeBlock({
             className="pointer-events-none absolute left-0 top-0 select-none border-r border-border/20 bg-white/[0.01] px-3 py-4 text-right font-mono text-[11px] leading-6 text-muted-foreground/30"
             aria-hidden="true"
           >
-            {Array.from({ length: lineCount }, (_, i) => (
-              <div key={`line-${i + 1}`}>{i + 1}</div>
+            {Array.from({ length: lineCount }, (_, index) => index + 1).map((lineNumber) => (
+              <div key={`line-${lineNumber}`}>{lineNumber}</div>
             ))}
           </div>
         )}
@@ -92,11 +92,10 @@ export function CodeBlock({
         <div
           className={cn(
             'shiki-code overflow-x-auto p-4 font-mono text-sm leading-6',
-            showLineNumbers && 'pl-14'
+            showLineNumbers && 'pl-14',
           )}
         >
           {highlightedHtml ? (
-            /* biome-ignore lint/security/noDangerouslySetInnerHtml: shiki output is trusted */
             <div
               // biome-ignore lint/security/noDangerouslySetInnerHtml: shiki output is trusted
               dangerouslySetInnerHTML={{ __html: highlightedHtml }}

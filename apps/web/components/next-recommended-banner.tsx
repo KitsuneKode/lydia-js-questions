@@ -1,11 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
-
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import type { QuestionRecord } from '@/lib/content/types';
 import { useAnalytics } from '@/lib/progress/use-analytics';
-import { Button } from '@/components/ui/button';
 
 interface NextRecommendedBannerProps {
   questions: QuestionRecord[];
@@ -23,7 +22,7 @@ export function NextRecommendedBanner({ questions }: NextRecommendedBannerProps)
       <div className="group relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-card/60 to-card/40 p-5">
         {/* Subtle glow */}
         <div className="absolute -left-20 -top-20 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
-        
+
         <div className="relative flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
@@ -34,9 +33,7 @@ export function NextRecommendedBanner({ questions }: NextRecommendedBannerProps)
                 <p className="text-[10px] font-medium uppercase tracking-widest text-primary">
                   Recommended
                 </p>
-                <span className="text-[9px] text-muted-foreground/50">
-                  {recommended.label}
-                </span>
+                <span className="text-[9px] text-muted-foreground/50">{recommended.label}</span>
               </div>
               <h2 className="font-display text-base font-medium text-foreground transition-colors group-hover:text-primary sm:text-lg">
                 {q.title}

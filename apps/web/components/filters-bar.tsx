@@ -1,11 +1,10 @@
 'use client';
 
-import { useMemo, useTransition } from 'react';
+import { Filter, Search, Shuffle, Sparkles, X } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Search, Sparkles, Shuffle, X, Filter } from 'lucide-react';
-
-import { Input } from '@/components/ui/input';
+import { useMemo, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 interface FiltersBarProps {
@@ -17,7 +16,14 @@ interface FiltersBarProps {
   totalQuestions: number;
 }
 
-export function FiltersBar({ tags, selectedTag, search, runnable, status, totalQuestions }: FiltersBarProps) {
+export function FiltersBar({
+  tags,
+  selectedTag,
+  search,
+  runnable,
+  status,
+  totalQuestions,
+}: FiltersBarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -25,7 +31,11 @@ export function FiltersBar({ tags, selectedTag, search, runnable, status, totalQ
 
   const allTags = useMemo(() => ['all', ...tags], [tags]);
 
-  const hasActiveFilters = search || (selectedTag && selectedTag !== 'all') || runnable === 'true' || (status && status !== 'all');
+  const hasActiveFilters =
+    search ||
+    (selectedTag && selectedTag !== 'all') ||
+    runnable === 'true' ||
+    (status && status !== 'all');
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -42,7 +52,6 @@ export function FiltersBar({ tags, selectedTag, search, runnable, status, totalQ
   }
 
   function handleClearAll() {
-    const params = new URLSearchParams();
     startTransition(() => {
       router.push(pathname);
     });
@@ -81,11 +90,11 @@ export function FiltersBar({ tags, selectedTag, search, runnable, status, totalQ
             Random
           </Button>
           <Button
-            variant={runnable === 'true' ? 'primary' : 'secondary'}
+            variant={runnable === 'true' ? 'default' : 'secondary'}
             size="sm"
             className={cn(
               'h-9 px-3 text-xs font-medium',
-              runnable === 'true' && 'shadow-sm shadow-primary/20'
+              runnable === 'true' && 'shadow-sm shadow-primary/20',
             )}
             onClick={() => updateParam('runnable', runnable === 'true' ? '' : 'true')}
           >
@@ -163,7 +172,9 @@ export function FiltersBar({ tags, selectedTag, search, runnable, status, totalQ
       {isPending && (
         <div className="flex items-center gap-2">
           <div className="h-1 w-1 animate-pulse rounded-full bg-primary" />
-          <p className="text-[10px] font-medium uppercase tracking-widest text-primary/70">Updating...</p>
+          <p className="text-[10px] font-medium uppercase tracking-widest text-primary/70">
+            Updating...
+          </p>
         </div>
       )}
     </section>

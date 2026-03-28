@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 
 const ROOT = process.cwd();
 const SOURCE_PATH = path.join(ROOT, 'content/source/README.upstream.md');
-const RAW_URL = 'https://raw.githubusercontent.com/lydiahallie/javascript-questions/master/README.md';
+const RAW_URL =
+  'https://raw.githubusercontent.com/lydiahallie/javascript-questions/master/README.md';
 
 function sha256(input) {
   return crypto.createHash('sha256').update(input, 'utf8').digest('hex');
@@ -25,7 +26,9 @@ async function main() {
   }
 
   const incoming = (await response.text()).replace(/\r\n/g, '\n');
-  const existing = fs.existsSync(SOURCE_PATH) ? fs.readFileSync(SOURCE_PATH, 'utf8').replace(/\r\n/g, '\n') : '';
+  const existing = fs.existsSync(SOURCE_PATH)
+    ? fs.readFileSync(SOURCE_PATH, 'utf8').replace(/\r\n/g, '\n')
+    : '';
 
   const before = sha256(existing);
   const after = sha256(incoming);

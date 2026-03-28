@@ -1,9 +1,9 @@
 'use client';
 
+import { ArrowRight, Bookmark, CheckCircle2, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import { Bookmark, ArrowRight, CheckCircle2, XCircle } from 'lucide-react';
-import { useProgress } from '@/lib/progress/progress-context';
 import type { QuestionRecord } from '@/lib/content/types';
+import { useProgress } from '@/lib/progress/progress-context';
 
 interface BookmarkedListProps {
   questions: QuestionRecord[];
@@ -12,9 +12,7 @@ interface BookmarkedListProps {
 export function BookmarkedList({ questions }: BookmarkedListProps) {
   const { state } = useProgress();
 
-  const bookmarked = questions.filter(
-    (q) => state.questions[String(q.id)]?.bookmarked,
-  );
+  const bookmarked = questions.filter((q) => state.questions[String(q.id)]?.bookmarked);
 
   if (bookmarked.length === 0) {
     return null;
@@ -29,7 +27,7 @@ export function BookmarkedList({ questions }: BookmarkedListProps) {
           {bookmarked.length} saved
         </span>
       </div>
-      
+
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {bookmarked.slice(0, 6).map((q) => {
           const item = state.questions[String(q.id)];
@@ -42,13 +40,12 @@ export function BookmarkedList({ questions }: BookmarkedListProps) {
               className="group flex items-center justify-between rounded-lg border border-border/30 bg-background/30 px-3 py-2.5 transition-all hover:border-primary/30 hover:bg-primary/5"
             >
               <div className="flex min-w-0 items-center gap-2">
-                {lastStatus && (
-                  lastStatus === 'correct' ? (
+                {lastStatus &&
+                  (lastStatus === 'correct' ? (
                     <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-400/70" />
                   ) : (
                     <XCircle className="h-3 w-3 shrink-0 text-rose-400/70" />
-                  )
-                )}
+                  ))}
                 <p className="truncate text-xs font-medium text-foreground/80 transition-colors group-hover:text-foreground">
                   {q.title}
                 </p>
@@ -58,7 +55,7 @@ export function BookmarkedList({ questions }: BookmarkedListProps) {
           );
         })}
       </div>
-      
+
       {bookmarked.length > 6 && (
         <Link
           href="/questions?status=bookmarked"

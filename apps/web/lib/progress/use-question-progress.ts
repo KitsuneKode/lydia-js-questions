@@ -1,10 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-
-import type { AnswerStatus, ProgressItem } from '@/lib/progress/storage';
-import type { Grade } from '@/lib/progress/srs';
 import { useProgress } from '@/lib/progress/progress-context';
+import type { Grade } from '@/lib/progress/srs';
+import type { AnswerStatus, ProgressItem } from '@/lib/progress/storage';
 
 function ensureItem(questions: Record<string, ProgressItem>, questionId: number): ProgressItem {
   return (
@@ -20,10 +19,7 @@ function ensureItem(questions: Record<string, ProgressItem>, questionId: number)
 export function useQuestionProgress(questionId: number) {
   const { ready, state, saveAttempt, toggleBookmark, saveSelfGrade } = useProgress();
 
-  const item = useMemo(
-    () => ensureItem(state.questions, questionId),
-    [questionId, state],
-  );
+  const item = useMemo(() => ensureItem(state.questions, questionId), [questionId, state]);
 
   return {
     ready,

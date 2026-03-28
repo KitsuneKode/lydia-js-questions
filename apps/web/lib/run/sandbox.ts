@@ -1,5 +1,10 @@
-import type { SandboxError, SandboxRunResult, SandboxStackFrame, TimelineEvent } from '@/lib/run/types';
 import { z } from 'zod';
+import type {
+  SandboxError,
+  SandboxRunResult,
+  SandboxStackFrame,
+  TimelineEvent,
+} from '@/lib/run/types';
 
 const RUNNER_TIMEOUT_MS = 5000;
 const USER_SOURCE_NAME = 'snippet.js';
