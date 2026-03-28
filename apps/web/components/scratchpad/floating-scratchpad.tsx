@@ -8,34 +8,25 @@ import { MonacoCodeEditor } from '@/components/editor/monaco-code-editor';
 import { TerminalOutput } from '@/components/terminal/terminal-output';
 import { runJavaScriptInSandbox } from '@/lib/run/sandbox';
 import type { TerminalLogEntry } from '@/lib/run/terminal';
-import { getPrimaryErrorMessage, toTerminalLogEntries } from '@/lib/run/terminal';
+import { toTerminalLogEntries } from '@/lib/run/terminal';
 import { useScratchpad } from './scratchpad-context';
 
 export function FloatingScratchpad() {
   const { isOpen, closeScratchpad, code, setCode } = useScratchpad();
   const [logs, setLogs] = useState<TerminalLogEntry[]>([]);
   const [isRunning, setIsRunning] = useState(false);
-  const [runnerError, setRunnerError] = useState<string | null>(null);
 
   const runCode = useCallback(async () => {
     if (!code.trim()) return;
 
     setIsRunning(true);
     setLogs([]);
-    setRunnerError(null);
 
     try {
       const result = await runJavaScriptInSandbox(code);
       setLogs(toTerminalLogEntries(result));
-
-      if (result.errors.length > 0 && result.logs.length === 0) {
-        setRunnerError(getPrimaryErrorMessage(result.errors[0]));
-      } else {
-        setRunnerError(null);
-      }
     } catch (error) {
       const message = String(error);
-      setRunnerError(message);
       setLogs([{ type: 'error', content: message, timestamp: Date.now() }]);
     } finally {
       setIsRunning(false);
@@ -45,7 +36,6 @@ export function FloatingScratchpad() {
   const resetCode = useCallback(() => {
     setCode('');
     setLogs([]);
-    setRunnerError(null);
   }, [setCode]);
 
   return (
@@ -111,14 +101,9 @@ export function FloatingScratchpad() {
               <TerminalOutput
                 logs={logs}
                 isRunning={isRunning}
-                emptyMessage={runnerError ?? 'Run code to see output...'}
+                emptyMessage="Run code to see output..."
               />
             </div>
-            {runnerError && (
-              <div className="border-t border-rose-500/20 bg-rose-500/5 px-4 py-3 text-xs text-rose-200/90">
-                {runnerError}
-              </div>
-            )}
           </section>
         </div>
       </SheetContent>
