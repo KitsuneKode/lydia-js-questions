@@ -2,7 +2,7 @@
   "nav": {
     "questions": "Fragen",
     "dashboard": "Dashboard",
-    "about": "Über das Projekt",
+    "about": "Über uns",
     "credits": "Mitwirkende",
     "scratchpad": "Notizblock"
   },
@@ -58,12 +58,35 @@
     }
   },
   "landing": {
-    "headline": "JavaScript-Interviews meistern",
-    "subline": "Übe mit echten Interviewfragen, führe den Code aus und verstehe, warum deine Antwort richtig oder falsch ist.",
+    "headline": "JavaScript meistern. Eine Frage auf einmal.",
+    "subline": "Code im Browser ausführen, den Event-Loop visualisieren und die Mechanismen ins Langzeitgedächtnis schreiben. Ein Präzisionsinstrument für die Interviewvorbereitung.",
     "cta": "Jetzt üben",
+    "ctaGithub": "Auf GitHub ansehen",
+    "builtBy": "Erstellt von",
+    "basedOn": "Basiert auf",
+    "lydiaQuestions": "Lydia Hallie's Fragen",
     "featuredTitle": "Ausgewählte Fragen",
     "featuredSubline": "Beginne mit diesen beliebten Aufgaben",
-    "viewAll": "Alle {count} anzeigen"
+    "viewAll": "Alle {count} anzeigen",
+    "workflow": {
+      "sectionLabel": "So funktioniert es",
+      "sectionTitle": "Der Übungskreislauf",
+      "sectionSubline": "Ein präzisions-entwickelter Rückkopplungszyklus, der fortgeschrittenes JavaScript in dein Langzeitgedächtnis schreibt.",
+      "step1Title": "Finde eine Frage",
+      "step1Desc": "Filtere nach Thema, stelle die Schwierigkeit ein oder suche direkt nach einem Konzept.",
+      "step2Title": "Entscheide dich für eine Antwort",
+      "step2Desc": "Kein Spicken. Zwinge dich zur Entscheidung, bevor die Erklärung erscheint.",
+      "step3Title": "Führe den Code aus",
+      "step3Desc": "Öffne den Notizblock. Führe Snippets aus. Sieh die Ausgabe sofort.",
+      "step4Title": "Verstehe das Warum",
+      "step4Desc": "Tauche tief in die Erklärung ein. Dekonstruiere den Event-Loop und den Ausführungskontext."
+    },
+    "topics": {
+      "sectionLabel": "Abdeckung",
+      "sectionTitle": "Meistere jeden Begriff",
+      "sectionSubline": "Vollständige Abdeckung von {count} Kernthemen",
+      "challenges": "{count} Aufgaben"
+    }
   },
   "dashboard": {
     "title": "Übungszentrum",
@@ -78,13 +101,36 @@
     "correct": "Richtig"
   },
   "credits": {
-    "title": "Credits & Mitwirkende",
-    "localeTable": {
-      "language": "Sprache",
-      "questions": "Fragen",
-      "coverage": "Abdeckung",
-      "status": "Status"
-    }
+    "label": "Credits & Mitwirkende",
+    "heroTitle": "Erstellt von {creator}, basierend auf Lydia Hallie's Fragen.",
+    "heroBody": "{name} ist ein eigenständig erstelltes Übungsprodukt. Die ursprünglichen Fragen und Erklärungen stammen aus dem {source} von Lydia Hallie. Mein Beitrag ist die Produktschicht: die Oberfläche, der Runner, die Visualisierung, der Notizblock und die Fortschrittsschleife.",
+    "heroNote": "Diese Seite erweitert die ursprünglichen Credits, ersetzt sie aber nicht. Die Upstream-Quellenreferenzen und die Liste der unterstützten Sprachen bleiben unten erhalten.",
+    "xProfile": "X-Profil",
+    "githubProfile": "GitHub-Profil",
+    "projectRepo": "Projekt-Repository",
+    "whyLabel": "Warum ich es gebaut habe",
+    "whyTitle": "Eine starke Quelle verdiente eine stärkere Übungsoberfläche.",
+    "whyBody1": "Lydia's Repository ist eine der besten JavaScript-Referenzen im Internet, aber die Interviewvorbereitung braucht meist eine schnellere Schleife als das Lesen einer langen Markdown-Datei. Ich habe es gebaut, damit du erst antwortest, dann aufdeckst, Code sofort ausführst und mit Fortschritt zurückkommst, der noch etwas bedeutet.",
+    "whyBody2": "Dieses Projekt ist auch persönlicher Arbeitsnachweis. Ich wollte, dass die Website selbst Sorgfalt zeigt: Designzurückhaltung, schnellere Interaktionen, bessere mobile Ergonomie und ein klares Gefühl, dass jemand die Erfahrung aktiv verbessert.",
+    "addedLabel": "Was ich hinzugefügt habe",
+    "addition1": "Eine fokussierte Fragenbibliothek statt eines langen README-Scrolls",
+    "addition2": "Worker-basierte ausführbare Snippets, die innerhalb der App bleiben",
+    "addition3": "Event-Loop-Visualisierung für laufzeitintensive Fragen",
+    "addition4": "Fortschritt, Wiederholungshinweise, Lesezeichen und eine klarere Übungsschleife",
+    "originalLabel": "Ursprüngliche Credits",
+    "originalBody1": "Danke an {creator} für die Erstellung und Pflege des Quellmaterials, auf dem diese Erfahrung aufgebaut ist. Der Inhalt der Fragen, die Erklärungen und das ursprüngliche pädagogische Fundament gehören dieser Arbeit und ihren Mitwirkenden.",
+    "originalBody2": "Die ursprünglichen Repository-Links und die unterstützten Sprachdateien bleiben hier sichtbar, damit das Quellmaterial leicht zurückgefunden werden kann.",
+    "originalRepo": "Ursprüngliches Repository",
+    "originalCreator": "Lydia Hallie",
+    "integrityLabel": "Quellenintegrität",
+    "integritySourceFile": "Quelldatei",
+    "integrityGenerated": "Generiert",
+    "integrityLocale": "Aktuelle Sprache",
+    "integrityQuestions": "Fragen",
+    "languagesLabel": "Unterstützte Sprachen",
+    "languagesTitle": "Aus der Upstream-Quelle erhalten.",
+    "languagesBody": "Diese Übersetzungslinks stammen direkt aus Lydia Hallie's Quellmaterial und bleiben Teil der Credits-Seite, damit die ursprüngliche Sprachabdeckung sichtbar bleibt.",
+    "startPracticing": "Jetzt üben"
   },
   "common": {
     "loading": "Lädt…",
@@ -93,6 +139,6 @@
   },
   "meta": {
     "title": "JS Questions Lab",
-    "description": "Interaktive JavaScript-Interviewpraxis auf Basis von Lydia Hallies Fragen, mit ausführbaren Snippets und Event-Loop-Visualisierungen."
+    "description": "Interaktive JavaScript-Interviewvorbereitung mit Lydia Hallie's Fragen, ausführbaren Snippets und Event-Loop-Visualisierungen."
   }
 }
