@@ -4,7 +4,8 @@
     "dashboard": "Dashboard",
     "about": "About",
     "credits": "Credits",
-    "scratchpad": "Scratchpad"
+    "scratchpad": "Scratchpad",
+    "language": "Language"
   },
   "questions": {
     "title": "Question Library",

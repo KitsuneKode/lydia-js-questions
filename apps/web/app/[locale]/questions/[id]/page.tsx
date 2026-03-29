@@ -27,6 +27,20 @@ interface QuestionDetailPageProps {
   }>;
 }
 
+export async function generateMetadata({ params }: QuestionDetailPageProps) {
+  const resolvedParams = await params;
+  const locale = resolvedParams.locale as LocaleCode;
+  const id = Number.parseInt(resolvedParams.id, 10);
+  const question = getQuestionById(locale, id);
+
+  if (!question) return { title: 'JS Questions Lab' };
+
+  return {
+    title: `${question.title} | JS Questions Lab`,
+    description: question.promptMarkdown?.slice(0, 155) ?? '',
+  };
+}
+
 export default async function QuestionDetailPage({ params }: QuestionDetailPageProps) {
   const resolvedParams = await params;
   const locale = resolvedParams.locale as LocaleCode;

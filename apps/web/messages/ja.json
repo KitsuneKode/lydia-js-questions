@@ -4,7 +4,8 @@
     "dashboard": "ダッシュボード",
     "about": "について",
     "credits": "クレジット",
-    "scratchpad": "スクラッチパッド"
+    "scratchpad": "スクラッチパッド",
+    "language": "言語"
   },
   "questions": {
     "title": "問題ライブラリ",

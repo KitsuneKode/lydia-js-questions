@@ -4,7 +4,8 @@
     "dashboard": "Panel",
     "about": "Acerca de",
     "credits": "Créditos",
-    "scratchpad": "Bloc de notas"
+    "scratchpad": "Bloc de notas",
+    "language": "Idioma"
   },
   "questions": {
     "title": "Biblioteca de preguntas",

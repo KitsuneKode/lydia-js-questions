@@ -442,8 +442,7 @@ export async function runJavaScriptInSandbox(code: string): Promise<SandboxRunRe
   executableCode = executableCode
     .replace(/^\s*import\s+.*$/gm, '')
     .replace(/^\s*export\s+(const|let|var|function|class)\s+/gm, '$1 ')
-    .replace(/^\s*export\s+default\s+/gm, '')
-    .replace(/import\s*\(['"]([^'"]+)['"]\)/g, 'require($1)');
+    .replace(/^\s*export\s+default\s+/gm, '');
 
   const worker = createWorker();
   const runId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;

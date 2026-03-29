@@ -4,7 +4,8 @@
     "dashboard": "Painel",
     "about": "Sobre",
     "credits": "Créditos",
-    "scratchpad": "Rascunho"
+    "scratchpad": "Rascunho",
+    "language": "Idioma"
   },
   "questions": {
     "title": "Biblioteca de perguntas",

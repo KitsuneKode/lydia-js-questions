@@ -5,7 +5,7 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { AuthControls } from '@/components/auth-controls';
 import { BrandMark } from '@/components/brand-mark';
@@ -35,7 +35,7 @@ export function SiteHeader() {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [lastY, setLastY] = useState(0);
+  const lastYRef = useRef(0);
   const { openScratchpad } = useScratchpad();
 
   const locale = getLocaleFromPathname(pathname ?? `/${DEFAULT_LOCALE}`);
@@ -47,12 +47,12 @@ export function SiteHeader() {
   ];
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
-    if (latest > lastY && latest > 100) {
+    if (latest > lastYRef.current && latest > 100) {
       setHidden(true);
     } else {
       setHidden(false);
     }
-    setLastY(latest);
+    lastYRef.current = latest;
   });
 
   const handleLocaleSwitch = (targetLocale: LocaleCode) => {
@@ -223,7 +223,7 @@ export function SiteHeader() {
 
             <div className="mt-8 border-t border-border/30 pt-6">
               <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
-                Language
+                {t('language')}
               </p>
               <div className="flex flex-wrap gap-2">
                 {SUPPORTED_LOCALES.map((loc) => (

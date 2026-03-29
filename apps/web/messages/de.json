@@ -4,7 +4,8 @@
     "dashboard": "Dashboard",
     "about": "Über uns",
     "credits": "Mitwirkende",
-    "scratchpad": "Notizblock"
+    "scratchpad": "Notizblock",
+    "language": "Sprache"
   },
   "questions": {
     "title": "Fragenbibliothek",

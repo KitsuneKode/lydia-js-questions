@@ -4,7 +4,8 @@
     "dashboard": "Tableau de bord",
     "about": "À propos",
     "credits": "Crédits",
-    "scratchpad": "Bloc-notes"
+    "scratchpad": "Bloc-notes",
+    "language": "Langue"
   },
   "questions": {
     "title": "Bibliothèque de questions",

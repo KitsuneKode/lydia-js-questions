@@ -28,6 +28,17 @@ export const defaultProgressState: ProgressState = {
   questions: {},
 };
 
+function isValidProgressState(value: unknown): value is ProgressState {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as ProgressState).version === 'number' &&
+    (value as ProgressState).version === 2 &&
+    typeof (value as ProgressState).questions === 'object' &&
+    (value as ProgressState).questions !== null
+  );
+}
+
 export function readProgress(): ProgressState {
   if (typeof window === 'undefined') {
     return defaultProgressState;
@@ -40,6 +51,7 @@ export function readProgress(): ProgressState {
       const v1Raw = window.localStorage.getItem('jsq_progress_v1');
       if (v1Raw) {
         const v1Parsed = JSON.parse(v1Raw);
+        window.localStorage.removeItem('jsq_progress_v1');
         return {
           version: 2,
           questions: v1Parsed.questions || {},
@@ -48,8 +60,8 @@ export function readProgress(): ProgressState {
       return defaultProgressState;
     }
 
-    const parsed = JSON.parse(raw) as ProgressState;
-    if (parsed.version !== 2 || typeof parsed.questions !== 'object') {
+    const parsed: unknown = JSON.parse(raw);
+    if (!isValidProgressState(parsed)) {
       return defaultProgressState;
     }
 
