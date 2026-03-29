@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Bricolage_Grotesque, Roboto_Mono } from 'next/font/google';
+import { Bricolage_Grotesque, Geist, Roboto_Mono } from 'next/font/google';
 import '@/app/globals.css';
 
 import { Provider } from '@/app/provider';
@@ -40,7 +40,7 @@ const bricolageGrotesqueBricolageGrotesque = Bricolage_Grotesque({
 // });
 
 export const metadata: Metadata = {
-  title: 'JS Interview Atlas',
+  title: 'JS Mastery Atlas',
   description:
     'Interactive JavaScript interview questions with runnable code and timeline visualizations.',
 };
@@ -67,4 +67,3 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     </html>
   );
 }
-

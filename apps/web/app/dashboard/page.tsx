@@ -5,7 +5,7 @@ import { DashboardShell } from '@/components/dashboard/dashboard-shell';
 import { getQuestions } from '@/lib/content/loaders';
 
 export const metadata: Metadata = {
-  title: 'Dashboard — JS Interview Atlas',
+  title: 'Dashboard — JS Mastery Atlas',
 };
 
 export default function DashboardPage() {

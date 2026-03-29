@@ -2,7 +2,9 @@
 
 ## Repository Shape
 
-- `README.md`: upstream source material from Lydia Hallie
+- `README.md`: project overview, setup, and docs map
+- `CONTRIBUTING.md`: contributor workflow and PR expectations
+- `docs/content-pipeline.md`: source-of-truth and generated-content rules
 - `content/source/README.upstream.md`: local synced source copy
 - `content/generated/*.json`: parsed structured content used by the app
 - `scripts/parse-readme.mjs`: parser/generator
@@ -177,7 +179,9 @@ If changing content pipeline:
 
 ## Useful Files To Read First
 
+- `README.md`
 - `AGENTS.md`
+- `docs/content-pipeline.md`
 - `CLAUDE.md`
 - `apps/web/app/questions/[id]/page.tsx`
 - `apps/web/components/ide/question-ide-client.tsx`
