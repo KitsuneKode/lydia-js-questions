@@ -9,6 +9,7 @@ import { useState } from 'react';
 
 import { AuthControls } from '@/components/auth-controls';
 import { BrandMark } from '@/components/brand-mark';
+import { ReviewBadge } from '@/components/dashboard/review-badge';
 import { useScratchpad } from '@/components/scratchpad/scratchpad-context';
 import { Button } from '@/components/ui/button';
 import {
@@ -40,9 +41,9 @@ export function SiteHeader() {
   const locale = getLocaleFromPathname(pathname ?? `/${DEFAULT_LOCALE}`);
 
   const navLinks = [
-    { href: withLocale(locale, siteLinks.questions), label: t('questions') },
-    { href: withLocale(locale, siteLinks.dashboard), label: t('dashboard') },
-    { href: withLocale(locale, siteLinks.credits), label: t('credits') },
+    { href: withLocale(locale, siteLinks.questions), label: t('questions'), badge: false },
+    { href: withLocale(locale, siteLinks.dashboard), label: t('dashboard'), badge: true },
+    { href: withLocale(locale, siteLinks.credits), label: t('credits'), badge: false },
   ];
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
@@ -93,6 +94,7 @@ export function SiteHeader() {
                   )}
                 >
                   {link.label}
+                  {link.badge && <ReviewBadge className="ml-1.5 -mt-0.5" />}
                   {active ? (
                     <motion.div
                       layoutId="nav-indicator"

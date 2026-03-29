@@ -47,6 +47,7 @@ const LOCALE_FLAGS: Record<LocaleCode, string> = {
 export default async function CreditsPage({ params }: CreditsPageProps) {
   const { locale } = await params;
   const manifest = getManifest(locale);
+  const enManifest = getManifest('en'); // always load EN for upstream translations list
   const localeIndex = getLocaleIndex();
   const t = await getTranslations({ locale, namespace: 'credits' });
 
@@ -259,71 +260,72 @@ export default async function CreditsPage({ params }: CreditsPageProps) {
           </article>
         </section>
 
-        {/* ── Supported Languages from upstream ───────────────────────────── */}
-        {manifest.translations.length > 0 && (
-          <section className="mt-6 rounded-[28px] border border-border-subtle bg-surface/75 p-8 shadow-[0_18px_56px_rgba(0,0,0,0.22)]">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-                  {t('languagesLabel')}
-                </p>
-                <h2 className="mt-4 font-display text-2xl tracking-[-0.02em] text-foreground lg:text-3xl">
-                  {t('languagesTitle')}
-                </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
-                  {t('languagesBody')}
-                </p>
-              </div>
-              <Link
-                href={withLocale(locale, '/questions')}
-                className="inline-flex items-center gap-2 text-sm text-primary transition-colors hover:text-primary/80"
-              >
-                {t('startPracticing')}
-                <IconArrowUpRight className="h-4 w-4" />
-              </Link>
+        {/* ── Supported Languages ─────────────────────────────── */}
+        <section className="mt-6 rounded-[28px] border border-border-subtle bg-surface/75 p-8 shadow-[0_18px_56px_rgba(0,0,0,0.22)]">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+                {t('languagesLabel')}
+              </p>
+              <h2 className="mt-4 font-display text-2xl tracking-[-0.02em] text-foreground lg:text-3xl">
+                {t('languagesTitle')}
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
+                {t('languagesBody')}
+              </p>
             </div>
+            <Link
+              href={withLocale(locale, '/questions')}
+              className="inline-flex items-center gap-2 text-sm text-primary transition-colors hover:text-primary/80"
+            >
+              {t('startPracticing')}
+              <IconArrowUpRight className="h-4 w-4" />
+            </Link>
+          </div>
 
-            <ul className="mt-8 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-3">
-              {appLocales.map((entry) => {
-                const isCurrent = entry.code === locale;
-
-                return (
-                  <li key={entry.code}>
-                    <Link
-                      href={withLocale(entry.code, '/credits')}
-                      className={`group flex h-full items-center justify-between gap-4 rounded-[18px] border px-4 py-3 transition-colors ${
-                        isCurrent
-                          ? 'border-primary/35 bg-primary/8'
-                          : 'border-border/50 bg-elevated/40 hover:border-primary/30 hover:bg-elevated'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg leading-none">{entry.flag}</span>
-                        <div>
-                          <p className="font-medium text-foreground">{entry.label}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {entry.code}
-                            {entry.questionCount
-                              ? ` • ${entry.questionCount} ${t('integrityQuestions').toLowerCase()}`
-                              : ''}
-                          </p>
-                        </div>
+          {/* Pilot locales — always shown */}
+          <ul className="mt-8 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-3">
+            {appLocales.map((entry) => {
+              const isCurrent = entry.code === locale;
+              return (
+                <li key={entry.code}>
+                  <Link
+                    href={withLocale(entry.code, '/credits')}
+                    className={`group flex h-full items-center justify-between gap-4 rounded-[18px] border px-4 py-3 transition-colors ${
+                      isCurrent
+                        ? 'border-primary/35 bg-primary/8'
+                        : 'border-border/50 bg-elevated/40 hover:border-primary/30 hover:bg-elevated'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg leading-none">{entry.flag}</span>
+                      <div>
+                        <p className="font-medium text-foreground">{entry.label}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {entry.code}
+                          {entry.questionCount
+                            ? ` • ${entry.questionCount} ${t('integrityQuestions').toLowerCase()}`
+                            : ''}
+                        </p>
                       </div>
-                      <IconArrowUpRight
-                        className={`h-4 w-4 shrink-0 transition-colors ${
-                          isCurrent
-                            ? 'text-primary'
-                            : 'text-muted-foreground group-hover:text-primary'
-                        }`}
-                      />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+                    </div>
+                    <IconArrowUpRight
+                      className={`h-4 w-4 shrink-0 transition-colors ${
+                        isCurrent
+                          ? 'text-primary'
+                          : 'text-muted-foreground group-hover:text-primary'
+                      }`}
+                    />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
 
-            <ul className="mt-8 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2 xl:grid-cols-3">
-              {manifest.translations.map((translation) => (
+          {/* Upstream community translations — always from EN manifest */}
+          {enManifest.translations.length > 0 && (
+            <ul className="mt-6 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2 xl:grid-cols-3">
+              {enManifest.translations.map((translation) => (
                 <li
                   key={translation.href}
                   className="rounded-[18px] border border-border/50 bg-elevated/40 px-4 py-3 transition-colors hover:border-primary/30 hover:bg-elevated"
@@ -340,8 +342,8 @@ export default async function CreditsPage({ params }: CreditsPageProps) {
                 </li>
               ))}
             </ul>
-          </section>
-        )}
+          )}
+        </section>
       </Container>
     </main>
   );

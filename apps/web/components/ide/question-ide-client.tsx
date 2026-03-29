@@ -19,6 +19,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Streamdown } from 'streamdown';
 import { MonacoCodeEditor } from '@/components/editor/monaco-code-editor';
 import { DomEventSimulator } from '@/components/ide/dom-event-simulator';
+import { KeyboardHintBar } from '@/components/ide/keyboard-hint-bar';
 import { useScratchpad } from '@/components/scratchpad/scratchpad-context';
 import { TerminalOutput } from '@/components/terminal/terminal-output';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +45,7 @@ import {
 } from '@/components/ui/resizable-panel';
 import { TimelineChart } from '@/components/visualization/timeline-chart';
 import type { QuestionRecord } from '@/lib/content/types';
+import { useQuestionKeyboard } from '@/lib/keyboard/use-question-keyboard';
 import { useQuestionProgress } from '@/lib/progress/use-question-progress';
 import { runJavaScriptInSandbox } from '@/lib/run/sandbox';
 import type { TerminalLogEntry } from '@/lib/run/terminal';
@@ -105,6 +107,7 @@ export function QuestionIDEClient({ question, prevId, nextId, locale }: Question
   const [recallAnswer, setRecallAnswer] = useState('');
   const [hasSubmittedRecall, setHasSubmittedRecall] = useState(false);
   const [selfGrade, setSelfGrade] = useState<'hard' | 'good' | 'easy' | null>(null);
+  const [explanationVisible, setExplanationVisible] = useState(true);
 
   const cleanPromptMarkdown = question.promptMarkdown
     .replace(/```[a-z]*\n[\s\S]*?\n```/g, '')
@@ -212,6 +215,22 @@ export function QuestionIDEClient({ question, prevId, nextId, locale }: Question
     [isAnswered, question.correctOption, saveAttempt],
   );
 
+  const prevHref = prevId ? `${linkPrefix}/questions/${prevId}` : null;
+  const nextHref = nextId ? `${linkPrefix}/questions/${nextId}` : null;
+
+  useQuestionKeyboard({
+    isAnswered,
+    options: question.options,
+    prevHref,
+    nextHref,
+    onSelectOption: handleOptionSelect,
+    onRevealToggle: () => setExplanationVisible((v) => !v),
+    onRunCode: isJavascriptRuntime ? runCode : undefined,
+    onOpenScratchpad: isJavascriptRuntime
+      ? () => openScratchpad(questionCode, 'replace')
+      : undefined,
+  });
+
   return (
     <div className="flex h-full flex-col w-full">
       {/* Header */}
@@ -251,7 +270,7 @@ export function QuestionIDEClient({ question, prevId, nextId, locale }: Question
 
         <div className="flex items-center gap-3">
           {prevId && (
-            <Link href={`${linkPrefix}/questions/${prevId}`}>
+            <Link href={prevHref ?? '#'}>
               <Button
                 variant="secondary"
                 size="sm"
@@ -272,7 +291,7 @@ export function QuestionIDEClient({ question, prevId, nextId, locale }: Question
             {item.bookmarked ? 'Saved' : 'Save'}
           </Button>
           {nextId && (
-            <Link href={`${linkPrefix}/questions/${nextId}`}>
+            <Link href={nextHref ?? '#'}>
               <Button
                 variant="secondary"
                 size="sm"
@@ -550,6 +569,15 @@ export function QuestionIDEClient({ question, prevId, nextId, locale }: Question
                     animate={{ opacity: 1, height: 'auto' }}
                     className="mt-6 space-y-6 overflow-hidden"
                   >
+                    {/* Explanation visibility toggle */}
+                    <button
+                      type="button"
+                      onClick={() => setExplanationVisible((v) => !v)}
+                      className="flex w-full items-center justify-between rounded-lg border border-border/30 bg-muted/10 px-3 py-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <span>{explanationVisible ? 'Hide Explanation' : 'Show Explanation'}</span>
+                      <span className="font-mono text-[9px] opacity-50">Space</span>
+                    </button>
                     <div
                       className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${
                         isCorrect
@@ -565,18 +593,31 @@ export function QuestionIDEClient({ question, prevId, nextId, locale }: Question
                       <span>{isCorrect ? 'Correct!' : `Answer: ${question.correctOption}`}</span>
                     </div>
 
-                    <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-linear-to-b from-card/60 to-background/80 p-6">
-                      <div className="absolute top-0 right-0 p-4 opacity-5">
-                        <Sparkles className="h-20 w-20" />
-                      </div>
-                      <h3 className="mb-4 font-display text-lg font-medium tracking-tight text-foreground flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-primary" />
-                        Explanation
-                      </h3>
-                      <div className="markdown text-sm leading-relaxed text-muted-foreground/80">
-                        <Streamdown>{question.explanationMarkdown}</Streamdown>
-                      </div>
-                    </div>
+                    <AnimatePresence>
+                      {explanationVisible && (
+                        <motion.div
+                          key="explanation"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-linear-to-b from-card/60 to-background/80 p-6">
+                            <div className="absolute top-0 right-0 p-4 opacity-5">
+                              <Sparkles className="h-20 w-20" />
+                            </div>
+                            <h3 className="mb-4 font-display text-lg font-medium tracking-tight text-foreground flex items-center gap-2">
+                              <CheckCircle2 className="h-5 w-5 text-primary" />
+                              Explanation
+                            </h3>
+                            <div className="markdown text-sm leading-relaxed text-muted-foreground/80">
+                              <Streamdown>{question.explanationMarkdown}</Streamdown>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
                     <div className="grid grid-cols-3 gap-2">
                       {(['hard', 'good', 'easy'] as const).map((grade) => (
@@ -605,6 +646,13 @@ export function QuestionIDEClient({ question, prevId, nextId, locale }: Question
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
+
+      <KeyboardHintBar
+        isAnswered={isAnswered}
+        isRunnable={isJavascriptRuntime}
+        hasPrev={!!prevId}
+        hasNext={!!nextId}
+      />
     </div>
   );
 }
