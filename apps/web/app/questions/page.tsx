@@ -94,7 +94,7 @@ export default async function QuestionsPage({
               search={q}
               runnable={runnable}
               status={status}
-              totalQuestions={allQuestions.length}
+              difficulty={difficulty}
               allQuestions={allQuestions}
             />
 

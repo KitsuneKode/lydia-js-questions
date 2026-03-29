@@ -22,7 +22,6 @@ import { useScratchpad } from '@/components/scratchpad/scratchpad-context';
 import { TerminalOutput } from '@/components/terminal/terminal-output';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -192,7 +191,11 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
         <div className="flex items-center gap-3">
           {prevId && (
             <Link href={`/questions/${prevId}`}>
-              <Button variant="secondary" size="sm" className="h-9 gap-2 px-4 text-xs font-medium">
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-9 gap-2 px-4 text-xs font-medium active:scale-[0.97] transition-all"
+              >
                 <ChevronLeft className="h-4 w-4" />
                 Prev
               </Button>
@@ -202,14 +205,18 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
             variant={item.bookmarked ? 'default' : 'secondary'}
             size="sm"
             onClick={toggleBookmark}
-            className="h-9 gap-2 px-4 text-xs font-medium"
+            className="h-9 gap-2 px-4 text-xs font-medium active:scale-[0.97] transition-all"
           >
             <Bookmark className={`h-4 w-4 ${item.bookmarked ? 'fill-current' : ''}`} />
             {item.bookmarked ? 'Saved' : 'Save'}
           </Button>
           {nextId && (
             <Link href={`/questions/${nextId}`}>
-              <Button variant="secondary" size="sm" className="h-9 gap-2 px-4 text-xs font-medium">
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-9 gap-2 px-4 text-xs font-medium active:scale-[0.97] transition-all"
+              >
                 Next
                 <ChevronRight className="h-4 w-4" />
               </Button>
