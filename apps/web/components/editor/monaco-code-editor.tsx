@@ -9,7 +9,7 @@ interface MonacoEditorProps {
   value: string;
   onChange: (value: string) => void;
   onRun?: () => void;
-  language?: 'javascript' | 'typescript';
+  language?: 'html' | 'javascript' | 'typescript';
   readOnly?: boolean;
   path?: string;
 }

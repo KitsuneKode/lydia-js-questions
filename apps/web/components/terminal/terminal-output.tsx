@@ -153,13 +153,6 @@ export function TerminalOutput({
           </div>
         )}
       </div>
-
-      {/* Blinking Cursor */}
-      {logs.length > 0 && (
-        <div className="absolute bottom-2 left-4">
-          <span className="animate-pulse text-[#22c55e]">▋</span>
-        </div>
-      )}
     </div>
   );
 }

@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 import { Streamdown } from 'streamdown';
 import { MonacoCodeEditor } from '@/components/editor/monaco-code-editor';
+import { DomEventSimulator } from '@/components/ide/dom-event-simulator';
 import { useScratchpad } from '@/components/scratchpad/scratchpad-context';
 import { TerminalOutput } from '@/components/terminal/terminal-output';
 import { Badge } from '@/components/ui/badge';
@@ -49,10 +50,19 @@ import type { TerminalLogEntry } from '@/lib/run/terminal';
 import { getPrimaryErrorMessage, toTerminalLogEntries } from '@/lib/run/terminal';
 import type { TimelineEvent } from '@/lib/run/types';
 
+type QuestionRuntimeKind = 'javascript' | 'dom-click-propagation' | 'static';
+
+type RuntimeAwareQuestion = QuestionRecord & {
+  runtime?: {
+    kind?: QuestionRuntimeKind;
+  };
+};
+
 interface QuestionIDEClientProps {
-  question: QuestionRecord;
+  question: RuntimeAwareQuestion;
   prevId: number | null;
   nextId: number | null;
+  locale?: string;
 }
 
 const EDITOR_DEFAULT_CODE = `// Write your code here
@@ -65,7 +75,31 @@ const sum = arr.reduce((a, b) => a + b, 0);
 console.log("Sum:", sum);
 `;
 
-export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClientProps) {
+function inferRuntimeKind(question: RuntimeAwareQuestion): QuestionRuntimeKind {
+  if (question.runtime?.kind) {
+    return question.runtime.kind;
+  }
+
+  const hasJavascriptSnippet = question.codeBlocks.some(
+    (block) => block.language === 'javascript' || block.language === 'js',
+  );
+
+  if (hasJavascriptSnippet || question.runnable) {
+    return 'javascript';
+  }
+
+  const hasInlineDomClickSnippet = question.codeBlocks.some(
+    (block) => block.language === 'html' && /onclick\s*=/.test(block.code),
+  );
+
+  if (hasInlineDomClickSnippet && (question.id === 31 || question.id === 32)) {
+    return 'dom-click-propagation';
+  }
+
+  return 'static';
+}
+
+export function QuestionIDEClient({ question, prevId, nextId, locale }: QuestionIDEClientProps) {
   const [selected, setSelected] = useState<'A' | 'B' | 'C' | 'D' | null>(null);
   const [isRecallMode, setIsRecallMode] = useState(false);
   const [recallAnswer, setRecallAnswer] = useState('');
@@ -75,7 +109,29 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
   const cleanPromptMarkdown = question.promptMarkdown
     .replace(/```[a-z]*\n[\s\S]*?\n```/g, '')
     .trim();
-  const questionCode = question.codeBlocks[0]?.code || EDITOR_DEFAULT_CODE;
+  const primaryCodeBlock = question.codeBlocks[0] ?? null;
+  const javascriptCodeBlock = useMemo(
+    () =>
+      question.codeBlocks.find(
+        (block) => block.language === 'javascript' || block.language === 'js',
+      ) ?? null,
+    [question.codeBlocks],
+  );
+  const runtimeKind = inferRuntimeKind(question);
+  const isJavascriptRuntime = runtimeKind === 'javascript';
+  const isDomEventRuntime = runtimeKind === 'dom-click-propagation';
+  const questionCode = isJavascriptRuntime
+    ? (javascriptCodeBlock?.code ?? EDITOR_DEFAULT_CODE)
+    : (primaryCodeBlock?.code ?? '');
+  const codePanelTitle =
+    primaryCodeBlock?.language === 'html'
+      ? 'Question HTML'
+      : isJavascriptRuntime
+        ? 'Question Code'
+        : 'Question Snippet';
+  const editorLanguage = primaryCodeBlock?.language === 'html' ? 'html' : 'javascript';
+  const editorPath = `question-${question.id}.${editorLanguage === 'html' ? 'html' : 'js'}`;
+  const linkPrefix = locale ? `/${locale}` : '';
 
   const { openScratchpad } = useScratchpad();
   const [logs, setLogs] = useState<TerminalLogEntry[]>([]);
@@ -89,11 +145,16 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
   const isCorrect = selected !== null ? selected === question.correctOption : hasSubmittedRecall;
 
   const hasAsyncEvents = useMemo(() => {
-    return timeline.some((event) => event.kind === 'macro' || event.kind === 'micro');
-  }, [timeline]);
+    return (
+      isJavascriptRuntime &&
+      timeline.some((event) => event.kind === 'macro' || event.kind === 'micro')
+    );
+  }, [isJavascriptRuntime, timeline]);
 
   const runCode = useCallback(async () => {
-    if (!questionCode.trim()) return;
+    if (!isJavascriptRuntime || !javascriptCodeBlock?.code.trim()) {
+      return;
+    }
 
     if (!isAnswered) {
       return;
@@ -105,7 +166,7 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
     setRunnerError(null);
 
     try {
-      const result = await runJavaScriptInSandbox(questionCode);
+      const result = await runJavaScriptInSandbox(javascriptCodeBlock.code);
       setLogs(toTerminalLogEntries(result));
       setTimeline(result.timeline);
 
@@ -121,7 +182,7 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
     } finally {
       setIsRunning(false);
     }
-  }, [isAnswered, questionCode]);
+  }, [isAnswered, isJavascriptRuntime, javascriptCodeBlock]);
 
   const handleRecallSubmit = useCallback(() => {
     if (!recallAnswer.trim()) return;
@@ -190,7 +251,7 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
 
         <div className="flex items-center gap-3">
           {prevId && (
-            <Link href={`/questions/${prevId}`}>
+            <Link href={`${linkPrefix}/questions/${prevId}`}>
               <Button
                 variant="secondary"
                 size="sm"
@@ -211,7 +272,7 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
             {item.bookmarked ? 'Saved' : 'Save'}
           </Button>
           {nextId && (
-            <Link href={`/questions/${nextId}`}>
+            <Link href={`${linkPrefix}/questions/${nextId}`}>
               <Button
                 variant="secondary"
                 size="sm"
@@ -241,65 +302,98 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
               )}
             </div>
 
-            {question.codeBlocks.length > 0 && (
+            {primaryCodeBlock && (
               <div className="flex h-[18rem] flex-col overflow-hidden rounded-xl border border-border/30 bg-[#1e1e1e] md:h-[22rem]">
                 <div className="flex items-center justify-between px-3 py-1.5 bg-muted/20 border-b border-border/30">
                   <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-                    Question Code
+                    {codePanelTitle}
                   </span>
                   <div className="flex items-center gap-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-6 text-[10px] gap-1 px-2">
-                          Scratchpad <ChevronDown className="h-3 w-3" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuItem onClick={() => openScratchpad(questionCode, 'replace')}>
-                          <Terminal className="h-4 w-4 mr-2" />
-                          Open Scratchpad
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => openScratchpad(questionCode, 'append')}>
-                          <Terminal className="h-4 w-4 mr-2" />
-                          Append to Scratchpad
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {isJavascriptRuntime ? (
+                      <>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 text-[10px] gap-1 px-2"
+                            >
+                              Scratchpad <ChevronDown className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem
+                              onClick={() => openScratchpad(questionCode, 'replace')}
+                            >
+                              <Terminal className="h-4 w-4 mr-2" />
+                              Open Scratchpad
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => openScratchpad(questionCode, 'append')}
+                            >
+                              <Terminal className="h-4 w-4 mr-2" />
+                              Append to Scratchpad
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
 
-                    <Button
-                      size="sm"
-                      onClick={runCode}
-                      disabled={!isAnswered || isRunning}
-                      className="h-6 text-[10px] gap-1"
-                    >
-                      <Play className="h-3 w-3" />
-                      {isRunning ? 'Running...' : 'Run Code'}
-                    </Button>
+                        <Button
+                          size="sm"
+                          onClick={runCode}
+                          disabled={!isAnswered || isRunning}
+                          className="h-6 text-[10px] gap-1"
+                        >
+                          <Play className="h-3 w-3" />
+                          {isRunning ? 'Running...' : 'Run Code'}
+                        </Button>
+                      </>
+                    ) : isDomEventRuntime ? (
+                      <Badge
+                        variant="secondary"
+                        className="bg-primary/10 text-[10px] uppercase tracking-widest text-primary"
+                      >
+                        DOM Replay
+                      </Badge>
+                    ) : (
+                      <Badge
+                        variant="secondary"
+                        className="bg-muted/30 text-[10px] uppercase tracking-widest text-muted-foreground"
+                      >
+                        Static
+                      </Badge>
+                    )}
                   </div>
                 </div>
                 <div className="min-h-0 flex-1 overflow-hidden">
                   <MonacoCodeEditor
-                    path={`question-${question.id}.js`}
+                    path={editorPath}
                     value={questionCode}
                     onChange={() => {}}
+                    language={editorLanguage}
                     readOnly
                   />
                 </div>
               </div>
             )}
 
-            {question.codeBlocks.length > 0 && (
+            {primaryCodeBlock && (
               <p className="mt-2 text-[11px] text-muted-foreground/65">
-                {!isAnswered
-                  ? 'Submit an answer first to unlock the isolated worker runtime and event-loop tools.'
-                  : runnerError
-                    ? `Last run failed: ${runnerError}`
-                    : 'Run the snippet here or send it to Scratchpad to experiment without losing the original.'}
+                {isJavascriptRuntime
+                  ? !isAnswered
+                    ? 'Submit an answer first to unlock the isolated worker runtime and event-loop tools.'
+                    : runnerError
+                      ? `Last run failed: ${runnerError}`
+                      : 'Run the snippet here or send it to Scratchpad to experiment without losing the original.'
+                  : isDomEventRuntime
+                    ? !isAnswered
+                      ? 'Submit an answer first to unlock the DOM event replay for this snippet.'
+                      : 'Use the replay panel below to inspect event.target, currentTarget, and bubbling order.'
+                    : 'This snippet is shown for context only. No interactive runtime is attached to this question.'}
               </p>
             )}
 
-            {question.codeBlocks.length > 0 && (
+            {isJavascriptRuntime && primaryCodeBlock && (
               <div className="mt-4 flex flex-col h-48 rounded-lg overflow-hidden border border-border/30 bg-black/40">
                 <TerminalOutput
                   logs={logs}
@@ -315,8 +409,14 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
               </div>
             )}
 
+            {isDomEventRuntime && primaryCodeBlock && (
+              <div className="mt-4">
+                <DomEventSimulator html={questionCode} unlocked={isAnswered} />
+              </div>
+            )}
+
             <AnimatePresence>
-              {question.codeBlocks.length > 0 && isAnswered && hasAsyncEvents && (
+              {isJavascriptRuntime && primaryCodeBlock && isAnswered && hasAsyncEvents && (
                 <motion.div
                   initial={{ opacity: 0, height: 0, marginTop: 0 }}
                   animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
