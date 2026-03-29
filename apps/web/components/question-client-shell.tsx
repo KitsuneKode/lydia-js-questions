@@ -6,50 +6,22 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleAlert,
-  Sparkles,
+  Play,
   Terminal,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { Streamdown } from 'streamdown';
+import confetti from 'canvas-confetti';
+
 import { CodeBlock } from '@/components/code-block';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useScratchpad } from '@/components/scratchpad/scratchpad-context';
 import type { QuestionRecord } from '@/lib/content/types';
 import { useQuestionProgress } from '@/lib/progress/use-question-progress';
-import type { TimelineEvent } from '@/lib/run/types';
-
-const CodePlayground = dynamic(
-  () => import('@/components/code-playground').then((mod) => mod.CodePlayground),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center p-12 border border-border/40 rounded-xl bg-card/20 animate-pulse">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-          Initializing Engine...
-        </p>
-      </div>
-    ),
-  },
-);
-
-const ExecutionFlow = dynamic(
-  () => import('@/components/visualization/execution-flow').then((mod) => mod.ExecutionFlow),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center p-12 border border-border/40 rounded-xl bg-card/20 animate-pulse">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-          Booting Visualizer...
-        </p>
-      </div>
-    ),
-  },
-);
 
 interface QuestionClientShellProps {
   question: QuestionRecord;
@@ -58,420 +30,289 @@ interface QuestionClientShellProps {
 }
 
 export function QuestionClientShell({ question, prevId, nextId }: QuestionClientShellProps) {
+  const router = useRouter();
   const [selected, setSelected] = useState<'A' | 'B' | 'C' | 'D' | null>(null);
-  const [isRecallMode, setIsRecallMode] = useState(false);
-  const [recallAnswer, setRecallAnswer] = useState('');
-  const [hasSubmittedRecall, setHasSubmittedRecall] = useState(false);
-  const [selfGrade, setSelfGrade] = useState<'hard' | 'good' | 'easy' | null>(null);
+  const [isHardMode, setIsHardMode] = useState(false);
+  const [hardModeAnswer, setHardModeAnswer] = useState('');
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [autoAdvance, setAutoAdvance] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<'explain' | 'run' | 'visualize'>('explain');
-  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
+  const { item, saveAttempt, toggleBookmark } = useQuestionProgress(question.id);
+  const { openScratchpad, setCode } = useScratchpad();
 
-  const { ready, item, saveAttempt, toggleBookmark, saveSelfGrade } = useQuestionProgress(
-    question.id,
-  );
+  const isAnswered = selected !== null || hasSubmitted;
+  const isCorrect = isHardMode ? hasSubmitted : (selected === question.correctOption);
 
-  const isAnswered = selected !== null || hasSubmittedRecall;
-  const isCorrect = selected !== null ? selected === question.correctOption : hasSubmittedRecall; // In recall mode, any submission acts as correct to reveal the answer.
+  const cleanPromptMarkdown = question.promptMarkdown
+    .replace(/```[a-z]*\n[\s\S]*?\n```/g, '')
+    .trim();
 
-  function handleRecallSubmit() {
-    if (!recallAnswer.trim()) return;
-
-    if (!question.correctOption) {
-      console.warn('Question missing correctOption, cannot save attempt');
-      setHasSubmittedRecall(true);
-      return;
+  // Auto-advance logic
+  useEffect(() => {
+    if (isAnswered && isCorrect && nextId && autoAdvance) {
+      const timer = setTimeout(() => {
+        router.push(`/questions/${nextId}`);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
+  }, [isAnswered, isCorrect, nextId, router, autoAdvance]);
 
-    setHasSubmittedRecall(true);
-    saveAttempt(question.correctOption, 'correct');
-  }
+  const handleSelect = useCallback((key: 'A' | 'B' | 'C' | 'D') => {
+    if (isAnswered) return;
+    setSelected(key);
+    const correct = key === question.correctOption;
+    saveAttempt(key, correct ? 'correct' : 'incorrect');
+    
+    if (correct) {
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.8 },
+        colors: ['#F59E0B', '#22C55E']
+      });
+    }
+  }, [isAnswered, question.correctOption, saveAttempt]);
 
-  function handleSelfGrade(grade: 'hard' | 'good' | 'easy') {
-    setSelfGrade(grade);
-    saveSelfGrade(grade);
-  }
+  const handleHardModeSubmit = useCallback(() => {
+    if (!hardModeAnswer.trim() || isAnswered) return;
+    setHasSubmitted(true);
+    saveAttempt(question.correctOption || 'A', 'correct');
+    confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.8 },
+        colors: ['#F59E0B', '#22C55E']
+    });
+  }, [hardModeAnswer, isAnswered, question.correctOption, saveAttempt]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
+      
+      if (e.key === 'ArrowLeft' && prevId) router.push(`/questions/${prevId}`);
+      if (e.key === 'ArrowRight' && nextId) router.push(`/questions/${nextId}`);
+      
+      if (!isAnswered && !isHardMode) {
+        const keyMap: Record<string, 'A' | 'B' | 'C' | 'D'> = {
+          '1': 'A', '2': 'B', '3': 'C', '4': 'D',
+          'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'
+        };
+        const mapped = keyMap[e.key.toLowerCase()];
+        if (mapped && question.options.some(o => o.key === mapped)) {
+          handleSelect(mapped);
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [prevId, nextId, isAnswered, isHardMode, router, handleSelect, question.options]);
+
+  const runInScratchpad = () => {
+    if (question.codeBlocks.length > 0) {
+      setCode(question.codeBlocks[0].code);
+    }
+    openScratchpad();
+  };
 
   return (
-    <div className="flex flex-col gap-10">
-      {/* Header Area */}
-      <div className="flex flex-wrap items-center justify-between gap-6 border-b border-border/40 pb-8">
-        <div className="flex items-center gap-4">
-          {prevId ? (
-            <Link href={`/questions/${prevId}`}>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 w-10 shrink-0 rounded-full bg-card/50 hover:bg-muted p-0"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-          ) : (
-            <div className="w-10" />
-          )}
-          <div className="flex flex-col gap-1.5">
-            <h1 className="font-display text-2xl font-medium tracking-tight text-foreground md:text-3xl">
-              {question.title}
-            </h1>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge
-                variant="secondary"
-                className="px-2 py-0.5 text-[10px] uppercase tracking-widest opacity-80"
-              >
-                #{question.id}
-              </Badge>
-              <Badge
-                variant="outline"
-                className="px-2 py-0.5 text-[10px] uppercase tracking-widest border-border/60"
-              >
-                {question.difficulty}
-              </Badge>
-              {question.tags.slice(0, 3).map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="bg-muted/20 px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground"
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+    <>
+      {/* Session Progress Bar */}
+      <div className="fixed top-0 inset-x-0 h-[3px] bg-void z-[100]">
+        <motion.div 
+          className="h-full bg-primary"
+          initial={{ width: '0%' }}
+          animate={{ width: `${(question.id / 155) * 100}%` }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        />
+      </div>
+
+      <div className="max-w-[800px] mx-auto pt-8 pb-32 px-4 sm:px-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            {prevId ? (
+              <Link href={`/questions/${prevId}`}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full border border-border-subtle bg-surface hover:bg-elevated hover:text-primary">
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              </Link>
+            ) : <div className="w-8" />}
+            <span className="font-mono text-sm text-tertiary font-medium">Q{question.id} of 155</span>
+            {nextId ? (
+              <Link href={`/questions/${nextId}`}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full border border-border-subtle bg-surface hover:bg-elevated hover:text-primary">
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            ) : <div className="w-8" />}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsHardMode(!isHardMode)}
+              className="text-xs font-semibold text-secondary hover:text-primary transition-colors"
+            >
+              <Terminal className="h-3.5 w-3.5 mr-1.5" />
+              {isHardMode ? 'Disable Hard Mode' : 'Hard Mode'}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleBookmark}
+              className={`h-8 w-8 rounded-full ${item.bookmarked ? 'text-primary' : 'text-secondary hover:text-primary'}`}
+            >
+              <Bookmark className={`h-4 w-4 ${item.bookmarked ? 'fill-current' : ''}`} />
+            </Button>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Button
-            variant={item.bookmarked ? 'default' : 'secondary'}
-            size="sm"
-            onClick={toggleBookmark}
-            className={`h-10 px-5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${item.bookmarked ? 'shadow-md shadow-primary/20' : ''}`}
-          >
-            <Bookmark
-              className={`mr-2 h-4 w-4 ${item.bookmarked ? 'fill-current text-primary-foreground' : 'text-muted-foreground'}`}
-            />
-            {item.bookmarked ? 'Saved' : 'Save'}
-          </Button>
-          {nextId && (
-            <Link href={`/questions/${nextId}`}>
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-10 gap-2 px-5 text-xs font-bold uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
-              >
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          )}
+        {/* Title */}
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+           <Badge variant="outline" className="border-border-subtle text-tertiary bg-surface/50 font-mono text-[10px] uppercase tracking-wider">{question.difficulty}</Badge>
+           {question.tags.map(tag => (
+             <Badge key={tag} variant="secondary" className="bg-elevated text-secondary font-mono text-[10px] uppercase tracking-wider">{tag}</Badge>
+           ))}
         </div>
-      </div>
+        <h1 className="font-display text-3xl sm:text-4xl text-foreground mb-8">
+          {question.title}
+        </h1>
 
-      {/* Main Workstation Grid */}
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-        {/* Left Pane: Question Reading */}
-        <div className="space-y-10">
-          <section className="space-y-6">
-            <div className="flex-1 overflow-y-auto">
-              <div className="markdown text-base leading-relaxed text-muted-foreground/90">
-                <Streamdown>{question.promptMarkdown}</Streamdown>
+        {/* Prompt */}
+        <div className="markdown text-lg text-secondary mb-8 leading-relaxed">
+          <Streamdown>{cleanPromptMarkdown}</Streamdown>
+        </div>
+
+        {/* Code Block */}
+        {question.codeBlocks.length > 0 && (
+          <div className="relative group mb-10">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 rounded-2xl blur transition-opacity duration-500" />
+            <div className="relative bg-code rounded-xl border border-border-subtle overflow-hidden shadow-lg">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-white/5 bg-white/5">
+                 <div className="flex gap-1.5">
+                   <div className="h-2.5 w-2.5 rounded-full bg-border-subtle" />
+                   <div className="h-2.5 w-2.5 rounded-full bg-border-subtle" />
+                   <div className="h-2.5 w-2.5 rounded-full bg-border-subtle" />
+                 </div>
+                 <Button 
+                   size="sm" 
+                   variant="ghost" 
+                   onClick={runInScratchpad}
+                   className="h-7 text-xs text-code-accent hover:text-primary hover:bg-white/5 gap-1.5"
+                 >
+                   <Play className="h-3 w-3" />
+                   Run Code
+                 </Button>
               </div>
-            </div>
-            {question.codeBlocks.length > 0 && (
-              <div className="space-y-4">
-                {question.codeBlocks.map((codeBlock) => (
-                  <CodeBlock
-                    key={codeBlock.id}
-                    code={codeBlock.code}
-                    language={codeBlock.language}
-                  />
+              <div className="p-5">
+                {question.codeBlocks.map((block) => (
+                  <CodeBlock key={block.id} code={block.code} language={block.language} />
                 ))}
               </div>
-            )}
-          </section>
-
-          <AnimatePresence>
-            {isAnswered && (
-              <motion.section
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-b from-card/40 to-black/20 p-8 shadow-2xl">
-                  <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <Sparkles className="h-24 w-24" />
-                  </div>
-                  <h3 className="mb-6 font-display text-xl font-medium tracking-tight text-foreground flex items-center gap-2">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-primary ring-1 ring-primary/30">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                    </span>
-                    Detailed Explanation
-                  </h3>
-                  <div className="markdown prose prose-invert max-w-none text-sm leading-loose text-muted-foreground/90">
-                    <Streamdown>{question.explanationMarkdown}</Streamdown>
-                  </div>
-                </div>
-              </motion.section>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Right Pane: Practice Area */}
-        <div className="lg:sticky lg:top-8 lg:max-h-[calc(100vh-64px)] lg:overflow-y-auto lg:pr-2 lg:pb-8 scrollbar-hide">
-          <div className="space-y-8">
-            {/* Quiz / Hard Mode Section */}
-            <Card className="overflow-hidden border-border/60 bg-card/80 shadow-2xl backdrop-blur-xl">
-              <CardHeader className="border-b border-border/30 bg-muted/5 pb-4 pt-5">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-bold uppercase tracking-widest text-foreground/80">
-                    {isRecallMode ? 'Active Recall' : 'Select Output'}
-                  </CardTitle>
-                  {!isAnswered && (
-                    <button
-                      type="button"
-                      onClick={() => setIsRecallMode(!isRecallMode)}
-                      className="group flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary/80 transition-colors hover:text-primary"
-                    >
-                      {isRecallMode ? 'Switch to Quiz' : 'Hard Mode'}
-                      <span className="flex h-4 w-4 items-center justify-center rounded bg-primary/10 text-primary group-hover:bg-primary group-hover:text-background transition-colors">
-                        <Terminal className="h-2.5 w-2.5" />
-                      </span>
-                    </button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                {!isRecallMode ? (
-                  <div className="grid gap-3">
-                    {question.options.map((option) => {
-                      const disabled = isAnswered;
-                      const picked = selected === option.key;
-                      const correct = option.key === question.correctOption;
-
-                      let optionStyles =
-                        'border-border/40 bg-black/20 text-foreground/80 hover:bg-muted/30 hover:border-border/80';
-                      if (isAnswered) {
-                        if (correct) {
-                          optionStyles =
-                            'border-success/40 bg-success/10 text-success ring-1 ring-success/20';
-                        } else if (picked) {
-                          optionStyles =
-                            'border-danger/40 bg-danger/10 text-danger ring-1 ring-danger/20';
-                        } else {
-                          optionStyles =
-                            'border-border/20 bg-black/10 text-muted-foreground/40 opacity-50';
-                        }
-                      }
-
-                      return (
-                        <button
-                          key={option.key}
-                          type="button"
-                          disabled={disabled}
-                          onClick={() => {
-                            if (isAnswered) return;
-                            setSelected(option.key);
-                            saveAttempt(
-                              option.key,
-                              option.key === question.correctOption ? 'correct' : 'incorrect',
-                            );
-                          }}
-                          className={`group flex items-start gap-4 rounded-xl border p-4 text-left text-sm transition-all duration-300 ${optionStyles} ${
-                            !disabled
-                              ? 'cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md'
-                              : 'cursor-default'
-                          }`}
-                        >
-                          <span
-                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded bg-black/40 border border-border/50 font-display text-xs font-semibold transition-colors ${
-                              picked || (correct && isAnswered)
-                                ? 'bg-current/10 border-current text-current'
-                                : 'group-hover:bg-foreground/10 group-hover:text-foreground'
-                            }`}
-                          >
-                            {option.key}
-                          </span>
-                          <span className="flex-1 leading-snug">{option.text}</span>
-                          {isAnswered && correct && (
-                            <CheckCircle2 className="h-5 w-5 shrink-0 animate-in zoom-in duration-300" />
-                          )}
-                          {isAnswered && picked && !correct && (
-                            <CircleAlert className="h-5 w-5 shrink-0 animate-in zoom-in duration-300" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="space-y-5">
-                    <div className="relative">
-                      <div className="absolute -left-3 -top-3 h-24 w-24 rounded-full bg-primary/5 blur-2xl" />
-                      <textarea
-                        value={recallAnswer}
-                        onChange={(e) => setRecallAnswer(e.target.value)}
-                        disabled={isAnswered}
-                        placeholder="Type the exact output here (e.g. undefined, TypeError...)"
-                        className="relative min-h-[140px] w-full resize-none rounded-xl border border-border/50 bg-[#0a0a0c] p-5 font-mono text-sm leading-relaxed text-[#e2e8f0] shadow-inner placeholder:text-muted-foreground/30 focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-70 transition-all"
-                      />
-                    </div>
-                    {!isAnswered && (
-                      <Button
-                        onClick={handleRecallSubmit}
-                        className="w-full h-12 text-sm font-bold uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                      >
-                        Submit Answer
-                      </Button>
-                    )}
-                  </div>
-                )}
-
-                <AnimatePresence>
-                  {isAnswered && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      className="mt-6 space-y-6 overflow-hidden"
-                    >
-                      {!isRecallMode && (
-                        <div
-                          className={`flex items-center gap-3 rounded-xl border p-4 text-sm font-medium ${
-                            isCorrect
-                              ? 'border-success/30 bg-success/10 text-success'
-                              : 'border-danger/30 bg-danger/10 text-danger'
-                          }`}
-                        >
-                          {isCorrect ? (
-                            <CheckCircle2 className="h-5 w-5 shrink-0" />
-                          ) : (
-                            <CircleAlert className="h-5 w-5 shrink-0" />
-                          )}
-                          <span>
-                            {isCorrect
-                              ? 'Great work! That is correct.'
-                              : `Incorrect. The correct answer is ${question.correctOption}.`}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Spaced Repetition Self-Grading */}
-                      <div className="rounded-xl border border-border/40 bg-black/20 p-5 shadow-inner">
-                        <div className="mb-4 text-center">
-                          <p className="font-display text-sm font-medium text-foreground">
-                            How well did you know this?
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Grade yourself to schedule the next review.
-                          </p>
-                        </div>
-                        <div className="grid grid-cols-3 gap-3">
-                          <button
-                            type="button"
-                            onClick={() => handleSelfGrade('hard')}
-                            className={`flex flex-col items-center justify-center rounded-xl border p-3 transition-all duration-300 hover:scale-105 active:scale-95 ${
-                              selfGrade === 'hard'
-                                ? 'bg-danger/20 border-danger/50 text-danger ring-1 ring-danger/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
-                                : 'border-border/40 bg-card hover:bg-muted/40 hover:border-danger/30 text-muted-foreground'
-                            }`}
-                          >
-                            <span className="text-xs font-bold uppercase tracking-widest">
-                              Hard
-                            </span>
-                            <span className="mt-1 text-[10px] font-medium opacity-60">1 min</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleSelfGrade('good')}
-                            className={`flex flex-col items-center justify-center rounded-xl border p-3 transition-all duration-300 hover:scale-105 active:scale-95 ${
-                              selfGrade === 'good'
-                                ? 'bg-warning/20 border-warning/50 text-warning ring-1 ring-warning/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                                : 'border-border/40 bg-card hover:bg-muted/40 hover:border-warning/30 text-muted-foreground'
-                            }`}
-                          >
-                            <span className="text-xs font-bold uppercase tracking-widest">
-                              Good
-                            </span>
-                            <span className="mt-1 text-[10px] font-medium opacity-60">1 day</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleSelfGrade('easy')}
-                            className={`flex flex-col items-center justify-center rounded-xl border p-3 transition-all duration-300 hover:scale-105 active:scale-95 ${
-                              selfGrade === 'easy'
-                                ? 'bg-success/20 border-success/50 text-success ring-1 ring-success/30 shadow-[0_0_15px_rgba(34,197,94,0.2)]'
-                                : 'border-border/40 bg-card hover:bg-muted/40 hover:border-success/30 text-muted-foreground'
-                            }`}
-                          >
-                            <span className="text-xs font-bold uppercase tracking-widest">
-                              Easy
-                            </span>
-                            <span className="mt-1 text-[10px] font-medium opacity-60">4 days</span>
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </CardContent>
-            </Card>
-
-            {/* Playground & Visualization Tabs */}
-            <AnimatePresence>
-              {isAnswered && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                  <Tabs
-                    value={activeTab}
-                    onValueChange={(value) =>
-                      setActiveTab(value as 'explain' | 'run' | 'visualize')
-                    }
-                  >
-                    <div className="mb-4 flex items-center justify-between border-b border-border/30 pb-3">
-                      <TabsList className="h-auto bg-transparent p-0 gap-6">
-                        <TabsTrigger
-                          value="run"
-                          className="relative rounded-none border-b-2 border-transparent px-0 pb-2 pt-0 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-                        >
-                          Code Runner
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="visualize"
-                          className="relative rounded-none border-b-2 border-transparent px-0 pb-2 pt-0 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-                        >
-                          Event Loop
-                        </TabsTrigger>
-                      </TabsList>
-                    </div>
-
-                    <TabsContent value="run" className="mt-0 focus-visible:outline-none">
-                      <Card className="border-border/50 bg-black/30 shadow-2xl backdrop-blur-sm">
-                        <CardContent className="p-0">
-                          <CodePlayground question={question} onTimelineUpdate={setTimeline} />
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-
-                    <TabsContent value="visualize" className="mt-0 focus-visible:outline-none">
-                      <ExecutionFlow question={question} timeline={timeline} />
-                    </TabsContent>
-                  </Tabs>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {ready && item.attempts.length > 0 && (
-              <div className="flex items-center justify-center gap-2 pt-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">
-                <div className="h-1.5 w-1.5 rounded-full bg-success/40" />
-                Last practiced:{' '}
-                {new Date(item.attempts[item.attempts.length - 1].attemptedAt).toLocaleDateString()}{' '}
-                • {item.attempts.length} attempts
-              </div>
-            )}
+            </div>
           </div>
+        )}
+
+        {/* Answer Section */}
+        <div className="space-y-4">
+          {!isHardMode ? (
+            <div className="flex flex-col gap-3">
+              {question.options.map((option) => {
+                const isSelected = selected === option.key;
+                const isCorrectOption = option.key === question.correctOption;
+                
+                let stateClass = "border-border-subtle bg-surface hover:border-border-focus hover:bg-elevated text-secondary";
+                if (isAnswered) {
+                  if (isCorrectOption) stateClass = "border-status-correct bg-status-correct/10 text-status-correct ring-1 ring-status-correct/30";
+                  else if (isSelected) stateClass = "border-status-wrong bg-status-wrong/10 text-status-wrong";
+                  else stateClass = "border-border-subtle bg-surface opacity-40";
+                } else if (isSelected) {
+                  stateClass = "border-primary bg-primary/10 text-primary";
+                }
+
+                return (
+                  <motion.button
+                    key={option.key}
+                    whileHover={!isAnswered ? { scale: 1.01 } : {}}
+                    whileTap={!isAnswered ? { scale: 0.98 } : {}}
+                    onClick={() => handleSelect(option.key)}
+                    disabled={isAnswered}
+                    className={`w-full text-left p-5 rounded-xl border transition-all duration-300 flex items-start gap-4 ${stateClass}`}
+                  >
+                    <span className={`flex-shrink-0 flex h-7 w-7 items-center justify-center rounded bg-black/30 border border-current/20 font-mono text-xs font-bold ${(isSelected || (isAnswered && isCorrectOption)) ? 'bg-current text-background border-none' : ''}`}>
+                      {option.key}
+                    </span>
+                    <span className="flex-1 text-[15px] leading-relaxed mt-0.5">{option.text}</span>
+                    {isAnswered && isCorrectOption && <CheckCircle2 className="h-5 w-5 mt-1 shrink-0 text-status-correct" />}
+                    {isAnswered && isSelected && !isCorrectOption && <CircleAlert className="h-5 w-5 mt-1 shrink-0 text-status-wrong" />}
+                  </motion.button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <textarea
+                value={hardModeAnswer}
+                onChange={(e) => setHardModeAnswer(e.target.value)}
+                disabled={isAnswered}
+                placeholder="Type the exact output here..."
+                className="w-full min-h-[120px] bg-surface border border-border-subtle rounded-xl p-5 font-mono text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all resize-none"
+              />
+              {!isAnswered && (
+                <Button 
+                  onClick={handleHardModeSubmit}
+                  className="w-full h-12 bg-primary text-background font-semibold text-sm rounded-xl hover:bg-primary/90"
+                >
+                  Submit Answer
+                </Button>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Explanation Reveal */}
+        <AnimatePresence>
+          {isAnswered && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: 20 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+              className="mt-12 overflow-hidden"
+            >
+              <div className="bg-elevated border border-border-subtle rounded-2xl p-8 relative">
+                <h3 className="font-display text-2xl text-primary mb-6 flex items-center gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">
+                    <CheckCircle2 className="h-4 w-4" />
+                  </span>
+                  Explanation
+                </h3>
+                <div className="markdown prose prose-invert max-w-none text-[15px] leading-loose text-secondary">
+                  <Streamdown>{question.explanationMarkdown}</Streamdown>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Next Question Auto-advance UI */}
+        <AnimatePresence>
+          {isAnswered && isCorrect && nextId && autoAdvance && (
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-surface border border-border-focus px-6 py-4 rounded-2xl shadow-glow flex items-center gap-4 z-40"
+            >
+              <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+              <span className="text-sm font-medium text-foreground">Advancing to next question...</span>
+              <Button size="sm" variant="secondary" onClick={() => setAutoAdvance(false)} className="ml-2 h-8 text-xs bg-elevated hover:bg-white/10 text-secondary border-border-subtle">Stay</Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+    </>
   );
 }

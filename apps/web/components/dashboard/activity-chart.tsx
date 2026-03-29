@@ -9,12 +9,16 @@ interface ActivityChartProps {
 }
 
 export function ActivityChart({ dailyActivity }: ActivityChartProps) {
-  const bars = useMemo(() => {
+  // Generate last 119 days (17 weeks * 7 days) to fit well in the container
+  const WEEKS = 17;
+  const DAYS = WEEKS * 7;
+  
+  const cells = useMemo(() => {
     const dayMap = new Map(dailyActivity.map((d) => [d.date, d]));
     const result: DailyActivity[] = [];
     const now = new Date();
 
-    for (let i = 29; i >= 0; i--) {
+    for (let i = DAYS - 1; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
       const key = d.toISOString().slice(0, 10);
@@ -22,77 +26,65 @@ export function ActivityChart({ dailyActivity }: ActivityChartProps) {
     }
 
     return result;
-  }, [dailyActivity]);
-
-  const maxAttempts = Math.max(1, ...bars.map((b) => b.attempts));
+  }, [dailyActivity, DAYS]);
 
   if (dailyActivity.length === 0) {
     return null;
   }
 
+  // Calculate intensity levels
+  const maxAttempts = Math.max(1, ...cells.map((c) => c.attempts));
+  
+  const getIntensityClass = (attempts: number) => {
+    if (attempts === 0) return 'bg-elevated border-border-subtle';
+    const ratio = attempts / maxAttempts;
+    if (ratio < 0.25) return 'bg-primary/20 border-primary/20';
+    if (ratio < 0.5) return 'bg-primary/40 border-primary/40';
+    if (ratio < 0.75) return 'bg-primary/70 border-primary/60';
+    return 'bg-primary border-primary shadow-[0_0_10px_rgba(245,158,11,0.5)]';
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
   return (
-    <div className="rounded-xl border border-border/40 bg-card/40 p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <Activity className="h-4 w-4 text-muted-foreground/60" />
-        <h3 className="text-sm font-medium text-foreground">Last 30 Days</h3>
+    <div className="rounded-2xl border border-border-subtle bg-surface p-6 flex flex-col justify-between h-full group relative overflow-hidden">
+      <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+        <Activity className="w-32 h-32 text-primary" />
       </div>
 
-      <div className="flex items-end gap-[2px]" style={{ height: 100 }}>
-        {bars.map((bar) => {
-          const total = bar.attempts;
-          const correctH = total > 0 ? (bar.correct / maxAttempts) * 100 : 0;
-          const incorrectH = total > 0 ? ((total - bar.correct) / maxAttempts) * 100 : 0;
-
-          return (
-            <div
-              key={bar.date}
-              className="group relative flex flex-1 flex-col items-stretch justify-end"
-              style={{ height: '100%' }}
-            >
-              {/* Tooltip */}
-              <div className="pointer-events-none absolute -top-8 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[9px] font-medium text-background opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                {bar.date.slice(5)}: {total}
-              </div>
-
-              {/* Incorrect portion */}
-              {incorrectH > 0 && (
-                <div
-                  className="w-full rounded-t-sm"
-                  style={{
-                    height: `${incorrectH}%`,
-                    backgroundColor: 'hsl(var(--danger) / 0.4)',
-                  }}
-                />
-              )}
-              {/* Correct portion */}
-              {correctH > 0 && (
-                <div
-                  className="w-full transition-all group-hover:opacity-80"
-                  style={{
-                    height: `${correctH}%`,
-                    backgroundColor: 'hsl(var(--success) / 0.8)',
-                    borderRadius: incorrectH > 0 ? '0' : '2px 2px 0 0',
-                  }}
-                />
-              )}
-              {/* Empty state */}
-              {total === 0 && (
-                <div
-                  className="w-full rounded-t-sm"
-                  style={{
-                    height: '4px',
-                    backgroundColor: 'hsl(var(--muted) / 0.3)',
-                  }}
-                />
-              )}
-            </div>
-          );
-        })}
+      <div className="mb-6 relative z-10">
+        <h3 className="font-display text-xl text-foreground">Activity</h3>
+        <p className="text-xs text-secondary">Consistency is the key to mastery.</p>
       </div>
 
-      <div className="mt-3 flex justify-between text-[9px] text-muted-foreground/50">
-        <span>30d ago</span>
-        <span>Today</span>
+      <div className="relative z-10 w-full overflow-x-auto pb-2 scrollbar-thin">
+        <div className="inline-grid grid-rows-7 gap-1.5 grid-flow-col auto-cols-max">
+          {cells.map((cell) => {
+            const accuracy = cell.attempts > 0 ? Math.round((cell.correct / cell.attempts) * 100) : 0;
+            return (
+              <div
+                key={cell.date}
+                className={`w-3 h-3 rounded-sm border transition-all duration-300 hover:scale-125 hover:z-20 \${getIntensityClass(cell.attempts)}`}
+                title={`${formatDate(cell.date)} — ${cell.attempts} questions, ${accuracy}% accuracy`}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between text-[10px] uppercase tracking-widest text-tertiary relative z-10">
+        <span>Less</span>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-sm bg-elevated border border-border-subtle" />
+          <div className="w-2.5 h-2.5 rounded-sm bg-primary/20 border border-primary/20" />
+          <div className="w-2.5 h-2.5 rounded-sm bg-primary/40 border border-primary/40" />
+          <div className="w-2.5 h-2.5 rounded-sm bg-primary/70 border border-primary/60" />
+          <div className="w-2.5 h-2.5 rounded-sm bg-primary border border-primary" />
+        </div>
+        <span>More</span>
       </div>
     </div>
   );

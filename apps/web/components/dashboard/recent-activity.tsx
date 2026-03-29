@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import type { QuestionRecord } from '@/lib/content/types';
 import { useProgress } from '@/lib/progress/progress-context';
@@ -47,13 +47,17 @@ export function RecentActivity({ questions }: RecentActivityProps) {
   }
 
   return (
-    <div className="rounded-xl border border-border/40 bg-card/40 p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <Clock className="h-4 w-4 text-muted-foreground/60" />
-        <h3 className="text-sm font-medium text-foreground">Recent</h3>
+    <div className="rounded-2xl border border-border-subtle bg-surface p-6 h-full flex flex-col relative overflow-hidden group">
+      <div className="absolute top-0 right-0 p-4 opacity-[0.02] group-hover:opacity-10 transition-opacity duration-500">
+        <Clock className="w-32 h-32 text-primary" />
       </div>
 
-      <ul className="space-y-1">
+      <div className="mb-6 relative z-10">
+        <h3 className="font-display text-xl text-foreground">Recent Activity</h3>
+        <p className="text-xs text-secondary mt-1">Your latest practice attempts.</p>
+      </div>
+
+      <ul className="space-y-3 relative z-10 flex-1">
         {last10.map((entry) => {
           const isCorrect = entry.attempt.status === 'correct';
           const time = new Date(entry.attempt.attemptedAt);
@@ -63,19 +67,31 @@ export function RecentActivity({ questions }: RecentActivityProps) {
             <li key={`${entry.questionId}-${entry.attempt.attemptedAt}-${entry.attempt.status}`}>
               <Link
                 href={`/questions/${entry.questionId}`}
-                className="group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/40"
+                className="group/item flex items-center justify-between rounded-xl border border-border-subtle bg-background p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-glow"
               >
-                {isCorrect ? (
-                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400/80" />
-                ) : (
-                  <XCircle className="h-3.5 w-3.5 shrink-0 text-rose-400/80" />
-                )}
-                <span className="min-w-0 truncate text-xs text-foreground/70 transition-colors group-hover:text-foreground">
-                  {entry.title}
-                </span>
-                <span className="ml-auto shrink-0 text-[10px] text-muted-foreground/40">
-                  {relTime}
-                </span>
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className={`flex shrink-0 h-8 w-8 items-center justify-center rounded-full ${isCorrect ? 'bg-status-correct/10 text-status-correct' : 'bg-status-wrong/10 text-status-wrong'}`}>
+                    {isCorrect ? (
+                      <CheckCircle2 className="h-4 w-4" />
+                    ) : (
+                      <XCircle className="h-4 w-4" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground truncate group-hover/item:text-primary transition-colors">
+                      {entry.title}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] text-tertiary font-mono bg-surface border border-border-subtle px-1 rounded">
+                        #{entry.questionId}
+                      </span>
+                      <span className="text-[10px] text-tertiary">{relTime}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="h-8 w-8 shrink-0 rounded-full border border-border-subtle bg-surface flex items-center justify-center group-hover/item:border-primary/30 group-hover/item:bg-primary/10 transition-colors ml-4">
+                  <ArrowRight className="h-3.5 w-3.5 text-tertiary group-hover/item:text-primary transition-transform group-hover/item:translate-x-0.5" />
+                </div>
               </Link>
             </li>
           );
@@ -89,11 +105,11 @@ function formatRelativeTime(date: Date): string {
   const now = Date.now();
   const diff = now - date.getTime();
   const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return 'now';
-  if (minutes < 60) return `${minutes}m`;
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h`;
+  if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d`;
+  if (days < 7) return `${days}d ago`;
   return date.toLocaleDateString('en', { month: 'short', day: 'numeric' });
 }

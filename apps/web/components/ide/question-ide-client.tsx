@@ -149,9 +149,9 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
   );
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col">
+    <div className="flex h-[calc(100vh-3rem)] flex-col w-full">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-background via-background to-muted/5 px-6 py-4">
+      <div className="flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-background via-background to-muted/5 px-6 py-4 shrink-0">
         <div className="flex items-center gap-4">
           {prevId ? (
             <Link href={`/questions/${prevId}`}>
@@ -168,23 +168,25 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
           )}
 
           <div className="flex flex-col gap-1">
-            <h1 className="font-display text-lg font-semibold tracking-tight text-foreground">
-              {question.title}
-            </h1>
             <div className="flex items-center gap-2">
+              <h1 className="font-display text-lg font-semibold tracking-tight text-foreground uppercase">
+                {question.tags[0] || 'JavaScript'} Practice
+              </h1>
               <Badge
                 variant="secondary"
                 className="px-2 py-0.5 text-[10px] uppercase tracking-widest opacity-80"
               >
                 #{question.id}
               </Badge>
+            </div>
+            <div className="flex items-center gap-2">
               <Badge
                 variant="outline"
                 className="px-2 py-0.5 text-[10px] uppercase tracking-widest border-border/60"
               >
                 {question.difficulty}
               </Badge>
-              {question.tags.slice(0, 2).map((tag) => (
+              {question.tags.slice(1, 3).map((tag) => (
                 <Badge
                   key={tag}
                   variant="secondary"
@@ -303,28 +305,37 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
               </div>
             )}
 
-            {question.codeBlocks.length > 0 && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    disabled={timeline.length === 0}
-                    className="w-full mt-2 gap-2 text-xs border border-border/40 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <Activity className="h-3 w-3" />
-                    Event Loop Replay
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-h-[88vh] w-[min(96vw,76rem)] max-w-5xl overflow-y-auto border-white/10 bg-[#040405] p-4 md:p-6">
-                  <DialogHeader>
-                    <DialogTitle>Event Loop Replay</DialogTitle>
-                  </DialogHeader>
-                  <div className="mt-4 pb-2">
-                    <TimelineChart events={timeline} />
-                  </div>
-                </DialogContent>
-              </Dialog>
-            )}
+            <AnimatePresence>
+              {question.codeBlocks.length > 0 && isAnswered && timeline.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
+                  className="overflow-hidden"
+                >
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="secondary"
+                        className="w-full gap-2 text-xs border border-primary/50 bg-primary/10 text-primary shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:bg-primary/20 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+                      >
+                        <Activity className="h-3 w-3" />
+                        Event Loop Replay
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-h-[88vh] w-[96vw] max-w-5xl sm:max-w-5xl lg:max-w-6xl overflow-y-auto border-border-subtle bg-surface p-4 md:p-6 shadow-glow">
+                      <DialogHeader>
+                        <DialogTitle>Event Loop Replay</DialogTitle>
+                      </DialogHeader>
+                      <div className="mt-4 pb-2">
+                        <TimelineChart events={timeline} />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </ResizablePanel>
 
@@ -332,12 +343,12 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
 
         {/* Right: Practice Area */}
         <ResizablePanel defaultSize={60} minSize={35} className="flex flex-col">
-          <Card className="h-full overflow-hidden border-border/40 bg-card/30">
-            <CardHeader className="border-b border-border/20 bg-muted/5 py-3">
+          <div className="flex h-full flex-col overflow-hidden bg-background">
+            <div className="border-b border-border/40 bg-muted/10 py-4 px-6 shrink-0">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                   {isRecallMode ? 'Active Recall' : 'Select Answer'}
-                </CardTitle>
+                </h3>
                 {!isAnswered && (
                   <button
                     type="button"
@@ -349,8 +360,8 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
                   </button>
                 )}
               </div>
-            </CardHeader>
-            <CardContent className="p-4">
+            </div>
+            <div className="flex-1 p-6 overflow-y-auto">
               {!isRecallMode ? (
                 <div className="grid gap-2">
                   {question.options.map((option) => {
@@ -480,8 +491,8 @@ export function QuestionIDEClient({ question, prevId, nextId }: QuestionIDEClien
                   </motion.div>
                 )}
               </AnimatePresence>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

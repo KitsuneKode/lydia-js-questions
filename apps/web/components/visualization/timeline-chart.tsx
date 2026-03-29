@@ -895,18 +895,23 @@ function ReplayExperience({ steps, prefersReducedMotion }: ReplayExperienceProps
             </div>
           </div>
 
-          <div className="rounded-lg border border-border/50 bg-[#111] p-4 flex-1 flex flex-col min-h-0">
+          <div className="rounded-lg border border-border/50 bg-[#111] p-4 flex-1 flex flex-col min-h-[300px] max-h-[500px]">
             <div className="mb-3 flex items-center justify-between">
               <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Execution Log
               </div>
             </div>
 
-            <div className="flex-1 space-y-1.5 overflow-y-auto pr-1 -mr-1 custom-scrollbar">
+            <div className="flex-1 space-y-1.5 overflow-y-auto pr-1 -mr-1 custom-scrollbar" id="execution-log-container">
               {steps.map((step, index) => (
                 <button
                   key={step.key}
                   type="button"
+                  ref={(el) => {
+                    if (el && index === activeIndex) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                  }}
                   onClick={() => {
                     setIsPlaying(false);
                     setActiveIndex(index);

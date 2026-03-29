@@ -107,8 +107,11 @@ The strongest path through the product is:
 
 ### Design
 
-- The app feels premium, with a split-pane workstation layout for practice.
-- Future iterations might add themes or more tailored visualization animations.
+- The app features a premium, bespoke "Dark Forge" aesthetic targeting a split-pane workstation layout for practice.
+- Uses `Instrument Serif` for editorial headings and `Geist` for body/mono.
+- Leverages Framer Motion (`motion/react`) for physical spring animations, magnetic buttons, and 3D card tilts.
+- Utilizes Shadcn UI primitives (like `<CommandDialog>` for CMD+K search and `<Sheet>` for the global Scratchpad).
+- See `docs/ui-redesign-dark-forge.md` for complete aesthetic details and component implementation specifics.
 
 ### State / Data
 

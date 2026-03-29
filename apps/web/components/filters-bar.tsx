@@ -1,11 +1,21 @@
 'use client';
 
-import { Filter, Search, Shuffle, Sparkles, X } from 'lucide-react';
+import { Filter, Search, Sparkles, X, Flame } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useMemo, useTransition } from 'react';
+import { useMemo, useTransition, useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { cn } from '@/lib/utils';
+import type { QuestionRecord } from '@/lib/content/types';
 
 interface FiltersBarProps {
   tags: string[];
@@ -14,6 +24,7 @@ interface FiltersBarProps {
   runnable: string;
   status: string;
   totalQuestions: number;
+  allQuestions: QuestionRecord[];
 }
 
 export function FiltersBar({
@@ -23,19 +34,36 @@ export function FiltersBar({
   runnable,
   status,
   totalQuestions,
+  allQuestions,
 }: FiltersBarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState(search);
 
   const allTags = useMemo(() => ['all', ...tags], [tags]);
 
-  const hasActiveFilters =
-    search ||
-    (selectedTag && selectedTag !== 'all') ||
-    runnable === 'true' ||
-    (status && status !== 'all');
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (inputValue !== search) {
+        updateParam('q', inputValue);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [inputValue, search]);
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((open) => !open);
+      }
+    };
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  }, []);
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -51,129 +79,136 @@ export function FiltersBar({
     });
   }
 
-  function handleClearAll() {
-    startTransition(() => {
-      router.push(pathname);
-    });
-  }
-
-  function handleRandom() {
-    const randomId = Math.floor(Math.random() * totalQuestions) + 1;
-    router.push(`/questions/${randomId}`);
-  }
-
   return (
-    <section className="space-y-5 rounded-xl border border-border/40 bg-card/30 p-5 backdrop-blur-sm">
-      {/* Search and actions row */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/40" />
-          <Input
-            defaultValue={search}
-            placeholder="Search questions..."
-            className="h-9 border-border/30 bg-background/50 pl-9 text-sm placeholder:text-muted-foreground/40"
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                updateParam('q', (event.currentTarget as HTMLInputElement).value);
-              }
-            }}
-          />
+    <section className="space-y-6">
+      {/* Horizontal Pill Filter Bar for Topics */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide w-full max-w-full">
+        {allTags.map((tag) => {
+          const active = selectedTag === tag || (!selectedTag && tag === 'all');
+          return (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => updateParam('tag', tag)}
+              className={cn(
+                'relative px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors rounded-full',
+                active ? 'text-primary' : 'text-secondary hover:text-foreground hover:bg-surface'
+              )}
+            >
+              {tag === 'all' ? 'All Questions' : tag.charAt(0).toUpperCase() + tag.slice(1)}
+              {active && (
+                <motion.div
+                  layoutId="active-pill"
+                  className="absolute inset-0 border-2 border-primary rounded-full bg-primary/5"
+                  initial={false}
+                  transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Secondary Filters */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between border-b border-border-subtle pb-4">
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          <button
+            onClick={() => setOpen(true)}
+            className="flex items-center justify-between w-full sm:w-[280px] h-10 bg-surface border border-border-subtle rounded-lg px-3 text-sm text-tertiary hover:border-primary/50 transition-all group"
+          >
+            <span className="flex items-center gap-2">
+              <Search className="h-4 w-4 text-tertiary group-hover:text-primary transition-colors" />
+              {search ? `Search: "${search}"` : 'Search questions...'}
+            </span>
+            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border-subtle bg-muted/50 px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </button>
+          
+          <CommandDialog open={open} onOpenChange={setOpen}>
+            <Command className="flex h-full flex-col overflow-hidden rounded-xl border border-border-subtle bg-popover shadow-2xl">
+              <CommandInput 
+                placeholder="Type a keyword, concept, or question number..." 
+                value={inputValue}
+                onValueChange={setInputValue}
+              />
+              <CommandList className="h-[400px]">
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup heading="Questions">
+                  {allQuestions.filter(q => q.title.toLowerCase().includes((inputValue || '').toLowerCase()) || q.tags.some(t => t.toLowerCase().includes((inputValue || '').toLowerCase()))).slice(0, 10).map((q) => (
+                    <CommandItem 
+                      key={q.id}
+                      onSelect={() => {
+                        setOpen(false);
+                        router.push(`/questions/${q.id}`);
+                      }}
+                      className="flex cursor-pointer items-center justify-between py-3 transition-colors hover:bg-muted/50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-[10px] text-tertiary">#{q.id}</span>
+                        <span className="text-sm font-medium text-foreground">{q.title}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        {q.tags.slice(0, 2).map(t => (
+                           <span key={t} className="rounded border border-border-subtle bg-surface px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-tertiary">{t}</span>
+                        ))}
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </CommandDialog>
+
+          {/* Difficulty Dropdown Placeholder (using pill for now) */}
+          <div className="hidden sm:flex items-center gap-1.5 bg-surface border border-border-subtle rounded-lg p-1">
+             {(['easy', 'medium', 'hard'] as const).map(diff => (
+               <button 
+                 key={diff} 
+                 className="px-3 py-1 text-xs font-medium text-secondary hover:text-foreground hover:bg-elevated rounded-md capitalize"
+               >
+                 {diff}
+               </button>
+             ))}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 gap-2 px-3 text-xs font-medium text-muted-foreground hover:text-foreground"
-            onClick={handleRandom}
-          >
-            <Shuffle className="h-3.5 w-3.5" />
-            Random
-          </Button>
-          <Button
-            variant={runnable === 'true' ? 'default' : 'secondary'}
-            size="sm"
-            className={cn(
-              'h-9 px-3 text-xs font-medium',
-              runnable === 'true' && 'shadow-sm shadow-primary/20',
-            )}
+
+        <div className="flex items-center gap-3">
+          <button
             onClick={() => updateParam('runnable', runnable === 'true' ? '' : 'true')}
+            className={cn(
+              "flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-2 rounded-lg border transition-all",
+              runnable === 'true' ? "bg-primary/10 border-primary/30 text-primary shadow-[0_0_10px_rgba(245,158,11,0.2)]" : "bg-surface border-border-subtle text-secondary hover:bg-elevated"
+            )}
           >
-            {runnable === 'true' ? 'Runnable' : 'Runnable Only'}
-          </Button>
-          {hasActiveFilters && (
+            <Flame className={cn("h-3.5 w-3.5", runnable === 'true' ? "fill-primary" : "")} />
+            Hard Mode Only
+          </button>
+          
+          {(search || (selectedTag && selectedTag !== 'all') || runnable === 'true' || (status && status !== 'all')) && (
             <Button
               variant="ghost"
               size="sm"
-              className="h-9 gap-1.5 px-3 text-xs font-medium text-muted-foreground hover:text-foreground"
-              onClick={handleClearAll}
+              className="text-xs text-tertiary hover:text-foreground h-9"
+              onClick={() => {
+                startTransition(() => {
+                  router.push(pathname);
+                });
+              }}
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-3.5 w-3.5 mr-1" />
               Clear
             </Button>
           )}
         </div>
       </div>
-
-      {/* Tags row */}
-      <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="mr-1.5 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/50">
-            <Filter className="h-3 w-3" />
-            Topics
-          </span>
-          {allTags.map((tag) => {
-            const active = selectedTag === tag || (!selectedTag && tag === 'all');
-            return (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => updateParam('tag', tag)}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium uppercase tracking-wider transition-all',
-                  active
-                    ? 'bg-primary/15 text-primary'
-                    : 'text-muted-foreground/60 hover:bg-muted/40 hover:text-foreground/80',
-                )}
-              >
-                {active && <Sparkles className="h-2.5 w-2.5" />}
-                {tag}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Status row */}
-        <div className="flex flex-wrap items-center gap-1.5 border-t border-border/20 pt-3">
-          <span className="mr-1.5 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/50">
-            Status
-          </span>
-          {(['all', 'answered', 'unanswered', 'bookmarked'] as const).map((entry) => {
-            const active = status === entry || (!status && entry === 'all');
-            return (
-              <button
-                key={entry}
-                type="button"
-                onClick={() => updateParam('status', entry)}
-                className={cn(
-                  'rounded-md px-2 py-1 text-[10px] font-medium uppercase tracking-wider transition-all',
-                  active
-                    ? 'bg-primary/15 text-primary'
-                    : 'text-muted-foreground/60 hover:bg-muted/40 hover:text-foreground/80',
-                )}
-              >
-                {entry}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
+      
       {/* Loading indicator */}
       {isPending && (
         <div className="flex items-center gap-2">
-          <div className="h-1 w-1 animate-pulse rounded-full bg-primary" />
-          <p className="text-[10px] font-medium uppercase tracking-widest text-primary/70">
-            Updating...
+          <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+          <p className="text-[10px] font-bold uppercase tracking-widest text-primary/70">
+            Filtering...
           </p>
         </div>
       )}

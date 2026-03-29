@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, Bookmark, CheckCircle2, Circle, Code2, Zap } from 'lucide-react';
+import { ArrowRight, Bookmark, Terminal } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import type { QuestionRecord } from '@/lib/content/types';
@@ -9,106 +9,108 @@ import { cn } from '@/lib/utils';
 
 interface QuestionCardProps {
   question: QuestionRecord;
+  isHovered?: boolean;
 }
 
 const difficultyStyles = {
-  easy: 'text-emerald-400',
-  medium: 'text-amber-400',
-  hard: 'text-rose-400',
+  easy: 'border-status-correct text-status-correct',
+  medium: 'border-[#F59E0B] text-[#F59E0B]',
+  hard: 'border-status-wrong text-status-wrong',
 } as const;
 
-export function QuestionCard({ question }: QuestionCardProps) {
+export function QuestionCard({ question, isHovered }: QuestionCardProps) {
   const { ready, item } = useQuestionProgress(question.id);
 
   const hasAttempts = item.attempts.length > 0;
   const isCorrect = item.attempts.some((a) => a.status === 'correct');
   const isBookmarked = item.bookmarked;
 
-  const difficulty = question.difficulty?.toLowerCase() as keyof typeof difficultyStyles;
+  const difficulty = (question.difficulty?.toLowerCase() || 'medium') as keyof typeof difficultyStyles;
+
+  // Extract first 3 lines of code for preview
+  const firstCodeBlock = question.codeBlocks[0]?.code || '';
+  const codeLines = firstCodeBlock.split('\n').slice(0, 3);
+  const showEllipsis = firstCodeBlock.split('\n').length > 3;
 
   return (
     <Link
       href={`/questions/${question.id}`}
-      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface/50 p-6 backdrop-blur-md transition-all duration-500 ease-out-expo hover:-translate-y-1.5 hover:border-primary/50 hover:bg-surface-elevated/60 hover:shadow-[0_8px_32px_rgba(204,255,0,0.1)]"
-    >
-      {/* Status indicators - top right */}
-      {ready && (hasAttempts || isBookmarked) && (
-        <div className="absolute right-3 top-3 flex items-center gap-1.5">
-          {isCorrect ? (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20">
-              <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-            </div>
-          ) : hasAttempts ? (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20">
-              <Circle className="h-3 w-3 text-amber-400" />
-            </div>
-          ) : null}
-          {isBookmarked && (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20">
-              <Bookmark className="h-3 w-3 fill-primary text-primary" />
-            </div>
-          )}
-        </div>
+      className={cn(
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-surface p-5 transition-all duration-500",
+        isHovered ? "border-border-focus shadow-glow bg-elevated/80" : "border-border-subtle hover:border-border-focus hover:bg-elevated/50 hover:shadow-lg hover:-translate-y-1"
       )}
-
-      {/* Header row: ID + difficulty */}
-      <div className="mb-3 flex items-center gap-2">
-        <span className="font-mono text-[11px] font-medium text-muted-foreground/60">
-          #{question.id}
-        </span>
-        <span className="text-muted-foreground/30">·</span>
-        <span
-          className={cn(
-            'text-[10px] font-bold uppercase tracking-wider',
-            difficultyStyles[difficulty] || 'text-muted-foreground',
-          )}
-        >
-          {question.difficulty}
-        </span>
-        {question.runnable && (
-          <>
-            <span className="text-muted-foreground/30">·</span>
-            <span className="flex items-center gap-1 text-[10px] font-medium text-primary/80">
-              <Zap className="h-3 w-3" />
-              <span className="hidden sm:inline">Runnable</span>
-            </span>
-          </>
+    >
+      {/* Top Row: Number, Difficulty, and Status */}
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <span className="font-mono text-xs font-semibold text-secondary">
+            #{question.id}
+          </span>
+          <span className={cn('text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border bg-background/50', difficultyStyles[difficulty])}>
+            {question.difficulty}
+          </span>
+        </div>
+        
+        {/* Status Indicators */}
+        {ready && (
+          <div className="flex items-center gap-2">
+            {isBookmarked && (
+              <Bookmark className="h-3.5 w-3.5 fill-primary text-primary" />
+            )}
+            {hasAttempts && (
+              <div 
+                className={cn(
+                  "h-2 w-2 rounded-full",
+                  isCorrect ? "bg-status-correct shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-status-wrong shadow-[0_0_8px_rgba(239,68,68,0.6)]"
+                )} 
+              />
+            )}
+          </div>
         )}
       </div>
 
       {/* Title */}
-      <h3 className="mb-5 line-clamp-2 min-h-12 font-display text-lg font-semibold leading-snug tracking-tight text-foreground shadow-sm transition-colors group-hover:text-primary">
+      <h3 className="mb-4 font-display text-xl font-medium leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary">
         {question.title}
       </h3>
 
-      {/* Tags */}
-      <div className="mb-4 flex flex-wrap gap-1.5">
-        {question.tags.slice(0, 3).map((tag) => (
-          <Badge
-            key={tag}
-            variant="secondary"
-            className="bg-white/5 border border-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/90 transition-colors group-hover:border-primary/30 group-hover:bg-primary/10 group-hover:text-primary"
-          >
-            {tag}
-          </Badge>
-        ))}
-        {question.tags.length > 3 && (
-          <span className="px-1 text-[9px] text-muted-foreground/50">
-            +{question.tags.length - 3}
-          </span>
-        )}
-      </div>
+      {/* Mini Code Preview */}
+      {firstCodeBlock && (
+        <div className="mb-5 min-w-0 w-full rounded-lg border border-border-subtle bg-code p-3 transition-colors group-hover:border-primary/20 group-hover:bg-code/80">
+          <pre className="min-w-0 w-full overflow-hidden font-mono text-[11px] leading-relaxed text-secondary/80">
+            <code className="block min-w-0 w-full">
+              {codeLines.map((line, i) => (
+                <div key={i} className="whitespace-pre truncate">{line || ' '}</div>
+              ))}
+              {showEllipsis && <div className="text-tertiary">...</div>}
+            </code>
+          </pre>
+        </div>
+      )}
+
+      <div className="flex-1" />
 
       {/* Footer */}
-      <div className="mt-auto flex items-center justify-between border-t border-border/30 pt-3">
-        <div className="flex items-center gap-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
-          <span className="flex items-center gap-1">
-            <Code2 className="h-3 w-3" />
-            {question.codeBlocks.length}
-          </span>
-          <span>{question.options.length} options</span>
+      <div className="mt-auto flex items-center justify-between pt-2">
+        <div className="flex flex-wrap gap-1.5">
+          {question.tags.slice(0, 2).map((tag) => (
+            <Badge
+              key={tag}
+              variant="secondary"
+              className="bg-elevated border-border-subtle px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider text-secondary transition-colors group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20"
+            >
+              {tag}
+            </Badge>
+          ))}
+          {question.tags.length > 2 && (
+            <span className="px-1 text-[9px] text-tertiary flex items-center">
+              +{question.tags.length - 2}
+            </span>
+          )}
         </div>
-        <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary opacity-0 transition-opacity group-hover:opacity-100">
+        
+        <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary opacity-0 transition-all group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0">
+          {question.runnable && <Terminal className="h-3 w-3" />}
           Practice
           <ArrowRight className="h-3 w-3" />
         </span>

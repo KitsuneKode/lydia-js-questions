@@ -92,6 +92,7 @@ export default async function QuestionsPage({
               runnable={runnable}
               status={status}
               totalQuestions={allQuestions.length}
+              allQuestions={allQuestions}
             />
 
             {/* Results count bar */}

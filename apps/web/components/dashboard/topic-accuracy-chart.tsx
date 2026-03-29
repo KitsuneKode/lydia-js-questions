@@ -1,49 +1,96 @@
 'use client';
 
-import { PieChart } from 'lucide-react';
+import { PieChart, ArrowRight } from 'lucide-react';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip } from 'recharts';
+import Link from 'next/link';
 import type { TagStats } from '@/lib/progress/analytics';
+import { Button } from '@/components/ui/button';
 
 interface TopicAccuracyChartProps {
   tagStats: TagStats[];
 }
 
 export function TopicAccuracyChart({ tagStats }: TopicAccuracyChartProps) {
-  const top = tagStats.slice(0, 8);
-
-  if (top.length === 0) {
-    return null;
+  // Only plot topics that have been attempted
+  const activeTopics = tagStats.filter(t => t.totalAttempts > 0);
+  
+  if (activeTopics.length < 3) {
+    return (
+      <div className="rounded-2xl border border-border-subtle bg-surface p-6 flex flex-col items-center justify-center min-h-[300px] text-center">
+        <PieChart className="h-8 w-8 text-tertiary mb-3" />
+        <p className="font-display text-lg text-foreground">Not enough data</p>
+        <p className="text-sm text-secondary mt-1">Practice at least 3 topics to unlock your mastery radar.</p>
+      </div>
+    );
   }
 
+  // Format data for Recharts
+  const data = activeTopics.slice(0, 8).map(tag => ({
+    subject: tag.tag.charAt(0).toUpperCase() + tag.tag.slice(1),
+    A: Math.round(tag.accuracy * 100),
+    fullMark: 100,
+    raw: tag
+  }));
+
+  // Sort weakest to strongest for the list below
+  const sortedByWeakness = [...activeTopics].sort((a, b) => a.accuracy - b.accuracy).slice(0, 3);
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-elevated border border-border-subtle p-3 rounded-xl shadow-lg backdrop-blur-xl">
+          <p className="font-medium text-foreground text-sm mb-1">{data.subject}</p>
+          <p className="text-xs text-secondary">
+            {data.raw.correctAttempts}/{data.raw.totalAttempts} correct ({data.A}%)
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="rounded-xl border border-border/40 bg-card/40 p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <PieChart className="h-4 w-4 text-muted-foreground/60" />
-        <h3 className="text-sm font-medium text-foreground">Topic Accuracy</h3>
+    <div className="col-span-2 rounded-2xl border border-border-subtle bg-surface p-6 lg:col-span-1 flex flex-col">
+      <div className="mb-2">
+        <h3 className="font-display text-xl text-foreground">Topic Mastery</h3>
+        <p className="text-xs text-secondary">Your accuracy across core concepts.</p>
       </div>
 
-      <div className="space-y-2.5">
-        {top.map((tag) => {
-          const pct = Math.round(tag.accuracy * 100);
-          const barColor =
-            pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-rose-500';
+      <div className="h-[280px] w-full mt-4 -ml-4">
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+            <PolarGrid stroke="var(--border-subtle)" />
+            <PolarAngleAxis 
+              dataKey="subject" 
+              tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontFamily: 'var(--font-mono)' }} 
+            />
+            <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+            <Tooltip content={<CustomTooltip />} />
+            <Radar 
+              name="Mastery" 
+              dataKey="A" 
+              stroke="var(--accent-primary)" 
+              fill="var(--accent-primary)" 
+              fillOpacity={0.3} 
+              strokeWidth={2}
+            />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
 
-          return (
-            <div key={tag.tag} className="space-y-1">
-              <div className="flex items-baseline justify-between text-xs">
-                <span className="truncate font-medium text-foreground/80">{tag.tag}</span>
-                <span className="ml-2 shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground/60">
-                  {pct}%<span className="ml-1 opacity-50">({tag.totalAttempts})</span>
-                </span>
-              </div>
-              <div className="relative h-1.5 overflow-hidden rounded-full bg-muted/30">
-                <div
-                  className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${barColor}`}
-                  style={{ width: `${pct}%`, opacity: 0.8 }}
-                />
-              </div>
-            </div>
-          );
-        })}
+      <div className="mt-auto pt-6 border-t border-border-subtle space-y-3">
+        <h4 className="text-xs font-semibold text-tertiary uppercase tracking-widest mb-2">Needs Practice</h4>
+        {sortedByWeakness.map((tag) => (
+          <div key={tag.tag} className="flex items-center justify-between">
+            <span className="text-sm text-foreground capitalize">{tag.tag}</span>
+            <Link href={`/questions?tag=${tag.tag}`}>
+              <Button size="sm" variant="ghost" className="h-7 text-[10px] uppercase tracking-wider text-primary hover:bg-primary/10">
+                Practice <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            </Link>
+          </div>
+        ))}
       </div>
     </div>
   );

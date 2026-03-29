@@ -1,14 +1,12 @@
-import { SiGithub } from '@icons-pack/react-simple-icons';
-import { Heart } from 'lucide-react';
+import { SiGithub, SiX } from '@icons-pack/react-simple-icons';
+import { Zap } from 'lucide-react';
 import Link from 'next/link';
-
-import { Separator } from '@/components/ui/separator';
 
 const footerLinks = {
   product: [
-    { href: '/questions', label: 'Question Library' },
-    { href: '/dashboard', label: 'Practice Dashboard' },
-    { href: '/credits', label: 'Credits & Attribution' },
+    { href: '/questions', label: 'Questions' },
+    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/credits', label: 'Credits' },
   ],
   resources: [
     {
@@ -26,38 +24,48 @@ const footerLinks = {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-border bg-surface/50">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Brand */}
-          <div className="sm:col-span-2 lg:col-span-2">
+    <footer className="relative mt-auto bg-void">
+      {/* Gradient top border */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      
+      <div className="mx-auto max-w-6xl px-4 py-8 md:py-10">
+        <div className="grid gap-10 grid-cols-2 md:grid-cols-3">
+          {/* Brand & Built by */}
+          <div className="col-span-2 md:col-span-1 flex flex-col justify-between">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 font-display text-lg font-medium text-foreground"
+              className="inline-flex items-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm w-fit"
             >
-              JS Interview Atlas
+              <span className="font-display text-2xl text-foreground">Atlas</span>
+              <Zap className="h-4 w-4 text-primary fill-primary" />
             </Link>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-              An open-source JavaScript interview practice platform. Built with respect for the
-              original content creators and the learning community.
-            </p>
-            <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-              <Heart className="h-3.5 w-3.5 text-danger" />
-              <span>Built from Lydia Hallie&apos;s JavaScript Questions</span>
+            
+            <div className="mt-6 md:mt-auto">
+              <p className="text-sm text-tertiary">
+                Built by <span className="text-secondary font-medium">KitsuneKode</span>
+              </p>
+              <div className="flex items-center gap-4 mt-4 text-tertiary">
+                <a href="#" className="hover:text-primary transition-colors">
+                  <SiGithub className="h-[14px] w-[14px]" />
+                  <span className="sr-only">GitHub</span>
+                </a>
+                <a href="#" className="hover:text-primary transition-colors">
+                  <SiX className="h-[14px] w-[14px]" />
+                  <span className="sr-only">X</span>
+                </a>
+              </div>
             </div>
           </div>
 
           {/* Product links */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Product
-            </h3>
-            <ul className="mt-3 space-y-2">
+            <h3 className="text-xs font-medium text-foreground mb-4 tracking-wider uppercase">Product</h3>
+            <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-[13px] text-tertiary hover:text-primary transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -68,42 +76,22 @@ export function SiteFooter() {
 
           {/* Resources */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Resources
-            </h3>
-            <ul className="mt-3 space-y-2">
+            <h3 className="text-xs font-medium text-foreground mb-4 tracking-wider uppercase">Resources</h3>
+            <ul className="space-y-3">
               {footerLinks.resources.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
                     target={link.external ? '_blank' : undefined}
                     rel={link.external ? 'noopener noreferrer' : undefined}
-                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="inline-flex items-center gap-1.5 text-[13px] text-tertiary hover:text-primary transition-colors"
                   >
                     {link.label}
-                    {link.external && <SiGithub className="h-3 w-3" />}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
-        </div>
-
-        <Separator className="my-8" />
-
-        <div className="flex flex-col items-center justify-between gap-4 text-xs text-muted-foreground sm:flex-row">
-          <p>
-            Content licensed under{' '}
-            <Link
-              href="https://github.com/lydiahallie/javascript-questions/blob/master/LICENSE"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-foreground underline underline-offset-2"
-            >
-              MIT License
-            </Link>
-          </p>
-          <p className="text-muted-foreground/60">Practice. Learn. Ship.</p>
         </div>
       </div>
     </footer>

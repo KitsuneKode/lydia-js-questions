@@ -1,12 +1,9 @@
 import type { Metadata } from 'next';
-import { Bricolage_Grotesque, Geist, Geist_Mono, Inter, Roboto_Mono } from 'next/font/google';
+import { Geist, Bricolage_Grotesque, Roboto_Mono } from 'next/font/google';
 import '@/app/globals.css';
 
 import { Provider } from '@/app/provider';
-import { AuthProvider } from '@/components/auth-provider';
 import { cn } from '@/lib/utils';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 const robotoMonoRobotoMono = Roboto_Mono({
   subsets: ['cyrillic', 'cyrillic-ext', 'greek', 'latin', 'latin-ext', 'vietnamese'],
@@ -26,21 +23,21 @@ const bricolageGrotesqueBricolageGrotesque = Bricolage_Grotesque({
   variable: '--font-bricolage-grotesque',
 });
 
-const geistSans = Geist({
-  variable: '--font-body',
-  subsets: ['latin'],
-});
-
-const geistDisplay = Geist({
-  variable: '--font-display',
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-mono',
-  subsets: ['latin'],
-});
+// const instrumentSerif = Instrument_Serif({
+//   weight: '400',
+//   subsets: ['latin'],
+//   variable: '--font-display',
+// });
+//
+// const geistSans = Geist({
+//   variable: '--font-sans',
+//   subsets: ['latin'],
+// });
+//
+// const geistMono = Geist_Mono({
+//   variable: '--font-mono',
+//   subsets: ['latin'],
+// });
 
 export const metadata: Metadata = {
   title: 'JS Interview Atlas',
@@ -50,27 +47,24 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <AuthProvider>
-      <html
-        lang="en"
-        style={{ colorScheme: 'dark' }}
-        className={cn(
-          'dark',
-          geistDisplay.variable,
-          geistSans.variable,
-          geistMono.variable,
-          bricolageGrotesqueBricolageGrotesque.variable,
-          geistGeist.variable,
-          robotoMonoRobotoMono.variable,
-          'font-sans',
-          inter.variable,
-        )}
-        suppressHydrationWarning
-      >
-        <body className="grain-overlay antialiased">
-          <Provider>{children}</Provider>
-        </body>
-      </html>
-    </AuthProvider>
+    <html
+      lang="en"
+      className={cn(
+        // instrumentSerif.variable,
+        // geistSans.variable,
+        // geistMono.variable,
+        // 'font-sans dark',
+        bricolageGrotesqueBricolageGrotesque.variable,
+        geistGeist.variable,
+        robotoMonoRobotoMono.variable,
+        'font-sans dark',
+      )}
+      suppressHydrationWarning
+    >
+      <body className="grain-overlay antialiased">
+        <Provider>{children}</Provider>
+      </body>
+    </html>
   );
 }
+

@@ -31,11 +31,13 @@ export function DashboardShell({ questions }: DashboardShellProps) {
 
   if (!ready) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="flex items-center gap-3">
-          <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-          <p className="text-sm text-muted-foreground/70">Loading progress...</p>
+      <div className="flex min-h-[50vh] items-center justify-center flex-col gap-6">
+        <div className="relative flex items-center justify-center h-16 w-16">
+          <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+          <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <Sparkles className="h-5 w-5 text-primary animate-pulse" />
         </div>
+        <p className="font-mono text-xs uppercase tracking-widest text-secondary">Loading your progress...</p>
       </div>
     );
   }
@@ -43,83 +45,101 @@ export function DashboardShell({ questions }: DashboardShellProps) {
   const hasData = overall.totalAnswered > 0;
 
   return (
-    <div className="space-y-10">
+    <div className="max-w-6xl mx-auto space-y-12">
       {/* Header */}
-      <header className="space-y-3">
+      <header className="space-y-4">
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-primary">
-            Practice Hub
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary bg-primary/10 px-2 py-0.5 rounded-sm">
+            Command Center
           </span>
-          <span className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
+          <span className="h-px flex-1 bg-gradient-to-r from-border-subtle to-transparent" />
         </div>
-        <h1 className="font-display text-2xl font-medium tracking-tight text-foreground md:text-3xl">
-          Train JavaScript interview skills
+        <h1 className="font-display text-4xl md:text-5xl text-foreground">
+          Welcome back.
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground/70">
+        <p className="max-w-2xl text-lg text-secondary">
           {hasData
-            ? `${overall.totalAnswered} questions answered across ${tagStats.length} topics. Review weak areas, maintain your streak, and keep building mastery.`
+            ? `You've answered \${overall.totalAnswered} questions across \${tagStats.length} topics. Maintain your momentum.`
             : 'Start with one question, get immediate feedback, and build consistent practice habits.'}
         </p>
       </header>
 
-      {/* Quick action cards */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        {[continueLearning, recommended].map((suggestion, index) => (
-          <div
-            key={suggestion.label}
-            className="group relative overflow-hidden rounded-xl border border-border/40 bg-gradient-to-br from-card/80 to-card/40 p-5 transition-all hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"
-          >
-            {/* Subtle glow */}
-            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/5 blur-2xl transition-all group-hover:bg-primary/10" />
-
-            <div className="relative space-y-3">
-              <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-widest text-primary">
-                {index === 0 ? <Library className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-                {suggestion.label}
-              </div>
-              <h2 className="font-display text-lg font-medium leading-snug text-foreground transition-colors group-hover:text-primary">
-                {suggestion.question ? suggestion.question.title : 'Start your first question'}
-              </h2>
-              <p className="text-xs text-muted-foreground/70">{suggestion.description}</p>
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <Link
-                  href={suggestion.question ? `/questions/${suggestion.question.id}` : '/questions'}
-                >
-                  <Button size="sm" className="h-8 gap-1.5 text-xs">
-                    {index === 0 ? 'Resume' : 'Try this'}
-                    <ArrowRight className="h-3 w-3" />
-                  </Button>
-                </Link>
-                <Link href="/questions">
-                  <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground">
-                    Browse all
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Stats overview */}
+      {/* Stats overview (Top Row: 12 cols total -> 3 cards of 4 cols each) */}
       <OverviewCards overall={overall} />
 
       {/* Charts and lists - only show when there's data */}
       {hasData && (
         <>
-          <div className="grid gap-5 lg:grid-cols-2">
-            <TopicAccuracyChart tagStats={tagStats} />
-            <ActivityChart dailyActivity={dailyActivity} />
+          {/* Middle Row: Radar (8 cols) + Heatmap (4 cols) */}
+          <div className="grid gap-5 lg:grid-cols-12">
+            <div className="lg:col-span-8">
+              <TopicAccuracyChart tagStats={tagStats} />
+            </div>
+            <div className="lg:col-span-4">
+              <ActivityChart dailyActivity={dailyActivity} />
+            </div>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-2">
-            <WeakestTopics topics={weakestTopics} />
-            <RecentActivity questions={questions} />
+          {/* Quick action cards */}
+          <div className="grid gap-5 sm:grid-cols-2">
+            {[continueLearning, recommended].map((suggestion, index) => (
+              <div
+                key={suggestion.label}
+                className="group relative overflow-hidden rounded-2xl border border-border-subtle bg-surface p-6 transition-all hover:border-border-focus hover:shadow-glow"
+              >
+                <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                  {index === 0 ? <Library className="h-24 w-24 text-primary" /> : <Sparkles className="h-24 w-24 text-primary" />}
+                </div>
+
+                <div className="relative z-10 flex flex-col h-full justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-primary mb-3">
+                      {index === 0 ? <Library className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
+                      {suggestion.label}
+                    </div>
+                    <h2 className="font-display text-2xl text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                      {suggestion.question ? suggestion.question.title : 'Start your first question'}
+                    </h2>
+                    <p className="text-sm text-secondary">{suggestion.description}</p>
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-3 mt-6 pt-4 border-t border-border-subtle">
+                    <Link
+                      href={suggestion.question ? `/questions/${suggestion.question.id}` : '/questions'}
+                    >
+                      <Button size="sm" className="h-9 gap-2 text-xs font-semibold px-4 bg-primary text-background hover:bg-primary/90">
+                        {index === 0 ? 'Resume' : 'Try this'}
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </Link>
+                    <Link href="/questions">
+                      <Button variant="ghost" size="sm" className="h-9 text-xs font-medium text-secondary hover:text-foreground">
+                        Browse all
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
-          {reviewQueue.length > 0 && <ReviewQueue questions={reviewQueue} />}
+          {/* Bottom Row: Needs Practice (6 cols) + Review Queue (6 cols) */}
+          <div className="grid gap-5 lg:grid-cols-12">
+            <div className="lg:col-span-6">
+              <WeakestTopics topics={weakestTopics} />
+            </div>
+            <div className="lg:col-span-6">
+              {reviewQueue.length > 0 ? (
+                <ReviewQueue questions={reviewQueue} />
+              ) : (
+                <RecentActivity questions={questions} />
+              )}
+            </div>
+          </div>
 
-          <BookmarkedList questions={questions} />
+          <div className="pt-8">
+            <BookmarkedList questions={questions} />
+          </div>
         </>
       )}
     </div>
