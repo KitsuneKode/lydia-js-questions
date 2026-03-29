@@ -1,0 +1,13 @@
+# Supabase local dev configuration
+# https://supabase.com/docs/guides/cli/config
+#
+# For hosted Supabase (cloud), configure Clerk third-party auth via the dashboard:
+# Authentication → Third-party Auth → Add provider → Clerk
+# Paste your Clerk Frontend API URL (Clerk Dashboard → API Keys → Frontend API URL)
+
+[auth.third_party.clerk]
+enabled = true
+# Replace with your Clerk Frontend API URL
+# Dev example:  "growing-marmot-6.clerk.accounts.dev"
+# Prod example: "your-app.clerk.accounts.com"
+domain = "REPLACE_WITH_YOUR_CLERK_FRONTEND_API_URL"
