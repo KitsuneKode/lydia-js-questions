@@ -50,14 +50,10 @@ function ensureItem(state: ProgressState, questionId: number): ProgressItem {
 
 function mergeItems(local: ProgressItem | undefined, server: ProgressItem): ProgressItem {
   if (!local) return server;
-
   const localTime = new Date(local.updatedAt).getTime();
   const serverTime = new Date(server.updatedAt).getTime();
-
   if (serverTime > localTime) return server;
   if (localTime > serverTime) return local;
-
-  // Same timestamp — keep the one with more attempts
   return server.attempts.length >= local.attempts.length ? server : local;
 }
 
@@ -105,7 +101,6 @@ function progressReducer(state: ProgressState, action: ProgressAction): Progress
       const now = new Date().toISOString();
       const prev = ensureItem(state, action.questionId);
       const newSrsData = calculateNextReview(action.grade, prev.srsData);
-
       return {
         ...state,
         questions: {
@@ -137,6 +132,7 @@ function progressReducer(state: ProgressState, action: ProgressAction): Progress
 interface ProgressContextValue {
   state: ProgressState;
   ready: boolean;
+  syncStatus: 'idle' | 'syncing' | 'error';
   dispatch: (action: ProgressAction) => void;
   saveAttempt: (questionId: number, selected: 'A' | 'B' | 'C' | 'D', status: AnswerStatus) => void;
   saveSelfGrade: (questionId: number, grade: Grade) => void;
@@ -148,15 +144,18 @@ const ProgressContext = createContext<ProgressContextValue | null>(null);
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(progressReducer, defaultProgressState);
   const [ready, setReady] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle');
   const prevStateRef = useRef(state);
-  const pendingSyncRef = useRef<Set<number>>(new Set());
+  // Always-fresh state reference — assigned at render time so callbacks
+  // can read current state without needing state in their dependency arrays.
+  const stateRef = useRef(state);
+  stateRef.current = state;
   const { isSignedIn } = useSafeAuth();
 
-  // Init: load from localStorage
+  // Init: load from localStorage on mount
   useEffect(() => {
     const loaded = readProgress();
     dispatch({ type: 'init', state: loaded });
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReady(true);
   }, []);
 
@@ -165,17 +164,34 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     if (!isSignedIn || !ready) return;
 
     let cancelled = false;
-    (async () => {
-      const serverItems = await fetchServerProgress();
-      if (!cancelled && serverItems.length > 0) {
-        dispatch({ type: 'merge', serverItems });
-      }
+    setSyncStatus('syncing');
 
-      // After merge, sync any local-only items to server
-      if (!cancelled) {
-        const localItems = Object.values(readProgress().questions);
-        if (localItems.length > 0) {
-          await syncProgressToServer(localItems);
+    (async () => {
+      try {
+        const serverItems = await fetchServerProgress();
+        const localState = readProgress();
+
+        if (!cancelled) {
+          dispatch({ type: 'merge', serverItems });
+
+          const localNewer: ProgressItem[] = [];
+          for (const localItem of Object.values(localState.questions)) {
+            const serverItem = serverItems.find((s) => s.questionId === localItem.questionId);
+            if (!serverItem || new Date(localItem.updatedAt) > new Date(serverItem.updatedAt)) {
+              localNewer.push(localItem);
+            }
+          }
+
+          if (localNewer.length > 0) {
+            await syncProgressToServer(localNewer);
+          }
+
+          setSyncStatus('idle');
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Sign-in sync failed:', error);
+          setSyncStatus('error');
         }
       }
     })();
@@ -193,47 +209,84 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     writeProgress(state);
   }, [ready, state]);
 
-  useEffect(() => {
-    if (!ready || !isSignedIn || pendingSyncRef.current.size === 0) return;
-
-    const pendingIds = Array.from(pendingSyncRef.current);
-    pendingSyncRef.current.clear();
-
-    void Promise.all(
-      pendingIds.map(async (questionId) => {
-        const item = state.questions[String(questionId)];
-        if (!item) return;
-
-        try {
-          await upsertSingleQuestion(item);
-        } catch (err) {
-          console.error('Server sync failed:', err);
-        }
-      }),
-    );
-  }, [isSignedIn, ready, state]);
+  // ---------------------------------------------------------------------------
+  // Mutations — dispatch to reducer + immediate server sync if signed in
+  // ---------------------------------------------------------------------------
 
   const saveAttempt = useCallback(
     (questionId: number, selected: 'A' | 'B' | 'C' | 'D', status: AnswerStatus) => {
-      pendingSyncRef.current.add(questionId);
+      const now = new Date().toISOString();
+      const prev = ensureItem(stateRef.current, questionId);
+      const updated: ProgressItem = {
+        ...prev,
+        attempts: [...prev.attempts, { selected, status, attemptedAt: now }],
+        updatedAt: now,
+      };
       dispatch({ type: 'attempt', questionId, selected, status });
+      if (isSignedIn) {
+        setSyncStatus('syncing');
+        upsertSingleQuestion(updated)
+          .then(() => setSyncStatus('idle'))
+          .catch((err) => {
+            console.error('Failed to sync attempt:', err);
+            setSyncStatus('error');
+          });
+      }
     },
-    [],
+    [isSignedIn],
   );
 
-  const saveSelfGrade = useCallback((questionId: number, grade: Grade) => {
-    pendingSyncRef.current.add(questionId);
-    dispatch({ type: 'grade', questionId, grade });
-  }, []);
+  const saveSelfGrade = useCallback(
+    (questionId: number, grade: Grade) => {
+      const now = new Date().toISOString();
+      const prev = ensureItem(stateRef.current, questionId);
+      const newSrsData = calculateNextReview(grade, prev.srsData);
+      const updated: ProgressItem = {
+        ...prev,
+        srsData: newSrsData,
+        updatedAt: now,
+      };
+      dispatch({ type: 'grade', questionId, grade });
+      if (isSignedIn) {
+        setSyncStatus('syncing');
+        upsertSingleQuestion(updated)
+          .then(() => setSyncStatus('idle'))
+          .catch((err) => {
+            console.error('Failed to sync grade:', err);
+            setSyncStatus('error');
+          });
+      }
+    },
+    [isSignedIn],
+  );
 
-  const toggleBookmark = useCallback((questionId: number) => {
-    pendingSyncRef.current.add(questionId);
-    dispatch({ type: 'bookmark', questionId });
-  }, []);
+  const toggleBookmark = useCallback(
+    (questionId: number) => {
+      const now = new Date().toISOString();
+      const prev = ensureItem(stateRef.current, questionId);
+      const updated: ProgressItem = {
+        ...prev,
+        bookmarked: !prev.bookmarked,
+        updatedAt: now,
+      };
+      dispatch({ type: 'bookmark', questionId });
+      if (isSignedIn) {
+        setSyncStatus('syncing');
+        upsertSingleQuestion(updated)
+          .then(() => setSyncStatus('idle'))
+          .catch((err) => {
+            console.error('Failed to sync bookmark:', err);
+            setSyncStatus('error');
+          });
+      }
+    },
+    [isSignedIn],
+  );
 
   const value: ProgressContextValue = {
     state,
     ready,
+    syncStatus,
     dispatch,
     saveAttempt,
     saveSelfGrade,
