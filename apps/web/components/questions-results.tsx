@@ -1,17 +1,18 @@
 'use client';
 
+import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { QuestionCard } from '@/components/question-card';
 import type { QuestionRecord } from '@/lib/content/types';
 import { useProgress } from '@/lib/progress/progress-context';
-import { Search } from 'lucide-react';
 
 interface QuestionsResultsProps {
   questions: QuestionRecord[];
   status: 'all' | 'answered' | 'unanswered' | 'bookmarked';
+  locale: string;
 }
 
-export function QuestionsResults({ questions, status }: QuestionsResultsProps) {
+export function QuestionsResults({ questions, status, locale }: QuestionsResultsProps) {
   const { state: progress } = useProgress();
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
@@ -44,21 +45,21 @@ export function QuestionsResults({ questions, status }: QuestionsResultsProps) {
   }
 
   return (
-    <div 
+    <div
       className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
       onMouseLeave={() => setHoveredId(null)}
     >
       {filtered.map((question) => (
-        <div 
+        <div
           key={question.id}
           onMouseEnter={() => setHoveredId(question.id)}
           className="transition-all duration-300"
           style={{
             opacity: hoveredId !== null && hoveredId !== question.id ? 0.6 : 1,
-            transform: hoveredId !== null && hoveredId !== question.id ? 'scale(0.98)' : 'scale(1)'
+            transform: hoveredId !== null && hoveredId !== question.id ? 'scale(0.98)' : 'scale(1)',
           }}
         >
-          <QuestionCard question={question} isHovered={hoveredId === question.id} />
+          <QuestionCard question={question} locale={locale} isHovered={hoveredId === question.id} />
         </div>
       ))}
     </div>

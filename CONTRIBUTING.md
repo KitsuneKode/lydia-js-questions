@@ -1,4 +1,4 @@
-# Contributing To JS Mastery Atlas
+# Contributing To JS Questions Lab
 
 Thanks for contributing. This repo contains both the product app and the content pipeline that
 feeds it, so a small amount of structure helps keep changes safe.

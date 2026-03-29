@@ -8,9 +8,10 @@ import { useAnalytics } from '@/lib/progress/use-analytics';
 
 interface NextRecommendedBannerProps {
   questions: QuestionRecord[];
+  locale: string;
 }
 
-export function NextRecommendedBanner({ questions }: NextRecommendedBannerProps) {
+export function NextRecommendedBanner({ questions, locale }: NextRecommendedBannerProps) {
   const { ready, recommended } = useAnalytics(questions);
 
   if (!ready || !recommended.question) return null;
@@ -40,7 +41,7 @@ export function NextRecommendedBanner({ questions }: NextRecommendedBannerProps)
               </h2>
             </div>
           </div>
-          <Link href={`/questions/${q.id}`} className="w-full shrink-0 sm:w-auto">
+          <Link href={`/${locale}/questions/${q.id}`} className="w-full shrink-0 sm:w-auto">
             <Button size="sm" className="w-full gap-2 sm:w-auto">
               Practice
               <ArrowRight className="h-3.5 w-3.5" />

@@ -12,9 +12,22 @@ export interface QuestionCodeBlock {
   code: string;
 }
 
+export type QuestionRuntimeKind = 'javascript' | 'dom-click-propagation' | 'static';
+
+export interface QuestionRuntime {
+  kind: QuestionRuntimeKind;
+}
+
 export interface QuestionRecord {
   id: number;
   slug: string;
+  /** Locale this record was parsed from (e.g. "en", "es"). */
+  locale: string;
+  /**
+   * Set to true when this record was injected as an English fallback inside a
+   * non-English locale dataset (i.e. the locale source was missing this question id).
+   */
+  isFallback?: boolean;
   title: string;
   promptMarkdown: string;
   codeBlocks: QuestionCodeBlock[];
@@ -26,6 +39,7 @@ export interface QuestionRecord {
   tags: string[];
   difficulty: Difficulty;
   runnable: boolean;
+  runtime: QuestionRuntime;
   source: {
     startLineHint: number | null;
   };
@@ -36,13 +50,45 @@ export interface TranslationEntry {
   href: string;
 }
 
+// ---------------------------------------------------------------------------
+// Locale availability (written by parse-readme.mjs into the locale index)
+// ---------------------------------------------------------------------------
+
+export interface LocaleAvailability {
+  code: string;
+  label: string;
+  questionCount: number;
+  sourceHash: string;
+  generatedAt: string;
+}
+
+export interface LocaleIndex {
+  schemaVersion: number;
+  generatedAt: string;
+  supported: string[];
+  default: string;
+  available: LocaleAvailability[];
+}
+
+// ---------------------------------------------------------------------------
+// Per-locale manifest (content/generated/locales/<locale>/manifest.v1.json)
+// ---------------------------------------------------------------------------
+
 export interface QuestionsManifest {
   schemaVersion: number;
   generatedAt: string;
+  locale: {
+    code: string;
+    label: string;
+    dir: 'ltr' | 'rtl';
+  };
   source: {
     repo: string;
-    file: string;
+    upstreamPath?: string;
+    /** @deprecated use upstreamPath */
+    file?: string;
     localPath: string;
+    sha256?: string;
   };
   totals: {
     questions: number;

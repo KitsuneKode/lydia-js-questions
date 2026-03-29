@@ -1,0 +1,98 @@
+{
+  "nav": {
+    "questions": "Fragen",
+    "dashboard": "Dashboard",
+    "about": "Über das Projekt",
+    "credits": "Mitwirkende",
+    "scratchpad": "Notizblock"
+  },
+  "questions": {
+    "title": "Fragenbibliothek",
+    "description": "Stöbere und übe JavaScript-Interviewfragen. Entscheide dich für eine Antwort, dann erkunde die Erklärung und führe den Code aus.",
+    "count": "{count} Fragen",
+    "filters": {
+      "search": "Fragen durchsuchen…",
+      "searchLabel": "Suchen",
+      "tag": "Thema",
+      "difficulty": "Schwierigkeitsgrad",
+      "runnable": "Nur ausführbare",
+      "status": "Status",
+      "all": "Alle",
+      "answered": "Beantwortet",
+      "unanswered": "Unbeantwortet",
+      "bookmarked": "Gespeichert",
+      "beginner": "Anfänger",
+      "intermediate": "Mittel",
+      "advanced": "Fortgeschritten",
+      "clearFilters": "Filter zurücksetzen"
+    },
+    "results": {
+      "showing": "{shown} / {total} Fragen",
+      "page": "{page} / {pageCount}"
+    },
+    "pagination": {
+      "prev": "Zurück",
+      "next": "Weiter"
+    }
+  },
+  "question": {
+    "save": "Speichern",
+    "saved": "Gespeichert",
+    "next": "Weiter",
+    "prev": "Zurück",
+    "runCode": "Code ausführen",
+    "eventLoop": "Event-Loop",
+    "showAnswer": "Antwort anzeigen",
+    "hideAnswer": "Antwort verbergen",
+    "relatedConcepts": "Verwandte Konzepte",
+    "keepPracticing": "Weiter üben",
+    "viewAll": "Alle anzeigen",
+    "fallbackNotice": "Diese Frage ist noch nicht auf {locale} übersetzt — wird auf Englisch angezeigt.",
+    "answer": "Antwort",
+    "explanation": "Erklärung",
+    "options": {
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D"
+    }
+  },
+  "landing": {
+    "headline": "JavaScript-Interviews meistern",
+    "subline": "Übe mit echten Interviewfragen, führe den Code aus und verstehe, warum deine Antwort richtig oder falsch ist.",
+    "cta": "Jetzt üben",
+    "featuredTitle": "Ausgewählte Fragen",
+    "featuredSubline": "Beginne mit diesen beliebten Aufgaben",
+    "viewAll": "Alle {count} anzeigen"
+  },
+  "dashboard": {
+    "title": "Übungszentrum",
+    "continueLearning": "Weiterlernen",
+    "nextRecommended": "Nächste Empfehlung",
+    "reviewQueue": "Wiederholungswarteschlange",
+    "weakestTopics": "Schwächste Themen",
+    "bookmarks": "Gespeichert",
+    "progress": "Fortschritt",
+    "streak": "Serie",
+    "answered": "Beantwortet",
+    "correct": "Richtig"
+  },
+  "credits": {
+    "title": "Credits & Mitwirkende",
+    "localeTable": {
+      "language": "Sprache",
+      "questions": "Fragen",
+      "coverage": "Abdeckung",
+      "status": "Status"
+    }
+  },
+  "common": {
+    "loading": "Lädt…",
+    "error": "Etwas ist schiefgelaufen",
+    "retry": "Erneut versuchen"
+  },
+  "meta": {
+    "title": "JS Questions Lab",
+    "description": "Interaktive JavaScript-Interviewpraxis auf Basis von Lydia Hallies Fragen, mit ausführbaren Snippets und Event-Loop-Visualisierungen."
+  }
+}

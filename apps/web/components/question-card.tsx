@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 
 interface QuestionCardProps {
   question: QuestionRecord;
+  locale: string;
   isHovered?: boolean;
 }
 
@@ -18,14 +19,15 @@ const difficultyStyles = {
   hard: 'border-status-wrong text-status-wrong',
 } as const;
 
-export function QuestionCard({ question, isHovered }: QuestionCardProps) {
+export function QuestionCard({ question, locale, isHovered }: QuestionCardProps) {
   const { ready, item } = useQuestionProgress(question.id);
 
   const hasAttempts = item.attempts.length > 0;
   const isCorrect = item.attempts.some((a) => a.status === 'correct');
   const isBookmarked = item.bookmarked;
 
-  const difficulty = (question.difficulty?.toLowerCase() || 'medium') as keyof typeof difficultyStyles;
+  const difficulty = (question.difficulty?.toLowerCase() ||
+    'medium') as keyof typeof difficultyStyles;
 
   // Extract first 3 lines of code for preview
   const firstCodeBlock = question.codeBlocks[0]?.code || '';
@@ -34,35 +36,40 @@ export function QuestionCard({ question, isHovered }: QuestionCardProps) {
 
   return (
     <Link
-      href={`/questions/${question.id}`}
+      href={`/${locale}/questions/${question.id}`}
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-surface p-5 transition-all duration-500",
-        isHovered ? "border-border-focus shadow-glow bg-elevated/80" : "border-border-subtle hover:border-border-focus hover:bg-elevated/50 hover:shadow-lg hover:-translate-y-1"
+        'group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-surface p-5 transition-all duration-500',
+        isHovered
+          ? 'border-border-focus shadow-glow bg-elevated/80'
+          : 'border-border-subtle hover:border-border-focus hover:bg-elevated/50 hover:shadow-lg hover:-translate-y-1',
       )}
     >
       {/* Top Row: Number, Difficulty, and Status */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <span className="font-mono text-xs font-semibold text-secondary">
-            #{question.id}
-          </span>
-          <span className={cn('text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border bg-background/50', difficultyStyles[difficulty])}>
+          <span className="font-mono text-xs font-semibold text-secondary">#{question.id}</span>
+          <span
+            className={cn(
+              'text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border bg-background/50',
+              difficultyStyles[difficulty],
+            )}
+          >
             {question.difficulty}
           </span>
         </div>
-        
+
         {/* Status Indicators */}
         {ready && (
           <div className="flex items-center gap-2">
-            {isBookmarked && (
-              <Bookmark className="h-3.5 w-3.5 fill-primary text-primary" />
-            )}
+            {isBookmarked && <Bookmark className="h-3.5 w-3.5 fill-primary text-primary" />}
             {hasAttempts && (
-              <div 
+              <div
                 className={cn(
-                  "h-2 w-2 rounded-full",
-                  isCorrect ? "bg-status-correct shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-status-wrong shadow-[0_0_8px_rgba(239,68,68,0.6)]"
-                )} 
+                  'h-2 w-2 rounded-full',
+                  isCorrect
+                    ? 'bg-status-correct shadow-[0_0_8px_rgba(34,197,94,0.6)]'
+                    : 'bg-status-wrong shadow-[0_0_8px_rgba(239,68,68,0.6)]',
+                )}
               />
             )}
           </div>
@@ -80,7 +87,9 @@ export function QuestionCard({ question, isHovered }: QuestionCardProps) {
           <pre className="min-w-0 w-full overflow-hidden font-mono text-[11px] leading-relaxed text-secondary/80">
             <code className="block min-w-0 w-full">
               {codeLines.map((line, i) => (
-                <div key={i} className="whitespace-pre truncate">{line || ' '}</div>
+                <div key={i} className="whitespace-pre truncate">
+                  {line || ' '}
+                </div>
               ))}
               {showEllipsis && <div className="text-tertiary">...</div>}
             </code>
@@ -108,7 +117,7 @@ export function QuestionCard({ question, isHovered }: QuestionCardProps) {
             </span>
           )}
         </div>
-        
+
         <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary opacity-0 transition-all group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0">
           {question.runnable && <Terminal className="h-3 w-3" />}
           Practice

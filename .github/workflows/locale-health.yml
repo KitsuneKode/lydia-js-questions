@@ -1,0 +1,71 @@
+name: Locale Health Check
+
+on:
+  schedule:
+    - cron: '0 10 * * 1'   # Mondays at 10:00 UTC (after weekly sync)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.9'
+
+      - name: Parse all locales
+        run: bun run parse:questions
+
+      - name: Generate locale health report
+        id: report
+        run: |
+          node - << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+
+          const indexPath = path.join(process.cwd(), 'content/generated/locales/index.json');
+          if (!fs.existsSync(indexPath)) {
+            console.log('::error::Locale index not found — run bun run parse:questions first');
+            process.exit(1);
+          }
+
+          const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+          const enLocale = index.available.find(l => l.code === 'en');
+          const enCount = enLocale?.questionCount ?? 0;
+
+          let report = '## 🌐 Locale Health Report\n\n';
+          report += `Generated at: ${new Date().toISOString()}\n\n`;
+          report += '| Locale | Label | Questions | Coverage | Status |\n';
+          report += '|--------|-------|-----------|----------|--------|\n';
+
+          for (const locale of index.available) {
+            const coverage = enCount > 0 ? Math.round((locale.questionCount / enCount) * 100) : 0;
+            let status = '✅';
+            if (coverage < 50) status = '🔴 Low';
+            else if (coverage < 90) status = '🟡 Partial';
+
+            report += `| ${locale.code} | ${locale.code === 'en' ? 'English (source)' : locale.code} | ${locale.questionCount} | ${coverage}% | ${status} |\n`;
+          }
+
+          const missing = index.supported.filter(s => !index.available.find(a => a.code === s));
+          if (missing.length > 0) {
+            report += `\n⚠️ **Missing source files for:** ${missing.join(', ')}\n`;
+          }
+
+          fs.writeFileSync('/tmp/locale-health-report.md', report);
+          console.log(report);
+          EOF
+
+      - name: Post health report as issue comment (if issues exist)
+        if: always()
+        run: |
+          echo "Locale health check complete. See job log for the full report."
+          cat /tmp/locale-health-report.md || true

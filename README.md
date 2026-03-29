@@ -1,8 +1,8 @@
-# JS Mastery Atlas
+# JS Questions Lab
 
 > Practice JavaScript interview questions like a product, not a static README.
 
-JS Mastery Atlas turns Lydia Hallie's `javascript-questions` dataset into an interactive study
+JS Questions Lab turns Lydia Hallie's `javascript-questions` dataset into an interactive study
 experience with runnable code, explanation-first learning, event-loop visualization, and progress
 tracking.
 

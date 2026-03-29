@@ -1,28 +1,49 @@
 'use client';
 
-import { Menu, X, Zap, Terminal } from 'lucide-react';
+import { IconCheck, IconMenu2, IconTerminal2, IconWorld, IconX } from '@tabler/icons-react';
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+
 import { AuthControls } from '@/components/auth-controls';
+import { BrandMark } from '@/components/brand-mark';
 import { useScratchpad } from '@/components/scratchpad/scratchpad-context';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  DEFAULT_LOCALE,
+  LOCALE_LABELS,
+  type LocaleCode,
+  SUPPORTED_LOCALES,
+} from '@/lib/i18n/config';
+import { getLocaleFromPathname, switchLocalePath, withLocale } from '@/lib/locale-paths';
+import { siteLinks } from '@/lib/site-config';
 import { cn } from '@/lib/utils';
 
-const navLinks = [
-  { href: '/questions', label: 'Questions' },
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/credits', label: 'Credits' },
-];
-
 export function SiteHeader() {
+  const t = useTranslations('nav');
   const pathname = usePathname();
+  const router = useRouter();
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lastY, setLastY] = useState(0);
   const { openScratchpad } = useScratchpad();
+
+  const locale = getLocaleFromPathname(pathname ?? `/${DEFAULT_LOCALE}`);
+
+  const navLinks = [
+    { href: withLocale(locale, siteLinks.questions), label: t('questions') },
+    { href: withLocale(locale, siteLinks.dashboard), label: t('dashboard') },
+    { href: withLocale(locale, siteLinks.credits), label: t('credits') },
+  ];
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     if (latest > lastY && latest > 100) {
@@ -33,6 +54,10 @@ export function SiteHeader() {
     setLastY(latest);
   });
 
+  const handleLocaleSwitch = (targetLocale: LocaleCode) => {
+    router.push(switchLocalePath(pathname ?? '/', targetLocale));
+  };
+
   return (
     <>
       <motion.div
@@ -42,25 +67,22 @@ export function SiteHeader() {
         }}
         animate={hidden ? 'hidden' : 'visible'}
         transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-        className="fixed top-0 inset-x-0 z-50 pt-4 px-4 sm:px-6 pointer-events-none"
+        className="pointer-events-none fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6"
       >
         <header
-          className="pointer-events-auto mx-auto flex h-12 max-w-3xl items-center justify-between rounded-full border border-border/50 px-5 shadow-sm"
+          className="pointer-events-auto mx-auto flex h-14 max-w-6xl items-center justify-between rounded-full border border-border/50 px-4 shadow-sm sm:px-5"
           style={{ backdropFilter: 'blur(16px)', background: 'rgba(9, 9, 11, 0.8)' }}
         >
-          {/* Logo */}
           <Link
-            href="/"
-            className="flex items-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+            href={withLocale(locale, '/')}
+            className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            <span className="font-display text-[22px] text-foreground mt-0.5">Atlas</span>
-            <Zap className="h-[14px] w-[14px] text-primary fill-primary" />
+            <BrandMark compact />
           </Link>
 
-          {/* Desktop nav */}
           <nav className="hidden items-center gap-7 md:flex">
             {navLinks.map((link) => {
-              const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
               return (
                 <Link
                   key={link.href}
@@ -71,78 +93,105 @@ export function SiteHeader() {
                   )}
                 >
                   {link.label}
-                  {active && (
+                  {active ? (
                     <motion.div
                       layoutId="nav-indicator"
                       className="absolute -bottom-[6px] left-1/2 h-[2px] w-[2px] -translate-x-1/2 rounded-full bg-primary"
                       initial={false}
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                     />
-                  )}
+                  ) : null}
                 </Link>
               );
             })}
           </nav>
 
-          {/* Right side */}
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden items-center gap-2 md:flex">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => openScratchpad()}
-                className="h-8 gap-1.5 px-3 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                className="h-8 gap-1.5 px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
               >
-                <Terminal className="h-3.5 w-3.5" />
-                Scratchpad
+                <IconTerminal2 className="h-3.5 w-3.5" />
+                {t('scratchpad')}
               </Button>
-              <div className="h-4 w-px bg-border/50 mx-1" />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1.5 px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+                    aria-label="Switch language"
+                  >
+                    <IconWorld className="h-3.5 w-3.5" />
+                    <span className="hidden font-mono text-[10px] uppercase tracking-wider sm:inline">
+                      {locale}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  {SUPPORTED_LOCALES.map((loc) => (
+                    <DropdownMenuItem
+                      key={loc}
+                      onClick={() => handleLocaleSwitch(loc)}
+                      className="flex cursor-pointer items-center justify-between"
+                    >
+                      <span>{LOCALE_LABELS[loc]}</span>
+                      {loc === locale ? <IconCheck className="h-3.5 w-3.5 text-primary" /> : null}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <div className="mx-1 h-4 w-px bg-border/50" />
               <AuthControls />
             </div>
 
-            {/* Mobile menu trigger */}
             <Button
-              className="md:hidden text-muted-foreground hover:text-foreground transition-colors"
+              variant="ghost"
+              className="text-muted-foreground transition-colors hover:text-foreground md:hidden"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
             >
-              <Menu className="h-5 w-5" />
+              <IconMenu2 className="h-5 w-5" />
             </Button>
           </div>
         </header>
       </motion.div>
 
-      {/* Mobile Menu Overlay */}
       <AnimatePresence>
-        {mobileMenuOpen && (
+        {mobileMenuOpen ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="fixed inset-0 z-[60] flex flex-col bg-background/95 backdrop-blur-xl px-6 py-8"
+            className="fixed inset-0 z-[60] flex flex-col bg-background/95 px-6 py-8 backdrop-blur-xl"
           >
-            <div className="flex items-center justify-between mb-12">
+            <div className="mb-12 flex items-center justify-between">
               <Link
-                href="/"
-                className="flex items-center gap-2 outline-none"
+                href={withLocale(locale, '/')}
+                className="outline-none"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <span className="font-display text-[26px] text-foreground mt-0.5">Atlas</span>
-                <Zap className="h-[18px] w-[18px] text-primary fill-primary" />
+                <BrandMark />
               </Link>
               <Button
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                variant="ghost"
+                className="text-muted-foreground transition-colors hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
-                <X className="h-6 w-6" />
+                <IconX className="h-6 w-6" />
               </Button>
             </div>
 
-            <nav className="flex flex-col gap-8 text-2xl font-medium tracking-tight mt-4">
+            <nav className="mt-4 flex flex-col gap-8 text-2xl font-medium tracking-tight">
               {navLinks.map((link) => {
-                const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+                const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
                 return (
                   <Link
                     key={link.href}
@@ -158,24 +207,51 @@ export function SiteHeader() {
                 );
               })}
               <Button
+                variant="ghost"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   openScratchpad();
                 }}
-                className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-left"
+                className="flex items-center gap-3 px-0 text-left text-muted-foreground transition-colors hover:text-primary"
               >
-                <Terminal className="h-6 w-6" />
-                Scratchpad
+                <IconTerminal2 className="h-6 w-6" />
+                {t('scratchpad')}
               </Button>
             </nav>
+
+            <div className="mt-8 border-t border-border/30 pt-6">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+                Language
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {SUPPORTED_LOCALES.map((loc) => (
+                  <button
+                    key={loc}
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleLocaleSwitch(loc);
+                    }}
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
+                      loc === locale
+                        ? 'border-primary/40 bg-primary/10 text-primary'
+                        : 'border-border/40 text-muted-foreground hover:border-border hover:text-foreground',
+                    )}
+                  >
+                    {loc === locale ? <IconCheck className="h-3 w-3" /> : null}
+                    {LOCALE_LABELS[loc]}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className="mt-auto pb-8">
               <AuthControls />
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </>
   );
 }
-

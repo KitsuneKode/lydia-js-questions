@@ -1,69 +1,73 @@
 import type { Metadata } from 'next';
 import { Bricolage_Grotesque, Geist, Roboto_Mono } from 'next/font/google';
 import '@/app/globals.css';
-
-import { Provider } from '@/app/provider';
+import { siteConfig } from '@/lib/site-config';
 import { cn } from '@/lib/utils';
 
-const robotoMonoRobotoMono = Roboto_Mono({
+const robotoMono = Roboto_Mono({
   subsets: ['cyrillic', 'cyrillic-ext', 'greek', 'latin', 'latin-ext', 'vietnamese'],
   weight: ['100', '200', '300', '400', '500', '600', '700'],
   variable: '--font-roboto-mono',
 });
 
-const geistGeist = Geist({
+const geist = Geist({
   subsets: ['cyrillic', 'latin', 'latin-ext'],
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
   variable: '--font-geist',
 });
 
-const bricolageGrotesqueBricolageGrotesque = Bricolage_Grotesque({
+const bricolageGrotesque = Bricolage_Grotesque({
   subsets: ['latin', 'latin-ext', 'vietnamese'],
   weight: ['200', '300', '400', '500', '600', '700', '800'],
   variable: '--font-bricolage-grotesque',
 });
 
-// const instrumentSerif = Instrument_Serif({
-//   weight: '400',
-//   subsets: ['latin'],
-//   variable: '--font-display',
-// });
-//
-// const geistSans = Geist({
-//   variable: '--font-sans',
-//   subsets: ['latin'],
-// });
-//
-// const geistMono = Geist_Mono({
-//   variable: '--font-mono',
-//   subsets: ['latin'],
-// });
-
+/**
+ * Root layout — pure HTML shell.
+ * `lang` and `dir` are set in the [locale]/layout.tsx.
+ * Providers live in [locale]/layout.tsx as well.
+ */
 export const metadata: Metadata = {
-  title: 'JS Mastery Atlas',
-  description:
-    'Interactive JavaScript interview questions with runnable code and timeline visualizations.',
+  applicationName: siteConfig.name,
+  title: siteConfig.name,
+  description: siteConfig.description,
+  authors: [{ name: siteConfig.creator.name, url: siteConfig.creator.xUrl }],
+  creator: siteConfig.creator.name,
+  category: 'education',
+  keywords: [
+    'javascript interview questions',
+    'javascript practice',
+    'event loop visualization',
+    'runnable snippets',
+    'js interview prep',
+  ],
+  openGraph: {
+    title: siteConfig.name,
+    description: siteConfig.description,
+    siteName: siteConfig.name,
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    creator: siteConfig.creator.displayHandle,
+    title: siteConfig.name,
+    description: siteConfig.description,
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
-        // instrumentSerif.variable,
-        // geistSans.variable,
-        // geistMono.variable,
-        // 'font-sans dark',
-        bricolageGrotesqueBricolageGrotesque.variable,
-        geistGeist.variable,
-        robotoMonoRobotoMono.variable,
+        bricolageGrotesque.variable,
+        geist.variable,
+        robotoMono.variable,
         'font-sans dark',
       )}
-      suppressHydrationWarning
     >
-      <body className="grain-overlay antialiased">
-        <Provider>{children}</Provider>
-      </body>
+      <body className="grain-overlay antialiased">{children}</body>
     </html>
   );
 }

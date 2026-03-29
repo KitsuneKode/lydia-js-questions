@@ -1,4 +1,5 @@
 import { Toaster } from 'sonner';
+import { AuthProvider } from '@/components/auth-provider';
 import { NotificationManager } from '@/components/notification-manager';
 import { FloatingScratchpadGate } from '@/components/scratchpad/floating-scratchpad-gate';
 import { ScratchpadProvider } from '@/components/scratchpad/scratchpad-context';
@@ -6,7 +7,6 @@ import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ProgressProvider } from '@/lib/progress/progress-context';
-import { AuthProvider } from '@/components/auth-provider';
 
 export function Provider({ children }: { children: React.ReactNode }) {
   return (

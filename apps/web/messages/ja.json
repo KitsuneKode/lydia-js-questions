@@ -1,0 +1,98 @@
+{
+  "nav": {
+    "questions": "問題",
+    "dashboard": "ダッシュボード",
+    "about": "このサイトについて",
+    "credits": "クレジット",
+    "scratchpad": "スクラッチパッド"
+  },
+  "questions": {
+    "title": "問題ライブラリ",
+    "description": "JavaScriptのインタビュー問題を閲覧・練習しましょう。答えを決めてから、解説を確認してコードを実行してください。",
+    "count": "{count}問",
+    "filters": {
+      "search": "問題を検索…",
+      "searchLabel": "検索",
+      "tag": "トピック",
+      "difficulty": "難易度",
+      "runnable": "実行可能のみ",
+      "status": "ステータス",
+      "all": "すべて",
+      "answered": "回答済み",
+      "unanswered": "未回答",
+      "bookmarked": "ブックマーク済み",
+      "beginner": "初級",
+      "intermediate": "中級",
+      "advanced": "上級",
+      "clearFilters": "フィルターをクリア"
+    },
+    "results": {
+      "showing": "{shown} / {total}問",
+      "page": "{page} / {pageCount}"
+    },
+    "pagination": {
+      "prev": "前へ",
+      "next": "次へ"
+    }
+  },
+  "question": {
+    "save": "保存",
+    "saved": "保存済み",
+    "next": "次へ",
+    "prev": "前へ",
+    "runCode": "コードを実行",
+    "eventLoop": "イベントループ",
+    "showAnswer": "答えを表示",
+    "hideAnswer": "答えを隠す",
+    "relatedConcepts": "関連概念",
+    "keepPracticing": "練習を続ける",
+    "viewAll": "すべて見る",
+    "fallbackNotice": "この問題はまだ{locale}に翻訳されていません — 英語で表示しています。",
+    "answer": "答え",
+    "explanation": "解説",
+    "options": {
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D"
+    }
+  },
+  "landing": {
+    "headline": "JavaScriptインタビューをマスターする",
+    "subline": "実際のインタビュー問題で練習し、コードを実行して、なぜ答えが正しいか間違っているかを理解しましょう。",
+    "cta": "練習を始める",
+    "featuredTitle": "注目の問題",
+    "featuredSubline": "人気の問題から始めましょう",
+    "viewAll": "全{count}問を見る"
+  },
+  "dashboard": {
+    "title": "練習ハブ",
+    "continueLearning": "学習を続ける",
+    "nextRecommended": "次のおすすめ",
+    "reviewQueue": "復習キュー",
+    "weakestTopics": "苦手なトピック",
+    "bookmarks": "ブックマーク",
+    "progress": "進捗",
+    "streak": "連続記録",
+    "answered": "回答済み",
+    "correct": "正解"
+  },
+  "credits": {
+    "title": "クレジットと帰属",
+    "localeTable": {
+      "language": "言語",
+      "questions": "問題数",
+      "coverage": "カバー率",
+      "status": "ステータス"
+    }
+  },
+  "common": {
+    "loading": "読み込み中…",
+    "error": "エラーが発生しました",
+    "retry": "再試行"
+  },
+  "meta": {
+    "title": "JS Questions Lab",
+    "description": "Lydia Hallie の質問をもとにした、実行可能なスニペットとイベントループ可視化を備えた JavaScript 面接練習アプリ。"
+  }
+}

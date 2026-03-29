@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-03-29T01:12:30.356Z",
+  "locale": {
+    "code": "pt-BR",
+    "label": "Português (BR)",
+    "dir": "ltr"
+  },
+  "source": {
+    "repo": "https://github.com/lydiahallie/javascript-questions",
+    "upstreamPath": "pt-BR/README_pt_BR.md",
+    "localPath": "content/source/locales/pt-BR/README.upstream.md",
+    "sha256": "453306c6b2f3332e4983842eadbdbbdec028d83d4bb78c8f0092e17b7328c38a"
+  },
+  "totals": {
+    "questions": 79,
+    "runnable": 73,
+    "withImages": 0
+  },
+  "tags": [
+    "arrays",
+    "async",
+    "dom-events",
+    "fundamentals",
+    "objects",
+    "prototypes",
+    "scope",
+    "types"
+  ],
+  "translations": [],
+  "attribution": {
+    "creator": "Lydia Hallie",
+    "repo": "https://github.com/lydiahallie/javascript-questions",
+    "requestReference": true
+  }
+}

@@ -21,7 +21,7 @@ jobs:
         with:
           bun-version: '1.3.9'
 
-      - name: Refresh canonical Lydia Hallie source and generated data
+      - name: Refresh all locale sources and generated data
         run: bun run content:refresh
 
       - name: Detect changes
@@ -38,18 +38,31 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           commit-message: 'chore(content): weekly sync from upstream javascript-questions'
-          title: 'chore(content): weekly upstream sync'
+          title: 'chore(content): weekly upstream sync (all locales)'
           body: |
             Automated weekly refresh from https://github.com/lydiahallie/javascript-questions.
 
-            Source of truth:
-            - `content/source/README.upstream.md` is the canonical upstream snapshot from Lydia Hallie's repo
-            - `content/generated/*.json` is regenerated from that source
+            ## Source files updated
 
-            This PR updates:
-            - content/source/README.upstream.md
-            - content/generated/questions.v1.json
-            - content/generated/manifest.v1.json
+            | Locale | Source Path |
+            |--------|------------|
+            | en | content/source/locales/en/README.upstream.md |
+            | es | content/source/locales/es/README.upstream.md |
+            | fr | content/source/locales/fr/README.upstream.md |
+            | de | content/source/locales/de/README.upstream.md |
+            | ja | content/source/locales/ja/README.upstream.md |
+            | pt-BR | content/source/locales/pt-BR/README.upstream.md |
+
+            ## Generated content updated
+
+            - `content/generated/locales/<locale>/questions.v1.json` (all available locales)
+            - `content/generated/locales/<locale>/manifest.v1.json` (all available locales)
+            - `content/generated/locales/index.json` (locale availability index)
+            - `content/generated/questions.v1.json` (English alias for backwards compat)
+            - `content/generated/manifest.v1.json` (English alias for backwards compat)
+
+            > **Note:** Translated READMEs may lag behind English. Check the locale index for
+            > per-locale question counts and coverage.
           branch: chore/weekly-content-sync
           delete-branch: true
           labels: |

@@ -37,7 +37,9 @@ export function DashboardShell({ questions }: DashboardShellProps) {
           <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin" />
           <Sparkles className="h-5 w-5 text-primary animate-pulse" />
         </div>
-        <p className="font-mono text-xs uppercase tracking-widest text-secondary">Loading your progress...</p>
+        <p className="font-mono text-xs uppercase tracking-widest text-secondary">
+          Loading your progress...
+        </p>
       </div>
     );
   }
@@ -54,9 +56,7 @@ export function DashboardShell({ questions }: DashboardShellProps) {
           </span>
           <span className="h-px flex-1 bg-gradient-to-r from-border-subtle to-transparent" />
         </div>
-        <h1 className="font-display text-4xl md:text-5xl text-foreground">
-          Welcome back.
-        </h1>
+        <h1 className="font-display text-4xl md:text-5xl text-foreground">Welcome back.</h1>
         <p className="max-w-2xl text-lg text-secondary">
           {hasData
             ? `You've answered \${overall.totalAnswered} questions across \${tagStats.length} topics. Maintain your momentum.`
@@ -88,32 +88,51 @@ export function DashboardShell({ questions }: DashboardShellProps) {
                 className="group relative overflow-hidden rounded-2xl border border-border-subtle bg-surface p-6 transition-all hover:border-border-focus hover:shadow-glow"
               >
                 <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-10 transition-opacity">
-                  {index === 0 ? <Library className="h-24 w-24 text-primary" /> : <Sparkles className="h-24 w-24 text-primary" />}
+                  {index === 0 ? (
+                    <Library className="h-24 w-24 text-primary" />
+                  ) : (
+                    <Sparkles className="h-24 w-24 text-primary" />
+                  )}
                 </div>
 
                 <div className="relative z-10 flex flex-col h-full justify-between">
                   <div>
                     <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-primary mb-3">
-                      {index === 0 ? <Library className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
+                      {index === 0 ? (
+                        <Library className="h-3.5 w-3.5" />
+                      ) : (
+                        <Sparkles className="h-3.5 w-3.5" />
+                      )}
                       {suggestion.label}
                     </div>
                     <h2 className="font-display text-2xl text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                      {suggestion.question ? suggestion.question.title : 'Start your first question'}
+                      {suggestion.question
+                        ? suggestion.question.title
+                        : 'Start your first question'}
                     </h2>
                     <p className="text-sm text-secondary">{suggestion.description}</p>
                   </div>
-                  
+
                   <div className="flex flex-wrap items-center gap-3 mt-6 pt-4 border-t border-border-subtle">
                     <Link
-                      href={suggestion.question ? `/questions/${suggestion.question.id}` : '/questions'}
+                      href={
+                        suggestion.question ? `/questions/${suggestion.question.id}` : '/questions'
+                      }
                     >
-                      <Button size="sm" className="h-9 gap-2 text-xs font-semibold px-4 bg-primary text-background hover:bg-primary/90">
+                      <Button
+                        size="sm"
+                        className="h-9 gap-2 text-xs font-semibold px-4 bg-primary text-background hover:bg-primary/90"
+                      >
                         {index === 0 ? 'Resume' : 'Try this'}
                         <ArrowRight className="h-3.5 w-3.5" />
                       </Button>
                     </Link>
                     <Link href="/questions">
-                      <Button variant="ghost" size="sm" className="h-9 text-xs font-medium text-secondary hover:text-foreground">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 text-xs font-medium text-secondary hover:text-foreground"
+                      >
                         Browse all
                       </Button>
                     </Link>

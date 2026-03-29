@@ -12,7 +12,7 @@ export function ActivityChart({ dailyActivity }: ActivityChartProps) {
   // Generate last 119 days (17 weeks * 7 days) to fit well in the container
   const WEEKS = 17;
   const DAYS = WEEKS * 7;
-  
+
   const cells = useMemo(() => {
     const dayMap = new Map(dailyActivity.map((d) => [d.date, d]));
     const result: DailyActivity[] = [];
@@ -34,7 +34,7 @@ export function ActivityChart({ dailyActivity }: ActivityChartProps) {
 
   // Calculate intensity levels
   const maxAttempts = Math.max(1, ...cells.map((c) => c.attempts));
-  
+
   const getIntensityClass = (attempts: number) => {
     if (attempts === 0) return 'bg-elevated border-border-subtle';
     const ratio = attempts / maxAttempts;
@@ -63,7 +63,8 @@ export function ActivityChart({ dailyActivity }: ActivityChartProps) {
       <div className="relative z-10 w-full overflow-x-auto pb-2 scrollbar-thin">
         <div className="inline-grid grid-rows-7 gap-1.5 grid-flow-col auto-cols-max">
           {cells.map((cell) => {
-            const accuracy = cell.attempts > 0 ? Math.round((cell.correct / cell.attempts) * 100) : 0;
+            const accuracy =
+              cell.attempts > 0 ? Math.round((cell.correct / cell.attempts) * 100) : 0;
             return (
               <div
                 key={cell.date}

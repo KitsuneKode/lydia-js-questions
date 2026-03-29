@@ -902,7 +902,10 @@ function ReplayExperience({ steps, prefersReducedMotion }: ReplayExperienceProps
               </div>
             </div>
 
-            <div className="flex-1 space-y-1.5 overflow-y-auto pr-1 -mr-1 custom-scrollbar" id="execution-log-container">
+            <div
+              className="flex-1 space-y-1.5 overflow-y-auto pr-1 -mr-1 custom-scrollbar"
+              id="execution-log-container"
+            >
               {steps.map((step, index) => (
                 <button
                   key={step.key}

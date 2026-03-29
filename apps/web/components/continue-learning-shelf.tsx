@@ -9,9 +9,10 @@ import { useAnalytics } from '@/lib/progress/use-analytics';
 
 interface ContinueLearningShelfProps {
   questions: QuestionRecord[];
+  locale: string;
 }
 
-export function ContinueLearningShelf({ questions }: ContinueLearningShelfProps) {
+export function ContinueLearningShelf({ questions, locale }: ContinueLearningShelfProps) {
   const { ready, continueLearning, overall } = useAnalytics(questions);
 
   if (!ready || overall.totalAnswered === 0 || !continueLearning.question) {
@@ -44,13 +45,13 @@ export function ContinueLearningShelf({ questions }: ContinueLearningShelfProps)
           </div>
 
           <div className="flex w-full shrink-0 items-center gap-2 md:w-auto">
-            <Link href={`/questions/${q.id}`} className="flex-1 md:flex-none">
+            <Link href={`/${locale}/questions/${q.id}`} className="flex-1 md:flex-none">
               <Button className="w-full gap-2">
                 Continue
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/dashboard" className="hidden md:block">
+            <Link href={`/${locale}/dashboard`} className="hidden md:block">
               <Button variant="secondary">Dashboard</Button>
             </Link>
           </div>

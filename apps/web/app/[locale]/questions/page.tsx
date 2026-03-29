@@ -1,3 +1,5 @@
+import { getTranslations } from 'next-intl/server';
+
 import { Container } from '@/components/container';
 import { FiltersBar } from '@/components/filters-bar';
 import { NextRecommendedBanner } from '@/components/next-recommended-banner';
@@ -5,6 +7,7 @@ import { PaginationNav } from '@/components/pagination-nav';
 import { QuestionsResults } from '@/components/questions-results';
 import { getManifest, getQuestions } from '@/lib/content/loaders';
 import { applyServerFilters, paginate } from '@/lib/content/query';
+import { type LocaleCode, SUPPORTED_LOCALES } from '@/lib/i18n/config';
 
 const PAGE_SIZE = 18;
 
@@ -18,14 +21,23 @@ function firstValue(value: string | string[] | undefined): string {
   return value ?? '';
 }
 
+export function generateStaticParams() {
+  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+}
+
 export default async function QuestionsPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: LocaleCode }>;
   searchParams: Promise<SearchParams>;
 }) {
+  const { locale } = await params;
   const resolvedSearchParams = await searchParams;
-  const allQuestions = getQuestions();
-  const manifest = getManifest();
+  const t = await getTranslations({ locale, namespace: 'questions' });
+
+  const allQuestions = getQuestions(locale);
+  const manifest = getManifest(locale);
 
   const pageParam = Number.parseInt(firstValue(resolvedSearchParams.page), 10);
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
@@ -59,7 +71,7 @@ export default async function QuestionsPage({
     if (difficulty) params.set('difficulty', difficulty);
 
     const query = params.toString();
-    return query ? `/questions?${query}` : '/questions';
+    return query ? `/${locale}/questions?${query}` : `/${locale}/questions`;
   };
 
   return (
@@ -70,21 +82,20 @@ export default async function QuestionsPage({
           <header className="space-y-3">
             <div className="flex items-center gap-3">
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-                {allQuestions.length} Questions
+                {t('count', { count: allQuestions.length })}
               </span>
               <span className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
             </div>
             <h1 className="font-display text-3xl font-medium tracking-tight text-foreground md:text-4xl">
-              Question Library
+              {t('title')}
             </h1>
             <p className="max-w-xl text-sm leading-relaxed text-muted-foreground/80">
-              Browse and practice JavaScript interview questions. Commit to an answer, then explore
-              the explanation and run the code.
+              {t('description')}
             </p>
           </header>
 
           {/* Recommended Banner */}
-          <NextRecommendedBanner questions={allQuestions} />
+          <NextRecommendedBanner questions={allQuestions} locale={locale} />
 
           {/* Filters and Results */}
           <section className="space-y-6">
@@ -96,6 +107,7 @@ export default async function QuestionsPage({
               status={status}
               difficulty={difficulty}
               allQuestions={allQuestions}
+              locale={locale}
             />
 
             {/* Results count bar */}
@@ -112,7 +124,7 @@ export default async function QuestionsPage({
               </p>
             </div>
 
-            <QuestionsResults questions={paged.items} status={status} />
+            <QuestionsResults questions={paged.items} status={status} locale={locale} />
 
             <PaginationNav page={paged.page} pageCount={paged.pageCount} createHref={createHref} />
           </section>

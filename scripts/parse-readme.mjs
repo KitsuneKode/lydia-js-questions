@@ -4,10 +4,15 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { DEFAULT_LOCALE, PILOT_LOCALES } from './locale-config.mjs';
+
 const ROOT = process.cwd();
-const SOURCE_PATH = path.join(ROOT, 'content/source/README.upstream.md');
-const OUT_QUESTIONS = path.join(ROOT, 'content/generated/questions.v1.json');
-const OUT_MANIFEST = path.join(ROOT, 'content/generated/manifest.v1.json');
+const LOCALES_SOURCE_BASE = path.join(ROOT, 'content/source/locales');
+const LOCALES_OUT_BASE = path.join(ROOT, 'content/generated/locales');
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 function normalizeWhitespace(input) {
   return input.replace(/\r\n/g, '\n');
@@ -153,7 +158,42 @@ function parseTranslations(input) {
   return translations;
 }
 
-function parseQuestions(readme) {
+function classifyRuntime(id, codeBlocks) {
+  const hasRunnableSnippet = codeBlocks.some(
+    (block) => block.language === 'javascript' || block.language === 'js',
+  );
+
+  if (hasRunnableSnippet) {
+    return {
+      runnable: true,
+      runtime: {
+        kind: 'javascript',
+      },
+    };
+  }
+
+  const hasInlineDomClickSnippet = codeBlocks.some(
+    (block) => block.language === 'html' && /onclick\s*=/.test(block.code),
+  );
+
+  if (hasInlineDomClickSnippet && (id === 31 || id === 32)) {
+    return {
+      runnable: false,
+      runtime: {
+        kind: 'dom-click-propagation',
+      },
+    };
+  }
+
+  return {
+    runnable: false,
+    runtime: {
+      kind: 'static',
+    },
+  };
+}
+
+function parseQuestions(readme, localeCode) {
   const headingRe = /^######\s+(\d+)\.\s+(.+)$/gm;
   const headings = [...readme.matchAll(headingRe)];
   const total = headings.length;
@@ -191,13 +231,12 @@ function parseQuestions(readme) {
       .replace(/^- [A-D]:\s*.+$/gm, '')
       .trim();
 
-    const hasRunnableSnippet = promptCodeBlocks.some(
-      (block) => block.language === 'javascript' || block.language === 'js',
-    );
+    const { runnable, runtime } = classifyRuntime(id, promptCodeBlocks);
 
     return {
       id,
       slug: `question-${id}`,
+      locale: localeCode,
       title,
       promptMarkdown: promptBody,
       codeBlocks: promptCodeBlocks,
@@ -208,7 +247,8 @@ function parseQuestions(readme) {
       images: collectImages(explanationMarkdown),
       tags: detectTags(title, explanationMarkdown),
       difficulty: inferDifficulty(id, total),
-      runnable: hasRunnableSnippet,
+      runnable,
+      runtime,
       source: {
         startLineHint: null,
       },
@@ -223,24 +263,39 @@ function ensureDir(filePath) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
-function main() {
-  if (!fs.existsSync(SOURCE_PATH)) {
-    console.error(`Missing source README at ${SOURCE_PATH}`);
-    process.exit(1);
+// ---------------------------------------------------------------------------
+// Per-locale parse
+// ---------------------------------------------------------------------------
+
+function parseLocale(locale) {
+  const sourcePath = path.join(LOCALES_SOURCE_BASE, locale.code, 'README.upstream.md');
+
+  if (!fs.existsSync(sourcePath)) {
+    console.warn(`  [!] No source found for ${locale.code} at ${sourcePath} — skipping.`);
+    return null;
   }
 
-  const raw = normalizeWhitespace(fs.readFileSync(SOURCE_PATH, 'utf8'));
-  const sourceStats = fs.statSync(SOURCE_PATH);
+  const raw = normalizeWhitespace(fs.readFileSync(sourcePath, 'utf8'));
+  const sourceStats = fs.statSync(sourcePath);
   const sourceHash = sha256(raw);
-  const questions = parseQuestions(raw);
+  const questions = parseQuestions(raw, locale.code);
+
+  const outDir = path.join(LOCALES_OUT_BASE, locale.code);
+  const outQuestions = path.join(outDir, 'questions.v1.json');
+  const outManifest = path.join(outDir, 'manifest.v1.json');
 
   const manifest = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAt: new Date(sourceStats.mtimeMs).toISOString(),
+    locale: {
+      code: locale.code,
+      label: locale.label,
+      dir: locale.dir,
+    },
     source: {
       repo: 'https://github.com/lydiahallie/javascript-questions',
-      file: 'README.md',
-      localPath: 'content/source/README.upstream.md',
+      upstreamPath: locale.upstreamPath,
+      localPath: `content/source/locales/${locale.code}/README.upstream.md`,
       sha256: sourceHash,
     },
     totals: {
@@ -249,7 +304,7 @@ function main() {
       withImages: questions.filter((q) => q.images.length > 0).length,
     },
     tags: [...new Set(questions.flatMap((q) => q.tags))].sort(),
-    translations: parseTranslations(raw),
+    translations: locale.code === DEFAULT_LOCALE ? parseTranslations(raw) : [],
     attribution: {
       creator: 'Lydia Hallie',
       repo: 'https://github.com/lydiahallie/javascript-questions',
@@ -257,13 +312,79 @@ function main() {
     },
   };
 
-  ensureDir(OUT_QUESTIONS);
-  ensureDir(OUT_MANIFEST);
+  ensureDir(outQuestions);
+  fs.writeFileSync(outQuestions, `${JSON.stringify(questions, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(outManifest, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
-  fs.writeFileSync(OUT_QUESTIONS, `${JSON.stringify(questions, null, 2)}\n`, 'utf8');
-  fs.writeFileSync(OUT_MANIFEST, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+  console.log(
+    `  [+] ${locale.code}: ${questions.length} questions → content/generated/locales/${locale.code}/`,
+  );
 
-  console.log(`Parsed ${questions.length} questions -> content/generated`);
+  return {
+    code: locale.code,
+    label: locale.label,
+    questionCount: questions.length,
+    sourceHash,
+    generatedAt: manifest.generatedAt,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Root index manifest (for the app to load supported locale metadata)
+// ---------------------------------------------------------------------------
+
+function writeRootManifest(availableLocales) {
+  const outPath = path.join(ROOT, 'content/generated/locales/index.json');
+  const index = {
+    schemaVersion: 2,
+    generatedAt: new Date().toISOString(),
+    supported: PILOT_LOCALES.map((l) => l.code),
+    default: DEFAULT_LOCALE,
+    available: availableLocales,
+  };
+  ensureDir(outPath);
+  fs.writeFileSync(outPath, `${JSON.stringify(index, null, 2)}\n`, 'utf8');
+  console.log(`\n[+] Wrote locale index → content/generated/locales/index.json`);
+}
+
+// ---------------------------------------------------------------------------
+// Legacy compat: keep content/generated/questions.v1.json + manifest.v1.json
+// pointing at English for any code that still imports from the flat path.
+// ---------------------------------------------------------------------------
+
+function writeLegacyEnglishAlias() {
+  const enQuestionsPath = path.join(LOCALES_OUT_BASE, 'en', 'questions.v1.json');
+  const enManifestPath = path.join(LOCALES_OUT_BASE, 'en', 'manifest.v1.json');
+  const legacyDir = path.join(ROOT, 'content/generated');
+
+  if (!fs.existsSync(enQuestionsPath)) return;
+
+  fs.copyFileSync(enQuestionsPath, path.join(legacyDir, 'questions.v1.json'));
+  fs.copyFileSync(enManifestPath, path.join(legacyDir, 'manifest.v1.json'));
+  console.log('[+] Wrote legacy English alias → content/generated/questions.v1.json');
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+function main() {
+  console.log('Parsing locale sources…\n');
+
+  const available = [];
+
+  for (const locale of PILOT_LOCALES) {
+    const result = parseLocale(locale);
+    if (result) available.push(result);
+  }
+
+  writeRootManifest(available);
+  writeLegacyEnglishAlias();
+
+  const total = available.reduce((sum, l) => sum + l.questionCount, 0);
+  console.log(
+    `\nDone. Parsed ${available.length}/${PILOT_LOCALES.length} locales, ${total} total question records.`,
+  );
 }
 
 main();

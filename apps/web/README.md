@@ -1,6 +1,6 @@
-# JS Mastery Atlas Web App
+# JS Questions Lab Web App
 
-This package contains the Next.js app for JS Mastery Atlas.
+This package contains the Next.js app for JS Questions Lab.
 
 For repository-wide setup, commands, and contribution guidance, start at the root:
 

@@ -32,7 +32,10 @@ export function applyServerFilters(
       return false;
     }
 
-    if (filters.difficulty && question.difficulty?.toLowerCase() !== filters.difficulty.toLowerCase()) {
+    if (
+      filters.difficulty &&
+      question.difficulty?.toLowerCase() !== filters.difficulty.toLowerCase()
+    ) {
       return false;
     }
 

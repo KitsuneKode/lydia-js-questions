@@ -1,43 +1,49 @@
 'use client';
 
-import { useRef } from 'react';
+import { IconCircleCheck, IconCode, IconEye, IconSearch } from '@tabler/icons-react';
 import { motion, useScroll, useTransform } from 'motion/react';
-import { Search, CheckCircle2, Code2, Eye } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useRef } from 'react';
+
 import { CardTilt } from '@/components/ui/card-tilt';
+import { cn } from '@/lib/utils';
 
 interface LandingSectionsProps {
   tagCounts: { tag: string; count: number }[];
 }
 
+const heatBarIds = ['heat-a', 'heat-b', 'heat-c', 'heat-d', 'heat-e'] as const;
+
 const workflowSteps = [
   {
     id: 1,
-    icon: Search,
+    icon: IconSearch,
     title: 'Find a question',
-    description: 'Filter by topic, dial in the difficulty, or command palette directly to concepts.',
+    description:
+      'Filter by topic, dial in the difficulty, or command palette directly to concepts.',
   },
   {
     id: 2,
-    icon: CheckCircle2,
+    icon: IconCircleCheck,
     title: 'Commit to an answer',
-    description: 'No peeking. Force yourself to commit to an outcome before the explanation reveals.',
+    description:
+      'No peeking. Force yourself to commit to an outcome before the explanation reveals.',
   },
   {
     id: 3,
-    icon: Code2,
+    icon: IconCode,
     title: 'Run the code',
     description: 'Pop open the scratchpad. Execute snippets. See the raw output immediately.',
   },
   {
     id: 4,
-    icon: Eye,
+    icon: IconEye,
     title: 'Understand why',
-    description: 'Deep dive into the explanation. Deconstruct the event loop and execution context.',
+    description:
+      'Deep dive into the explanation. Deconstruct the event loop and execution context.',
   },
 ];
 
-function StickyCard({ step, index, total }: { step: any; index: number; total: number }) {
+function StickyCard({ step, index }: { step: (typeof workflowSteps)[number]; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -57,39 +63,46 @@ function StickyCard({ step, index, total }: { step: any; index: number; total: n
         filter,
         zIndex: index,
         top: `calc(15vh + ${index * 24}px)`,
-        perspective: "1000px"
+        perspective: '1000px',
       }}
-      className="sticky min-h-[50vh] w-full max-w-4xl mx-auto mb-24"
+      className="sticky mx-auto mb-24 min-h-[50vh] w-full max-w-4xl"
     >
-      <CardTilt maxTilt={8} scale={1.01} className="rounded-[24px] border border-border-subtle bg-surface shadow-2xl overflow-hidden flex flex-col md:flex-row h-full transition-shadow duration-500 hover:shadow-[0_20px_60px_rgba(245,158,11,0.08)]">
-        {/* Card Content */}
-        <div className="p-8 md:p-12 flex-1 flex flex-col justify-center bg-gradient-to-br from-surface to-elevated" style={{ transform: "translateZ(30px)" }}>
-          <motion.div 
+      <CardTilt
+        maxTilt={8}
+        scale={1.01}
+        className="flex h-full flex-col overflow-hidden rounded-[24px] border border-border-subtle bg-surface shadow-2xl transition-shadow duration-500 hover:shadow-[0_20px_60px_rgba(245,158,11,0.08)] md:flex-row"
+      >
+        <div
+          className="flex flex-1 flex-col justify-center bg-gradient-to-br from-surface to-elevated p-8 md:p-12"
+          style={{ transform: 'translateZ(30px)' }}
+        >
+          <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
             transition={{ type: 'spring', bounce: 0.5, delay: 0.1 }}
-            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-8 border border-primary/20 shadow-[0_0_20px_rgba(245,158,11,0.15)]"
+            className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary shadow-[0_0_20px_rgba(245,158,11,0.15)]"
           >
             <step.icon className="h-7 w-7" />
           </motion.div>
-          <h3 className="font-display text-4xl text-foreground mb-4">{step.title}</h3>
-          <p className="text-secondary text-lg leading-relaxed">{step.description}</p>
+          <h3 className="mb-4 font-display text-4xl text-foreground">{step.title}</h3>
+          <p className="text-lg leading-relaxed text-secondary">{step.description}</p>
           <div className="mt-auto pt-8">
-            <span className="font-mono text-border font-bold text-5xl opacity-40">
-              0{step.id}
-            </span>
+            <span className="font-mono text-5xl font-bold text-border opacity-40">0{step.id}</span>
           </div>
         </div>
-        {/* Placeholder Visuals */}
-        <div className="flex-1 bg-[#09090B] border-l border-border-subtle p-8 flex items-center justify-center relative overflow-hidden" style={{ transform: "translateZ(50px)" }}>
+
+        <div
+          className="relative flex flex-1 items-center justify-center overflow-hidden border-l border-border-subtle bg-[#09090B] p-8"
+          style={{ transform: 'translateZ(50px)' }}
+        >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-50" />
           <motion.div
             initial={{ rotate: -10, scale: 0.9 }}
             whileInView={{ rotate: 0, scale: 1 }}
             viewport={{ once: true }}
             transition={{ type: 'spring', bounce: 0.4, delay: 0.2 }}
-            className="w-full aspect-square max-w-[280px] rounded-3xl border border-primary/20 bg-[#111113] flex items-center justify-center shadow-[0_0_40px_rgba(245,158,11,0.15)] relative z-10 backdrop-blur-sm"
+            className="relative z-10 flex aspect-square w-full max-w-[280px] items-center justify-center rounded-3xl border border-primary/20 bg-[#111113] shadow-[0_0_40px_rgba(245,158,11,0.15)] backdrop-blur-sm"
           >
             <step.icon className="h-24 w-24 text-primary opacity-20" />
           </motion.div>
@@ -102,104 +115,103 @@ function StickyCard({ step, index, total }: { step: any; index: number; total: n
 export function LandingSections({ tagCounts }: LandingSectionsProps) {
   return (
     <div className="w-full">
-      {/* How It Works - Sticky Scroll */}
-      <section className="py-32 relative">
+      <section className="relative py-32">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_bottom_left,rgba(245,158,11,0.05)_0%,transparent_50%)]" />
-        
-        <div className="max-w-4xl mx-auto px-4 mb-24 text-center">
-          <motion.h2 
+
+        <div className="mx-auto mb-24 max-w-4xl px-4 text-center">
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-            className="font-display text-4xl md:text-6xl text-foreground mb-6 tracking-tight"
+            className="mb-6 font-display text-4xl tracking-tight text-foreground md:text-6xl"
           >
             The Dark Forge Method
           </motion.h2>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.23, 1, 0.32, 1] }}
-            className="text-secondary text-lg max-w-2xl mx-auto"
+            className="mx-auto max-w-2xl text-lg text-secondary"
           >
-            A precision-engineered practice loop designed to commit advanced JavaScript concepts to your long-term memory.
+            A precision-engineered practice loop designed to commit advanced JavaScript concepts to
+            your long-term memory.
           </motion.p>
         </div>
 
         <div className="px-4 pb-32">
           {workflowSteps.map((step, i) => (
-            <StickyCard key={step.id} step={step} index={i} total={workflowSteps.length} />
+            <StickyCard key={step.id} step={step} index={i} />
           ))}
         </div>
       </section>
 
-      {/* Topic Coverage - Bento Grid */}
-      <section className="py-32 px-4 max-w-6xl mx-auto border-t border-border-subtle relative overflow-hidden">
+      <section className="relative mx-auto max-w-6xl overflow-hidden border-t border-border-subtle px-4 py-32">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.03)_0%,transparent_50%)]" />
 
         <div className="mb-20 text-center">
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-            className="font-display text-4xl md:text-5xl text-foreground mb-4 tracking-tight"
+            className="mb-4 font-display text-4xl tracking-tight text-foreground md:text-5xl"
           >
             Master Every Concept
           </motion.h2>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.23, 1, 0.32, 1] }}
-            className="text-secondary text-lg"
+            className="text-lg text-secondary"
           >
             Comprehensive coverage across {tagCounts.length} core topics
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-[200px]">
+        <div className="grid auto-rows-[200px] grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {tagCounts.map((tagObj, i) => {
             const isFeatured = i === 0 || i === 3;
-            const maxCount = Math.max(...tagCounts.map((t) => t.count));
+            const maxCount = Math.max(...tagCounts.map((tag) => tag.count));
 
             return (
               <motion.div
                 key={tagObj.tag}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
+                viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: 0.6, delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
                 className={cn(
-                  'group relative rounded-[24px] border border-border-subtle bg-surface p-8 overflow-hidden transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-10px_rgba(245,158,11,0.15)] hover:border-primary/40',
-                  isFeatured ? 'md:col-span-2 lg:col-span-2' : ''
+                  'group relative overflow-hidden rounded-[24px] border border-border-subtle bg-surface p-8 transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-[0_20px_40px_-10px_rgba(245,158,11,0.15)]',
+                  isFeatured ? 'md:col-span-2 lg:col-span-2' : '',
                 )}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 flex flex-col h-full justify-between">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                <div className="relative z-10 flex h-full flex-col justify-between">
                   <div>
-                    <h3 className="font-display text-3xl text-foreground group-hover:text-primary transition-colors capitalize">
+                    <h3 className="font-display text-3xl capitalize text-foreground transition-colors group-hover:text-primary">
                       {tagObj.tag}
                     </h3>
-                    <p className="text-sm text-secondary mt-2 font-mono group-hover:text-foreground transition-colors">
+                    <p className="mt-2 font-mono text-sm text-secondary transition-colors group-hover:text-foreground">
                       {tagObj.count} challenges
                     </p>
                   </div>
 
-                  {/* Heat indicator */}
-                  <div className="flex gap-2 mt-8">
-                    {[...Array(5)].map((_, idx) => {
+                  <div className="mt-8 flex gap-2">
+                    {heatBarIds.map((barId, idx) => {
                       const fillThreshold = Math.ceil((tagObj.count / maxCount) * 5);
                       const isFilled = idx < fillThreshold;
+
                       return (
                         <div
-                          key={idx}
+                          key={`${tagObj.tag}-${barId}`}
                           className={cn(
                             'h-2 flex-1 rounded-full transition-colors duration-500',
                             isFilled
-                              ? 'bg-primary/70 group-hover:bg-primary shadow-[0_0_15px_rgba(245,158,11,0.3)]'
-                              : 'bg-border-subtle group-hover:bg-border-focus'
+                              ? 'bg-primary/70 shadow-[0_0_15px_rgba(245,158,11,0.3)] group-hover:bg-primary'
+                              : 'bg-border-subtle group-hover:bg-border-focus',
                           )}
                         />
                       );

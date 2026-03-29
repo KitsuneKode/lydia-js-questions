@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "questions": "Questions",
+    "dashboard": "Dashboard",
+    "about": "About",
+    "credits": "Credits",
+    "scratchpad": "Scratchpad"
+  },
+  "questions": {
+    "title": "Question Library",
+    "description": "Browse and practice JavaScript interview questions. Commit to an answer, then explore the explanation and run the code.",
+    "count": "{count} Questions",
+    "filters": {
+      "search": "Search questions…",
+      "searchLabel": "Search",
+      "tag": "Topic",
+      "difficulty": "Difficulty",
+      "runnable": "Runnable only",
+      "status": "Status",
+      "all": "All",
+      "answered": "Answered",
+      "unanswered": "Unanswered",
+      "bookmarked": "Bookmarked",
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "clearFilters": "Clear filters"
+    },
+    "results": {
+      "showing": "{shown} / {total} questions",
+      "page": "{page} / {pageCount}"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next"
+    }
+  },
+  "question": {
+    "save": "Save",
+    "saved": "Saved",
+    "next": "Next",
+    "prev": "Previous",
+    "runCode": "Run Code",
+    "eventLoop": "Event Loop",
+    "showAnswer": "Show Answer",
+    "hideAnswer": "Hide Answer",
+    "relatedConcepts": "Related Concepts",
+    "keepPracticing": "Keep Practicing",
+    "viewAll": "View All",
+    "fallbackNotice": "This question is not yet translated into {locale} — showing in English.",
+    "answer": "Answer",
+    "explanation": "Explanation",
+    "options": {
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D"
+    }
+  },
+  "landing": {
+    "headline": "Master JavaScript. One question at a time.",
+    "subline": "Execute code in-browser, visualize the event loop, and commit the mechanics to memory. A precision instrument for interview prep.",
+    "cta": "Start Practicing",
+    "ctaGithub": "View on GitHub",
+    "builtBy": "Built by",
+    "basedOn": "Based on",
+    "lydiaQuestions": "Lydia Hallie's questions",
+    "featuredTitle": "Featured Questions",
+    "featuredSubline": "Start with these popular challenges",
+    "viewAll": "View all {count}",
+    "workflow": {
+      "sectionLabel": "How it works",
+      "sectionTitle": "The Practice Loop",
+      "sectionSubline": "A precision-engineered feedback cycle designed to commit advanced JavaScript to your long-term memory.",
+      "step1Title": "Find a question",
+      "step1Desc": "Filter by topic, dial in the difficulty, or search directly to a concept.",
+      "step2Title": "Commit to an answer",
+      "step2Desc": "No peeking. Force yourself to commit before the explanation reveals.",
+      "step3Title": "Run the code",
+      "step3Desc": "Pop open the scratchpad. Execute snippets. See raw output immediately.",
+      "step4Title": "Understand why",
+      "step4Desc": "Deep dive into the explanation. Deconstruct the event loop and execution context."
+    },
+    "topics": {
+      "sectionLabel": "Coverage",
+      "sectionTitle": "Master Every Concept",
+      "sectionSubline": "Comprehensive coverage across {count} core topics",
+      "challenges": "{count} challenges"
+    }
+  },
+  "dashboard": {
+    "title": "Practice Hub",
+    "continueLearning": "Continue Learning",
+    "nextRecommended": "Next Recommended",
+    "reviewQueue": "Review Queue",
+    "weakestTopics": "Weakest Topics",
+    "bookmarks": "Bookmarks",
+    "progress": "Progress",
+    "streak": "Streak",
+    "answered": "Answered",
+    "correct": "Correct"
+  },
+  "credits": {
+    "label": "Credits & Attribution",
+    "heroTitle": "Built by {creator}, powered by Lydia Hallie's questions.",
+    "heroBody": "{name} is a creator-built practice product. The original questions and explanations come from Lydia Hallie's {source}. My contribution is the product layer: the interface, runner, visualization, scratchpad, and progress loop that make the material feel more usable in real practice sessions.",
+    "heroNote": "This page extends the original credits, it does not replace them. The upstream source references and supported language listing stay preserved below.",
+    "xProfile": "X profile",
+    "githubProfile": "GitHub profile",
+    "projectRepo": "Project repository",
+    "whyLabel": "Why I Built It",
+    "whyTitle": "A strong source deserved a stronger practice surface.",
+    "whyBody1": "Lydia's repository is one of the best JavaScript references on the internet, but interview prep usually needs a faster loop than reading a long markdown file. I built this so you can answer first, reveal second, run code immediately, and come back with progress that still means something.",
+    "whyBody2": "This project is also personal proof-of-work. I wanted the site itself to show care: design restraint, faster interactions, better mobile ergonomics, and a clearer sense that someone is actively making the experience better.",
+    "addedLabel": "What I Added",
+    "addition1": "A focused question library instead of a long README scroll",
+    "addition2": "Worker-based runnable snippets that stay inside the app",
+    "addition3": "Event-loop visualization for runtime-heavy questions",
+    "addition4": "Progress, review cues, bookmarks, and a cleaner practice loop",
+    "originalLabel": "Original Credits",
+    "originalBody1": "Thank you to {creator} for creating and maintaining the source material this experience is built on. The question content, explanations, and the original educational foundation belong to that work and its contributors.",
+    "originalBody2": "The original repo links and the supported language files stay visible here so the source material remains easy to trace back to.",
+    "originalRepo": "Original repository",
+    "originalCreator": "Lydia Hallie",
+    "integrityLabel": "Source Integrity",
+    "integritySourceFile": "Source file",
+    "integrityGenerated": "Generated",
+    "integrityLocale": "Current locale",
+    "integrityQuestions": "Questions",
+    "languagesLabel": "Supported Languages",
+    "languagesTitle": "Preserved from the upstream source.",
+    "languagesBody": "These translation links come directly from Lydia Hallie's source material and stay part of the credits page so the original language coverage remains visible.",
+    "startPracticing": "Start practicing"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Try again"
+  },
+  "meta": {
+    "title": "JS Questions Lab",
+    "description": "Interactive JavaScript interview practice built on Lydia Hallie's questions, with runnable snippets and event-loop visualizations."
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "questions": "Preguntas",
+    "dashboard": "Panel",
+    "about": "Acerca de",
+    "credits": "Créditos",
+    "scratchpad": "Bloc de notas"
+  },
+  "questions": {
+    "title": "Biblioteca de preguntas",
+    "description": "Explora y practica preguntas de entrevistas de JavaScript. Comprométete con una respuesta, luego explora la explicación y ejecuta el código.",
+    "count": "{count} Preguntas",
+    "filters": {
+      "search": "Buscar preguntas…",
+      "searchLabel": "Buscar",
+      "tag": "Tema",
+      "difficulty": "Dificultad",
+      "runnable": "Solo ejecutables",
+      "status": "Estado",
+      "all": "Todas",
+      "answered": "Respondidas",
+      "unanswered": "Sin responder",
+      "bookmarked": "Guardadas",
+      "beginner": "Principiante",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado",
+      "clearFilters": "Limpiar filtros"
+    },
+    "results": {
+      "showing": "{shown} / {total} preguntas",
+      "page": "{page} / {pageCount}"
+    },
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Siguiente"
+    }
+  },
+  "question": {
+    "save": "Guardar",
+    "saved": "Guardado",
+    "next": "Siguiente",
+    "prev": "Anterior",
+    "runCode": "Ejecutar código",
+    "eventLoop": "Bucle de eventos",
+    "showAnswer": "Ver respuesta",
+    "hideAnswer": "Ocultar respuesta",
+    "relatedConcepts": "Conceptos relacionados",
+    "keepPracticing": "Sigue practicando",
+    "viewAll": "Ver todas",
+    "fallbackNotice": "Esta pregunta aún no está traducida al {locale} — se muestra en inglés.",
+    "answer": "Respuesta",
+    "explanation": "Explicación",
+    "options": {
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D"
+    }
+  },
+  "landing": {
+    "headline": "Domina JavaScript. Una pregunta a la vez.",
+    "subline": "Ejecuta código en el navegador, visualiza el bucle de eventos y memoriza la mecánica. Un instrumento de precisión para preparar entrevistas.",
+    "cta": "Empezar a practicar",
+    "ctaGithub": "Ver en GitHub",
+    "builtBy": "Hecho por",
+    "basedOn": "Basado en",
+    "lydiaQuestions": "las preguntas de Lydia Hallie",
+    "featuredTitle": "Preguntas destacadas",
+    "featuredSubline": "Empieza con estos retos populares",
+    "viewAll": "Ver todas ({count})",
+    "workflow": {
+      "sectionLabel": "Cómo funciona",
+      "sectionTitle": "El bucle de práctica",
+      "sectionSubline": "Un ciclo de retroalimentación de precisión diseñado para fijar JavaScript avanzado en tu memoria a largo plazo.",
+      "step1Title": "Encuentra una pregunta",
+      "step1Desc": "Filtra por tema, ajusta la dificultad o busca directamente un concepto.",
+      "step2Title": "Comprométete con una respuesta",
+      "step2Desc": "Sin mirar. Obúgate a comprometerte antes de que se revele la explicación.",
+      "step3Title": "Ejecuta el código",
+      "step3Desc": "Abre el bloc de notas. Ejecuta fragmentos. Ve el resultado de inmediato.",
+      "step4Title": "Entiende el porqué",
+      "step4Desc": "Profundiza en la explicación. Deconstruye el bucle de eventos y el contexto de ejecución."
+    },
+    "topics": {
+      "sectionLabel": "Cobertura",
+      "sectionTitle": "Domina cada concepto",
+      "sectionSubline": "Cobertura completa de {count} temas principales",
+      "challenges": "{count} desafíos"
+    }
+  },
+  "dashboard": {
+    "title": "Centro de práctica",
+    "continueLearning": "Continuar aprendiendo",
+    "nextRecommended": "Siguiente recomendada",
+    "reviewQueue": "Cola de repaso",
+    "weakestTopics": "Temas más débiles",
+    "bookmarks": "Guardadas",
+    "progress": "Progreso",
+    "streak": "Racha",
+    "answered": "Respondidas",
+    "correct": "Correctas"
+  },
+  "credits": {
+    "label": "Créditos y atribución",
+    "heroTitle": "Hecho por {creator}, impulsado por las preguntas de Lydia Hallie.",
+    "heroBody": "{name} es un producto de práctica creado de forma independiente. Las preguntas y explicaciones originales provienen del {source} de Lydia Hallie. Mi contribución es la capa de producto: la interfaz, el ejecutor, la visualización, el bloc de notas y el bucle de progreso.",
+    "heroNote": "Esta página amplía los créditos originales, no los reemplaza. Las referencias de la fuente upstream y el listado de idiomas admitidos se conservan a continuación.",
+    "xProfile": "Perfil en X",
+    "githubProfile": "Perfil de GitHub",
+    "projectRepo": "Repositorio del proyecto",
+    "whyLabel": "Por qué lo construí",
+    "whyTitle": "Una fuente sólida merecía una superficie de práctica más sólida.",
+    "whyBody1": "El repositorio de Lydia es una de las mejores referencias de JavaScript en internet, pero la preparación para entrevistas suele necesitar un ciclo más rápido que leer un largo archivo markdown. Lo construí para que puedas responder primero, revelar después, ejecutar código de inmediato y volver con un progreso que todavía tiene sentido.",
+    "whyBody2": "Este proyecto también es mi prueba de trabajo personal. Quería que el sitio en sí mostrara cuidado: contención en el diseño, interacciones más rápidas, mejor ergonomía móvil y una sensación clara de que alguien está mejorando activamente la experiencia.",
+    "addedLabel": "Qué añadí",
+    "addition1": "Una biblioteca de preguntas enfocada en lugar de un largo desplazamiento por el README",
+    "addition2": "Fragmentos ejecutables en worker que permanecen dentro de la app",
+    "addition3": "Visualización del bucle de eventos para preguntas con uso intensivo del runtime",
+    "addition4": "Progreso, indicaciones de repaso, marcadores y un bucle de práctica más claro",
+    "originalLabel": "Créditos originales",
+    "originalBody1": "Gracias a {creator} por crear y mantener el material fuente en el que se basa esta experiencia. El contenido de las preguntas, las explicaciones y la base educativa original pertenecen a ese trabajo y sus colaboradores.",
+    "originalBody2": "Los enlaces del repositorio original y los archivos de idiomas admitidos permanecen visibles aquí para que el material fuente sea fácil de rastrear.",
+    "originalRepo": "Repositorio original",
+    "originalCreator": "Lydia Hallie",
+    "integrityLabel": "Integridad de la fuente",
+    "integritySourceFile": "Archivo fuente",
+    "integrityGenerated": "Generado",
+    "integrityLocale": "Idioma actual",
+    "integrityQuestions": "Preguntas",
+    "languagesLabel": "Idiomas admitidos",
+    "languagesTitle": "Preservados de la fuente upstream.",
+    "languagesBody": "Estos enlaces de traducción provienen directamente del material fuente de Lydia Hallie y se mantienen en la página de créditos para que la cobertura de idiomas original permanezca visible.",
+    "startPracticing": "Empezar a practicar"
+  },
+  "common": {
+    "loading": "Cargando…",
+    "error": "Algo salió mal",
+    "retry": "Intentar de nuevo"
+  },
+  "meta": {
+    "title": "JS Questions Lab",
+    "description": "Práctica interactiva de entrevistas de JavaScript con fragmentos ejecutables y visualizaciones del bucle de eventos."
+  }
+}

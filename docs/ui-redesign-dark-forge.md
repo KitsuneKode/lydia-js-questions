@@ -1,6 +1,6 @@
 # UI/UX Redesign: "Dark Forge"
 
-This document outlines the major UI/UX overhaul completed for the Atlas JavaScript prep platform, referred to internally as the **"Dark Forge"** aesthetic.
+This document outlines the major UI/UX overhaul completed for JS Questions Lab, referred to internally as the **"Dark Forge"** aesthetic.
 
 ## 1. Aesthetic Direction: "Dark Forge"
 The app was entirely redesigned to move away from a generic "template dashboard" feel into a premium, focused, weaponized code-literate environment (similar to Linear or Aceternity).

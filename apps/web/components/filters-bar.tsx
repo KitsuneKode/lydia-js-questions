@@ -25,6 +25,7 @@ interface FiltersBarProps {
   status: string;
   difficulty?: string;
   allQuestions: QuestionRecord[];
+  locale: string;
 }
 
 export function FiltersBar({
@@ -35,6 +36,7 @@ export function FiltersBar({
   status,
   difficulty,
   allQuestions,
+  locale,
 }: FiltersBarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -142,7 +144,7 @@ export function FiltersBar({
                         key={q.id}
                         onSelect={() => {
                           setOpen(false);
-                          router.push(`/questions/${q.id}`);
+                          router.push(`/${locale}/questions/${q.id}`);
                         }}
                         className="flex cursor-pointer items-center justify-between py-3 transition-colors hover:bg-muted/50"
                       >

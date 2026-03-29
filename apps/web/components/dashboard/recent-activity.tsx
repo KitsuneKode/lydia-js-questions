@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Clock, XCircle, ArrowRight } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import type { QuestionRecord } from '@/lib/content/types';
 import { useProgress } from '@/lib/progress/progress-context';
@@ -70,7 +70,9 @@ export function RecentActivity({ questions }: RecentActivityProps) {
                 className="group/item flex items-center justify-between rounded-xl border border-border-subtle bg-background p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-glow"
               >
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className={`flex shrink-0 h-8 w-8 items-center justify-center rounded-full ${isCorrect ? 'bg-status-correct/10 text-status-correct' : 'bg-status-wrong/10 text-status-wrong'}`}>
+                  <div
+                    className={`flex shrink-0 h-8 w-8 items-center justify-center rounded-full ${isCorrect ? 'bg-status-correct/10 text-status-correct' : 'bg-status-wrong/10 text-status-wrong'}`}
+                  >
                     {isCorrect ? (
                       <CheckCircle2 className="h-4 w-4" />
                     ) : (

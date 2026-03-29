@@ -1,0 +1,98 @@
+{
+  "nav": {
+    "questions": "Perguntas",
+    "dashboard": "Painel",
+    "about": "Sobre",
+    "credits": "Créditos",
+    "scratchpad": "Rascunho"
+  },
+  "questions": {
+    "title": "Biblioteca de perguntas",
+    "description": "Navegue e pratique perguntas de entrevistas de JavaScript. Comprometa-se com uma resposta, depois explore a explicação e execute o código.",
+    "count": "{count} Perguntas",
+    "filters": {
+      "search": "Buscar perguntas…",
+      "searchLabel": "Buscar",
+      "tag": "Tópico",
+      "difficulty": "Dificuldade",
+      "runnable": "Somente executáveis",
+      "status": "Status",
+      "all": "Todas",
+      "answered": "Respondidas",
+      "unanswered": "Não respondidas",
+      "bookmarked": "Salvas",
+      "beginner": "Iniciante",
+      "intermediate": "Intermediário",
+      "advanced": "Avançado",
+      "clearFilters": "Limpar filtros"
+    },
+    "results": {
+      "showing": "{shown} / {total} perguntas",
+      "page": "{page} / {pageCount}"
+    },
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Próximo"
+    }
+  },
+  "question": {
+    "save": "Salvar",
+    "saved": "Salvo",
+    "next": "Próximo",
+    "prev": "Anterior",
+    "runCode": "Executar código",
+    "eventLoop": "Event Loop",
+    "showAnswer": "Ver resposta",
+    "hideAnswer": "Ocultar resposta",
+    "relatedConcepts": "Conceitos relacionados",
+    "keepPracticing": "Continue praticando",
+    "viewAll": "Ver todas",
+    "fallbackNotice": "Esta pergunta ainda não foi traduzida para {locale} — exibindo em inglês.",
+    "answer": "Resposta",
+    "explanation": "Explicação",
+    "options": {
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D"
+    }
+  },
+  "landing": {
+    "headline": "Dominar entrevistas de JavaScript",
+    "subline": "Pratique com perguntas reais de entrevistas, execute o código e entenda por que sua resposta está certa ou errada.",
+    "cta": "Começar a praticar",
+    "featuredTitle": "Perguntas em destaque",
+    "featuredSubline": "Comece com esses desafios populares",
+    "viewAll": "Ver todas ({count})"
+  },
+  "dashboard": {
+    "title": "Centro de prática",
+    "continueLearning": "Continuar aprendendo",
+    "nextRecommended": "Próxima recomendada",
+    "reviewQueue": "Fila de revisão",
+    "weakestTopics": "Tópicos mais fracos",
+    "bookmarks": "Salvas",
+    "progress": "Progresso",
+    "streak": "Sequência",
+    "answered": "Respondidas",
+    "correct": "Corretas"
+  },
+  "credits": {
+    "title": "Créditos e Atribuição",
+    "localeTable": {
+      "language": "Idioma",
+      "questions": "Perguntas",
+      "coverage": "Cobertura",
+      "status": "Status"
+    }
+  },
+  "common": {
+    "loading": "Carregando…",
+    "error": "Algo deu errado",
+    "retry": "Tentar novamente"
+  },
+  "meta": {
+    "title": "JS Questions Lab",
+    "description": "Prática interativa de entrevistas JavaScript baseada nas perguntas de Lydia Hallie, com snippets executáveis e visualizações do event loop."
+  }
+}

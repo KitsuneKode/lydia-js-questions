@@ -1,18 +1,24 @@
 'use client';
 
-import { motion, useSpring, useMotionValue } from 'motion/react';
 import type { HTMLMotionProps } from 'motion/react';
-import React, { useRef, useState } from 'react';
+import { motion, useMotionValue, useSpring } from 'motion/react';
+import type React from 'react';
+import { useRef, useState } from 'react';
 
-interface MagneticButtonProps extends HTMLMotionProps<"div"> {
+interface MagneticButtonProps extends HTMLMotionProps<'div'> {
   children: React.ReactNode;
   strength?: number;
 }
 
-export function MagneticButton({ children, strength = 0.5, className, ...props }: MagneticButtonProps) {
+export function MagneticButton({
+  children,
+  strength = 0.5,
+  className,
+  ...props
+}: MagneticButtonProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
-  
+
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -25,7 +31,7 @@ export function MagneticButton({ children, strength = 0.5, className, ...props }
     const rect = ref.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
+
     x.set((e.clientX - centerX) * strength);
     y.set((e.clientY - centerY) * strength);
   };

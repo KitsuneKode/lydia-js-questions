@@ -1,6 +1,6 @@
 'use client';
 
-import { Target, ArrowRight } from 'lucide-react';
+import { ArrowRight, Target } from 'lucide-react';
 import Link from 'next/link';
 import type { TagStats } from '@/lib/progress/analytics';
 import { cn } from '@/lib/utils';
@@ -22,7 +22,9 @@ export function WeakestTopics({ topics }: WeakestTopicsProps) {
 
       <div className="mb-6 relative z-10">
         <h3 className="font-display text-xl text-foreground">Needs Practice</h3>
-        <p className="text-xs text-secondary mt-1">Focus on these concepts to improve your mastery.</p>
+        <p className="text-xs text-secondary mt-1">
+          Focus on these concepts to improve your mastery.
+        </p>
       </div>
 
       <ul className="space-y-3 relative z-10 flex-1">
@@ -44,7 +46,12 @@ export function WeakestTopics({ topics }: WeakestTopicsProps) {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right flex flex-col items-end">
-                    <span className={cn("block text-xs font-mono font-bold", accuracy < 50 ? "text-status-wrong" : "text-[#F59E0B]")}>
+                    <span
+                      className={cn(
+                        'block text-xs font-mono font-bold',
+                        accuracy < 50 ? 'text-status-wrong' : 'text-[#F59E0B]',
+                      )}
+                    >
                       {accuracy}%
                     </span>
                     <span className="block text-[8px] uppercase tracking-widest text-tertiary mt-0.5">
