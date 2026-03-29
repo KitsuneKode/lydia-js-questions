@@ -275,13 +275,13 @@ const WORKER_SOURCE = `
     };
 
     const maybePostDone = () => {
-      if (!scriptSettled || completionPosted || pendingAsyncTasks > 0) {
+      if (!scriptSettled || completionPosted || pendingAsyncTasks > 0 || activeIntervals.size > 0) {
         return;
       }
 
       clearIdleTimer();
       idleTimer = originalSetTimeout(() => {
-        if (completionPosted || pendingAsyncTasks > 0) {
+        if (completionPosted || pendingAsyncTasks > 0 || activeIntervals.size > 0) {
           return;
         }
 
@@ -315,6 +315,8 @@ const WORKER_SOURCE = `
     };
     const originalSetTimeout = runnerScope.setTimeout.bind(runnerScope);
     const originalClearTimeout = runnerScope.clearTimeout.bind(runnerScope);
+    const originalSetInterval = runnerScope.setInterval.bind(runnerScope);
+    const originalClearInterval = runnerScope.clearInterval.bind(runnerScope);
     const originalQueueMicrotask = runnerScope.queueMicrotask
       ? runnerScope.queueMicrotask.bind(runnerScope)
       : (callback) => Promise.resolve().then(callback);
@@ -356,6 +358,52 @@ const WORKER_SOURCE = `
           markAsyncEnd();
         }
       }, Number(delay));
+    };
+
+    const activeIntervals = new Set();
+    const intervalIterations = new Map();
+    const MAX_INTERVAL_ITERATIONS = 50;
+
+    runnerScope.setInterval = (fn, delay = 0, ...args) => {
+      pushTimeline('macro', 'enqueue', 'setInterval');
+      markAsyncStart();
+
+      const wrappedFn = () => {
+        const currentCount = (intervalIterations.get(intervalId) || 0) + 1;
+        intervalIterations.set(intervalId, currentCount);
+
+        if (currentCount > MAX_INTERVAL_ITERATIONS) {
+          originalConsole.warn.call(console, '[Warning] setInterval reached maximum iterations (' + MAX_INTERVAL_ITERATIONS + ') and was automatically cleared to prevent infinite loops.');
+          originalClearInterval(intervalId);
+          activeIntervals.delete(intervalId);
+          intervalIterations.delete(intervalId);
+          markAsyncEnd();
+          return;
+        }
+
+        pushTimeline('macro', 'start', 'setInterval callback');
+        try {
+          if (typeof fn === 'function') {
+            fn(...args);
+          }
+        } finally {
+          pushTimeline('macro', 'end', 'setInterval callback');
+        }
+      };
+
+      const intervalId = originalSetInterval(wrappedFn, Number(delay));
+      activeIntervals.add(intervalId);
+      intervalIterations.set(intervalId, 0);
+      return intervalId;
+    };
+
+    runnerScope.clearInterval = (id) => {
+      if (activeIntervals.has(id)) {
+        activeIntervals.delete(id);
+        intervalIterations.delete(id);
+        markAsyncEnd();
+      }
+      return originalClearInterval(id);
     };
 
     runnerScope.queueMicrotask = (fn) => {
@@ -414,8 +462,17 @@ const WORKER_SOURCE = `
       console.error = originalConsole.error;
       runnerScope.setTimeout = originalSetTimeout;
       runnerScope.clearTimeout = originalClearTimeout;
+      runnerScope.setInterval = originalSetInterval;
+      runnerScope.clearInterval = originalClearInterval;
       runnerScope.queueMicrotask = originalQueueMicrotask;
       Promise.prototype.then = originalThen;
+
+      for (const intervalId of activeIntervals) {
+        originalClearInterval(intervalId);
+      }
+      activeIntervals.clear();
+      intervalIterations.clear();
+
       maybePostDone();
     }
   });
