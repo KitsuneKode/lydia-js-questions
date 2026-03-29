@@ -398,7 +398,7 @@ const WORKER_SOURCE = `
 
     try {
       pushTimeline('sync', 'start', 'script');
-      const fn = new Function('"use strict"; return (async () => {\\n' + code + '\\n})();\\n//# sourceURL=${USER_SOURCE_NAME}');
+      const fn = new Function('return (async () => {\\n' + code + '\\n})();\\n//# sourceURL=${USER_SOURCE_NAME}');
       await fn();
       await flushAsyncWork();
       pushTimeline('sync', 'end', 'script');

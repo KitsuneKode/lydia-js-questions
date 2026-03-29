@@ -23,6 +23,7 @@ interface FiltersBarProps {
   search: string;
   runnable: string;
   status: string;
+  difficulty?: string;
   totalQuestions: number;
   allQuestions: QuestionRecord[];
 }
@@ -33,6 +34,7 @@ export function FiltersBar({
   search,
   runnable,
   status,
+  difficulty,
   totalQuestions,
   allQuestions,
 }: FiltersBarProps) {
@@ -162,14 +164,21 @@ export function FiltersBar({
 
           {/* Difficulty Dropdown Placeholder (using pill for now) */}
           <div className="hidden sm:flex items-center gap-1.5 bg-surface border border-border-subtle rounded-lg p-1">
-             {(['easy', 'medium', 'hard'] as const).map(diff => (
-               <button 
-                 key={diff} 
-                 className="px-3 py-1 text-xs font-medium text-secondary hover:text-foreground hover:bg-elevated rounded-md capitalize"
-               >
-                 {diff}
-               </button>
-             ))}
+             {(['beginner', 'intermediate', 'advanced'] as const).map(diff => {
+               const isActive = difficulty === diff;
+               return (
+                 <button 
+                   key={diff} 
+                   onClick={() => updateParam('difficulty', isActive ? '' : diff)}
+                   className={cn(
+                     "px-3 py-1 text-xs font-medium rounded-md capitalize transition-colors",
+                     isActive ? "bg-primary/20 text-primary" : "text-secondary hover:text-foreground hover:bg-elevated"
+                   )}
+                 >
+                   {diff}
+                 </button>
+               );
+             })}
           </div>
         </div>
 

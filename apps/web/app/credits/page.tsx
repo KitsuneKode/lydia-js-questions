@@ -8,7 +8,7 @@ export default function CreditsPage() {
   const manifest = getManifest();
 
   return (
-    <main className="py-8 md:py-10">
+    <main className="pt-24 pb-16 md:pt-32">
       <Container>
         <section className="space-y-5">
           <h1 className="font-display text-4xl text-foreground md:text-5xl">

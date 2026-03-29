@@ -33,6 +33,7 @@ export default async function QuestionsPage({
   const q = firstValue(resolvedSearchParams.q);
   const tag = firstValue(resolvedSearchParams.tag);
   const runnable = firstValue(resolvedSearchParams.runnable);
+  const difficulty = firstValue(resolvedSearchParams.difficulty);
   const rawStatus = firstValue(resolvedSearchParams.status);
   const status: ListingStatus =
     rawStatus === 'answered' || rawStatus === 'unanswered' || rawStatus === 'bookmarked'
@@ -43,6 +44,7 @@ export default async function QuestionsPage({
     q,
     tag,
     runnable: runnable === 'true' ? true : undefined,
+    difficulty,
   });
 
   const paged = paginate(filtered, page, PAGE_SIZE);
@@ -54,13 +56,14 @@ export default async function QuestionsPage({
     if (tag && tag !== 'all') params.set('tag', tag);
     if (runnable === 'true') params.set('runnable', 'true');
     if (status && status !== 'all') params.set('status', status);
+    if (difficulty) params.set('difficulty', difficulty);
 
     const query = params.toString();
     return query ? `/questions?${query}` : '/questions';
   };
 
   return (
-    <main className="py-10 md:py-14">
+    <main className="pt-24 pb-16 md:pt-32">
       <Container>
         <div className="space-y-8">
           {/* Header */}

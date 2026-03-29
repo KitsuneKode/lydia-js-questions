@@ -12,7 +12,7 @@ export default function DashboardPage() {
   const questions = getQuestions();
 
   return (
-    <main className="py-8 md:py-10">
+    <main className="pt-24 pb-16 md:pt-32">
       <Container>
         <DashboardShell questions={questions} />
       </Container>

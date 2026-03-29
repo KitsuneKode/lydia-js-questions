@@ -6,6 +6,7 @@ export interface ListingFilters {
   q?: string;
   tag?: string;
   runnable?: boolean;
+  difficulty?: string;
 }
 
 export function applyServerFilters(
@@ -28,6 +29,10 @@ export function applyServerFilters(
     }
 
     if (typeof filters.runnable === 'boolean' && question.runnable !== filters.runnable) {
+      return false;
+    }
+
+    if (filters.difficulty && question.difficulty?.toLowerCase() !== filters.difficulty.toLowerCase()) {
       return false;
     }
 
