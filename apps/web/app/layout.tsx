@@ -28,6 +28,7 @@ const bricolageGrotesque = Bricolage_Grotesque({
  * Providers live in [locale]/layout.tsx as well.
  */
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
   applicationName: siteConfig.name,
   title: siteConfig.name,
   description: siteConfig.description,
